@@ -1,0 +1,414 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    String @id @default(uuid())
+  name  String @unique
+  users User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model User {
+  id            String  @id @default(uuid())
+  username      String  @unique
+  password_hash String
+  role_id       String
+  role          Role    @relation(fields: [role_id], references: [id])
+  student_id    String? @unique
+  employee_id   String? @unique
+  
+  student       Student? @relation(fields: [student_id], references: [id])
+  employee      Employee? @relation(fields: [employee_id], references: [id])
+  
+  audit_logs    AuditLog[]
+  user_devices  UserDevice[]
+
+  @@map("users")
+}
+
+model Major {
+  id         String    @id @default(uuid())
+  code       String    @unique
+  name       String
+  created_at DateTime  @default(now())
+  classes    Class[]
+  students   Student[]
+  subjects   Subject[]
+  exams      Exam[]
+  grades     Grade[]
+  final_grades FinalGrade[]
+  employees  Employee[]
+
+  @@map("majors")
+}
+
+model Batch {
+  id         String    @id @default(uuid())
+  name       String
+  year_start Int
+  year_end   Int
+  is_active  Boolean   @default(true)
+  classes    Class[]
+  students   Student[]
+  grades     Grade[]
+  final_grades FinalGrade[]
+
+  @@map("batches")
+}
+
+model Class {
+  id                  String    @id @default(uuid())
+  name                String
+  grade_level         Int
+  major_id            String
+  major               Major     @relation(fields: [major_id], references: [id])
+  batch_id            String
+  batch               Batch     @relation(fields: [batch_id], references: [id])
+  homeroom_teacher_id String?
+  homeroom_teacher    Employee? @relation(fields: [homeroom_teacher_id], references: [id])
+  
+  students            Student[]
+  schedules           Schedule[]
+  teaching_logs       TeachingLog[]
+
+  @@map("classes")
+}
+
+model Student {
+  id          String   @id @default(uuid())
+  nis         String   @unique
+  nik         String   @unique
+  full_name   String
+  gender      String
+  birth_place String
+  birth_date  DateTime
+  address     String   @db.Text
+  phone       String
+  email       String   @unique
+  status      String   @default("active") // active, alumni, moved
+  
+  class_id    String
+  class       Class    @relation(fields: [class_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+  batch_id    String
+  batch       Batch    @relation(fields: [batch_id], references: [id])
+  
+  qr_code     String?
+  created_at  DateTime @default(now())
+  
+  parents     Parent[]
+  histories   StudentHistory[]
+  user        User?
+  attendances Attendance[]
+  exam_sessions ExamSession[]
+  grades      Grade[]
+  final_grades FinalGrade[]
+
+  @@map("students")
+}
+
+model Parent {
+  id          String  @id @default(uuid())
+  student_id  String
+  student     Student @relation(fields: [student_id], references: [id])
+  father_name String
+  mother_name String
+  phone       String
+  address     String  @db.Text
+
+  @@map("parents")
+}
+
+model StudentHistory {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  type        String   // masuk, pindah, keluar
+  description String   @db.Text
+  date        DateTime
+
+  @@map("student_histories")
+}
+
+model Permission {
+  id    String @id @default(uuid())
+  name  String @unique
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       String
+  permission_id String
+  role          Role       @relation(fields: [role_id], references: [id])
+  permission    Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  action     String
+  module     String
+  data       Json
+  created_at DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model UserDevice {
+  id         String  @id @default(uuid())
+  user_id    String
+  user       User    @relation(fields: [user_id], references: [id])
+  device_id  String
+  is_active  Boolean @default(true)
+
+  @@map("user_devices")
+}
+
+model Employee {
+  id          String   @id @default(uuid())
+  full_name   String
+  education   String
+  position    String
+  join_date   DateTime
+  status      String
+  major_id    String?
+  major       Major?   @relation(fields: [major_id], references: [id])
+  
+  user        User?
+  documents   EmployeeDocument[]
+  attendance  EmployeeAttendance[]
+  classes     Class[]
+  schedules   Schedule[]
+  teaching_logs TeachingLog[]
+
+  @@map("employees")
+}
+
+model EmployeeDocument {
+  id          String   @id @default(uuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id])
+  file_url    String
+  type        String
+
+  @@map("employee_documents")
+}
+
+model EmployeeAttendance {
+  id          String   @id @default(uuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id])
+  date        DateTime
+  status      String
+
+  @@map("employee_attendance")
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String
+  major_id  String?
+  major     Major?   @relation(fields: [major_id], references: [id])
+  schedules Schedule[]
+  exams     Exam[]
+  grades    Grade[]
+  final_grades FinalGrade[]
+  teaching_logs TeachingLog[]
+
+  @@map("subjects")
+}
+
+model Schedule {
+  id          String   @id @default(uuid())
+  class_id    String
+  class       Class    @relation(fields: [class_id], references: [id])
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  teacher_id  String
+  teacher     Employee @relation(fields: [teacher_id], references: [id])
+  day         String
+  start_time  String
+  end_time    String
+  attendances Attendance[]
+
+  @@map("schedules")
+}
+
+model Attendance {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  schedule_id String
+  schedule    Schedule @relation(fields: [schedule_id], references: [id])
+  date        DateTime
+  status      String
+
+  @@map("attendances")
+}
+
+model TeachingLog {
+  id          String   @id @default(uuid())
+  teacher_id  String
+  teacher     Employee @relation(fields: [teacher_id], references: [id])
+  class_id    String
+  class       Class    @relation(fields: [class_id], references: [id])
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  note        String   @db.Text
+  date        DateTime
+
+  @@map("teaching_logs")
+}
+
+model AcademicCalendar {
+  id          String   @id @default(uuid())
+  title       String
+  date        DateTime
+  type        String
+
+  @@map("academic_calendar")
+}
+
+model Exam {
+  id          String   @id @default(uuid())
+  title       String
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+  duration    Int      // in minutes
+  token       String
+  start_time  DateTime
+  end_time    DateTime
+  
+  questions   Question[]
+  sessions    ExamSession[]
+  grades      Grade[]
+
+  @@map("exams")
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  exam_id       String
+  exam          Exam     @relation(fields: [exam_id], references: [id])
+  type          String   // mcq, essay
+  question_text String   @db.Text
+  difficulty    String
+  options       QuestionOption[]
+  answers       StudentAnswer[]
+
+  @@map("questions")
+}
+
+model QuestionOption {
+  id          String   @id @default(uuid())
+  question_id String
+  question    Question @relation(fields: [question_id], references: [id])
+  option_text String   @db.Text
+  is_correct  Boolean
+
+  @@map("question_options")
+}
+
+model ExamSession {
+  id          String   @id @default(uuid())
+  exam_id     String
+  exam        Exam     @relation(fields: [exam_id], references: [id])
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  start_time  DateTime @default(now())
+  end_time    DateTime?
+  status      String   // ongoing, submitted, blocked
+  device_id   String?
+  answers     StudentAnswer[]
+  logs        ExamLog[]
+
+  @@map("exam_sessions")
+}
+
+model StudentAnswer {
+  id          String   @id @default(uuid())
+  session_id  String
+  session     ExamSession @relation(fields: [session_id], references: [id])
+  question_id String
+  question    Question @relation(fields: [question_id], references: [id])
+  answer      String   @db.Text
+
+  @@map("student_answers")
+}
+
+model ExamLog {
+  id          String   @id @default(uuid())
+  session_id  String
+  session     ExamSession @relation(fields: [session_id], references: [id])
+  type        String   // tab_switch, warning, violation
+  timestamp   DateTime @default(now())
+
+  @@map("exam_logs")
+}
+
+model Grade {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  type        String   // assignment, uts, uas, cbt
+  score       Decimal  @db.Decimal(5, 2)
+  weight      Decimal  @db.Decimal(5, 2)
+  exam_id     String?
+  exam        Exam?    @relation(fields: [exam_id], references: [id])
+  batch_id    String
+  batch       Batch    @relation(fields: [batch_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+  created_at  DateTime @default(now())
+
+  @@map("grades")
+}
+
+model GradeComponent {
+  id                String  @id @default(uuid())
+  name              String  // Tugas, UTS, UAS, CBT
+  weight_percentage Decimal @db.Decimal(5, 2)
+
+  @@map("grade_components")
+}
+
+model FinalGrade {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  final_score Decimal  @db.Decimal(5, 2)
+  grade_letter String
+  is_passed   Boolean
+  description String?  @db.Text
+  semester    Int
+  batch_id    String
+  batch       Batch    @relation(fields: [batch_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+
+  @@map("final_grades")
+}
