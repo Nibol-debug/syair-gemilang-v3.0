@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private prisma: PrismaService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -24,5 +26,27 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async registerDevice(userId: string, deviceId: string) {
+    // Check if device already registered for this user
+    const existing = await this.prisma.userDevice.findFirst({
+      where: { user_id: userId, device_id: deviceId },
+    });
+
+    if (existing) {
+      return this.prisma.userDevice.update({
+        where: { id: existing.id },
+        data: { is_active: true },
+      });
+    }
+
+    return this.prisma.userDevice.create({
+      data: {
+        user_id: userId,
+        device_id: deviceId,
+        is_active: true,
+      },
+    });
   }
 }

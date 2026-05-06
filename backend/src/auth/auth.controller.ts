@@ -20,4 +20,16 @@ export class AuthController {
   getProfile(@Request() req) {
     return req.user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout() {
+    return { message: 'Logged out successfully' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('devices')
+  async registerDevice(@Request() req, @Body() body: { device_id: string }) {
+    return this.authService.registerDevice(req.user.userId, body.device_id);
+  }
 }

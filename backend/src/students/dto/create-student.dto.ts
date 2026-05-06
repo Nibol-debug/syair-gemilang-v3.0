@@ -1,5 +1,23 @@
-import { IsEmail, IsNotEmpty, IsString, IsDate, IsUUID, IsEnum, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsDate, IsUUID, IsEnum, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+
+class CreateParentDto {
+  @IsNotEmpty()
+  @IsString()
+  father_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  mother_name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
+
+  @IsNotEmpty()
+  @IsString()
+  address: string;
+}
 
 export class CreateStudentDto {
   @IsNotEmpty()
@@ -46,4 +64,9 @@ export class CreateStudentDto {
   @IsOptional()
   @IsEnum(['active', 'alumni', 'moved'])
   status?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateParentDto)
+  parents?: CreateParentDto;
 }

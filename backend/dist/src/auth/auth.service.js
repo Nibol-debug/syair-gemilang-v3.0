@@ -46,13 +46,16 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const users_service_1 = require("../users/users.service");
+const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersService;
     jwtService;
-    constructor(usersService, jwtService) {
+    prisma;
+    constructor(usersService, jwtService, prisma) {
         this.usersService = usersService;
         this.jwtService = jwtService;
+        this.prisma = prisma;
     }
     async validateUser(username, pass) {
         const user = await this.usersService.findOne(username);
@@ -68,11 +71,30 @@ let AuthService = class AuthService {
             access_token: this.jwtService.sign(payload),
         };
     }
+    async registerDevice(userId, deviceId) {
+        const existing = await this.prisma.userDevice.findFirst({
+            where: { user_id: userId, device_id: deviceId },
+        });
+        if (existing) {
+            return this.prisma.userDevice.update({
+                where: { id: existing.id },
+                data: { is_active: true },
+            });
+        }
+        return this.prisma.userDevice.create({
+            data: {
+                user_id: userId,
+                device_id: deviceId,
+                is_active: true,
+            },
+        });
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        prisma_service_1.PrismaService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

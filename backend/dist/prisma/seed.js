@@ -62,6 +62,42 @@ async function main() {
             role_id: adminRole.id,
         },
     });
+    const viewStudents = await prisma.permission.upsert({
+        where: { name: 'view_students' },
+        update: {},
+        create: { name: 'view_students' },
+    });
+    const manageStudents = await prisma.permission.upsert({
+        where: { name: 'manage_students' },
+        update: {},
+        create: { name: 'manage_students' },
+    });
+    await prisma.rolePermission.upsert({
+        where: {
+            role_id_permission_id: {
+                role_id: adminRole.id,
+                permission_id: viewStudents.id,
+            },
+        },
+        update: {},
+        create: {
+            role_id: adminRole.id,
+            permission_id: viewStudents.id,
+        },
+    });
+    await prisma.rolePermission.upsert({
+        where: {
+            role_id_permission_id: {
+                role_id: adminRole.id,
+                permission_id: manageStudents.id,
+            },
+        },
+        update: {},
+        create: {
+            role_id: adminRole.id,
+            permission_id: manageStudents.id,
+        },
+    });
     console.log('Seed data created successfully');
 }
 main()

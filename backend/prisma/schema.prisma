@@ -353,6 +353,7 @@ model StudentAnswer {
   question    Question @relation(fields: [question_id], references: [id])
   answer      String   @db.Text
 
+  @@unique([session_id, question_id])
   @@map("student_answers")
 }
 

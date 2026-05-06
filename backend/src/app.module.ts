@@ -10,6 +10,17 @@ import { ClassesModule } from './classes/classes.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { EmployeesModule } from './employees/employees.module';
+import { SubjectsModule } from './subjects/subjects.module';
+import { SchedulesModule } from './schedules/schedules.module';
+import { AttendancesModule } from './attendances/attendances.module';
+import { TeachingLogsModule } from './teaching-logs/teaching-logs.module';
+import { AcademicCalendarModule } from './academic-calendar/academic-calendar.module';
+import { ExamsModule } from './exams/exams.module';
+import { ExamSessionsModule } from './exam-sessions/exam-sessions.module';
+import { GradesModule } from './grades/grades.module';
 
 @Module({
   imports: [
@@ -20,6 +31,17 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
     MajorsModule,
     BatchesModule,
     ClassesModule,
+    RolesModule,
+    PermissionsModule,
+    EmployeesModule,
+    SubjectsModule,
+    SchedulesModule,
+    AttendancesModule,
+    TeachingLogsModule,
+    AcademicCalendarModule,
+    ExamsModule,
+    ExamSessionsModule,
+    GradesModule,
   ],
   controllers: [AppController],
   providers: [

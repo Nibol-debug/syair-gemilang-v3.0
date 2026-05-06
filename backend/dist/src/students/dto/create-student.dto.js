@@ -12,6 +12,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateStudentDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+class CreateParentDto {
+    father_name;
+    mother_name;
+    phone;
+    address;
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParentDto.prototype, "father_name", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParentDto.prototype, "mother_name", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParentDto.prototype, "phone", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateParentDto.prototype, "address", void 0);
 class CreateStudentDto {
     nis;
     nik;
@@ -24,6 +50,7 @@ class CreateStudentDto {
     email;
     class_id;
     status;
+    parents;
 }
 exports.CreateStudentDto = CreateStudentDto;
 __decorate([
@@ -82,4 +109,10 @@ __decorate([
     (0, class_validator_1.IsEnum)(['active', 'alumni', 'moved']),
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => CreateParentDto),
+    __metadata("design:type", CreateParentDto)
+], CreateStudentDto.prototype, "parents", void 0);
 //# sourceMappingURL=create-student.dto.js.map

@@ -19,6 +19,17 @@ const classes_module_1 = require("./classes/classes.module");
 const auth_module_1 = require("./auth/auth.module");
 const users_module_1 = require("./users/users.module");
 const audit_interceptor_1 = require("./common/interceptors/audit.interceptor");
+const roles_module_1 = require("./roles/roles.module");
+const permissions_module_1 = require("./permissions/permissions.module");
+const employees_module_1 = require("./employees/employees.module");
+const subjects_module_1 = require("./subjects/subjects.module");
+const schedules_module_1 = require("./schedules/schedules.module");
+const attendances_module_1 = require("./attendances/attendances.module");
+const teaching_logs_module_1 = require("./teaching-logs/teaching-logs.module");
+const academic_calendar_module_1 = require("./academic-calendar/academic-calendar.module");
+const exams_module_1 = require("./exams/exams.module");
+const exam_sessions_module_1 = require("./exam-sessions/exam-sessions.module");
+const grades_module_1 = require("./grades/grades.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +43,17 @@ exports.AppModule = AppModule = __decorate([
             majors_module_1.MajorsModule,
             batches_module_1.BatchesModule,
             classes_module_1.ClassesModule,
+            roles_module_1.RolesModule,
+            permissions_module_1.PermissionsModule,
+            employees_module_1.EmployeesModule,
+            subjects_module_1.SubjectsModule,
+            schedules_module_1.SchedulesModule,
+            attendances_module_1.AttendancesModule,
+            teaching_logs_module_1.TeachingLogsModule,
+            academic_calendar_module_1.AcademicCalendarModule,
+            exams_module_1.ExamsModule,
+            exam_sessions_module_1.ExamSessionsModule,
+            grades_module_1.GradesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

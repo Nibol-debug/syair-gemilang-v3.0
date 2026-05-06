@@ -1,0 +1,136 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GradesService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
+let GradesService = class GradesService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async create(data) {
+        const student = await this.prisma.student.findUnique({
+            where: { id: data.student_id }
+        });
+        if (!student)
+            throw new common_1.NotFoundException('Student not found');
+        return this.prisma.grade.create({
+            data: {
+                student_id: data.student_id,
+                subject_id: data.subject_id,
+                type: data.type,
+                score: new client_1.Prisma.Decimal(data.score),
+                weight: new client_1.Prisma.Decimal(data.weight || 1.0),
+                exam_id: data.exam_id,
+                major_id: student.major_id,
+                batch_id: student.batch_id,
+            }
+        });
+    }
+    async findByStudent(studentId, pagination) {
+        const page = pagination.page || 1;
+        const limit = pagination.limit || 10;
+        const skip = (page - 1) * limit;
+        const [data, total] = await Promise.all([
+            this.prisma.grade.findMany({
+                where: { student_id: studentId },
+                skip,
+                take: limit,
+                include: { subject: true, exam: true },
+                orderBy: { created_at: 'desc' }
+            }),
+            this.prisma.grade.count({ where: { student_id: studentId } }),
+        ]);
+        return {
+            data,
+            meta: { total, page, limit, last_page: Math.ceil(total / limit) },
+        };
+    }
+    async finalizeGrade(data) {
+        const grades = await this.prisma.grade.findMany({
+            where: {
+                student_id: data.student_id,
+                subject_id: data.subject_id,
+            }
+        });
+        if (grades.length === 0) {
+            throw new common_1.BadRequestException('No grades found for this subject/student');
+        }
+        let totalScore = 0;
+        let totalWeight = 0;
+        grades.forEach(g => {
+            const score = Number(g.score);
+            const weight = Number(g.weight);
+            totalScore += score * weight;
+            totalWeight += weight;
+        });
+        const finalScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+        let gradeLetter = 'E';
+        if (finalScore >= 85)
+            gradeLetter = 'A';
+        else if (finalScore >= 75)
+            gradeLetter = 'B';
+        else if (finalScore >= 65)
+            gradeLetter = 'C';
+        else if (finalScore >= 50)
+            gradeLetter = 'D';
+        const isPassed = finalScore >= 75;
+        const student = await this.prisma.student.findUnique({
+            where: { id: data.student_id }
+        });
+        if (!student)
+            throw new common_1.NotFoundException('Student not found');
+        const existingFinal = await this.prisma.finalGrade.findFirst({
+            where: {
+                student_id: data.student_id,
+                subject_id: data.subject_id,
+                semester: data.semester
+            }
+        });
+        if (existingFinal) {
+            return this.prisma.finalGrade.update({
+                where: { id: existingFinal.id },
+                data: {
+                    final_score: new client_1.Prisma.Decimal(finalScore),
+                    grade_letter: gradeLetter,
+                    is_passed: isPassed,
+                }
+            });
+        }
+        return this.prisma.finalGrade.create({
+            data: {
+                student_id: data.student_id,
+                subject_id: data.subject_id,
+                semester: data.semester,
+                final_score: new client_1.Prisma.Decimal(finalScore),
+                grade_letter: gradeLetter,
+                is_passed: isPassed,
+                major_id: student.major_id,
+                batch_id: student.batch_id,
+            }
+        });
+    }
+    async getFinalReport(studentId) {
+        return this.prisma.finalGrade.findMany({
+            where: { student_id: studentId },
+            include: { subject: true },
+            orderBy: { semester: 'asc' }
+        });
+    }
+};
+exports.GradesService = GradesService;
+exports.GradesService = GradesService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], GradesService);
+//# sourceMappingURL=grades.service.js.map

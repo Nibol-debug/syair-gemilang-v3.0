@@ -1,0 +1,43 @@
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { ExamsService } from './exams.service';
+import { CreateExamDto } from './dto/create-exam.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+
+@Controller('exams')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class ExamsController {
+  constructor(private readonly examsService: ExamsService) {}
+
+  @Post()
+  @Roles('admin', 'guru')
+  create(@Body() createExamDto: CreateExamDto) {
+    return this.examsService.create(createExamDto);
+  }
+
+  @Get()
+  findAll(
+    @Query() pagination: PaginationDto,
+    @Query('major_id') major_id?: string,
+    @Query('subject_id') subject_id?: string,
+  ) {
+    return this.examsService.findAll(pagination, { major_id, subject_id });
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.examsService.findOne(id);
+  }
+
+  @Get(':id/questions')
+  async getQuestions(@Param('id') id: string) {
+    const exam = await this.examsService.findOne(id);
+    // Hide correct options for students
+    return exam.questions.map(q => ({
+      ...q,
+      options: q.options.map(o => ({ id: o.id, option_text: o.option_text }))
+    }));
+  }
+}

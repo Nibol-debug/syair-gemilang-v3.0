@@ -15,44 +15,59 @@ Sistem ERP terintegrasi untuk Sekolah RGI (Rumah Gemilang Indonesia).
 ## ⚙️ Setup & Running
 
 ### 1. Database (Docker)
-Pastikan Docker sudah jalan, lalu jalankan:
 ```bash
 docker compose up -d
 ```
-*Note: MySQL berjalan di port `3307` (Host).*
+*Note: MySQL berjalan di port `3307`.*
 
 ### 2. Backend
 ```bash
 cd backend
 npm install
-# Database sudah otomatis di-migrate dan di-seed saat setup awal.
-# Jika ingin reset/seed ulang:
-npx prisma migrate reset
+# Database sudah di-migrate dan di-seed otomatis saat setup.
 npm run start:dev
 ```
 - **Port**: 3001
 - **API Prefix**: `/api/v1`
-- **Default Admin**: `admin` / `admin123`
+- **Admin**: `admin` / `admin123`
 
-### 3. Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-- **Port**: 3000
+---
 
-## 📝 Global Rules (Wajib Diikuti)
-1. **ID**: Semua ID wajib UUID.
-2. **DTO**: Gunakan class-validator untuk semua input.
-3. **Audit**: Semua perubahan data dicatat otomatis via `AuditInterceptor`.
-4. **Pagination**: Gunakan `PaginationDto` untuk endpoint list data.
-5. **Modular**: Pisahkan logic per module sesuai folder di `src`.
+## 🧪 CARA TESTING (Manual via API Client)
 
-## 🗺️ Roadmap
-1. [x] Master Data & Auth (Foundation)
-2. [ ] Module 1: Student (InProgress)
-3. [ ] Module 2: HRM
-4. [ ] Module 3: Academic
-5. [ ] Module 4: CBT (Core System)
-6. [ ] Module 5: Grading
+### A. AUTH
+1. **Login**: `POST /auth/login` (Body: `{ "username": "admin", "password": "admin123" }`)
+2. **Me**: `GET /auth/me` (Bearer Token required)
+
+### B. STUDENT (Module 1)
+1. **List**: `GET /students?page=1&limit=10`
+2. **Export**: `GET /students/export` (Download Excel)
+
+### C. ACADEMIC (Module 4)
+1. **Add Schedule**: `POST /schedules` (Cek validasi bentrok guru/kelas)
+2. **Bulk Attendance**: `POST /attendance` (Input absen sekelas)
+
+### D. CBT (Module 5)
+1. **Create Exam**: `POST /exams` (Input soal MCQ/Essay)
+2. **Start Exam**: `POST /exams/:id/start` (Butuh token & sesuai jurusan)
+3. **Submit**: `POST /exams/sessions/:sessionId/submit` (Otomatis hitung nilai)
+
+### E. GRADING (Module 6)
+1. **Finalize**: `POST /grades/finalize` (Hitung nilai rapor per mapel)
+2. **Report**: `GET /grades/final/:student_id` (Lihat riwayat nilai akhir)
+
+---
+
+## 📝 Global Rules
+1. **UUID**: Semua ID wajib UUID.
+2. **Audit**: Perubahan data otomatis masuk tabel `audit_logs`.
+3. **KKM**: Batas lulus adalah **75**.
+4. **Roles**: Admin, Guru, Siswa.
+
+## 🗺️ Progress
+- [x] Module 1: Student
+- [x] Module 2: Auth & ACL
+- [x] Module 3: HRM
+- [x] Module 4: Academic
+- [x] Module 5: CBT (Core)
+- [x] Module 6: Grading & Reporting

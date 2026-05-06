@@ -2,19 +2,36 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import type { Response } from 'express';
 export declare class StudentsService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createStudentDto: CreateStudentDto): Promise<{
+        parents: {
+            id: string;
+            student_id: string;
+            father_name: string;
+            mother_name: string;
+            phone: string;
+            address: string;
+        }[];
+        histories: {
+            id: string;
+            student_id: string;
+            type: string;
+            description: string;
+            date: Date;
+        }[];
+    } & {
         id: string;
+        phone: string;
+        address: string;
         nis: string;
         nik: string;
         full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
-        address: string;
-        phone: string;
         email: string;
         class_id: string;
         status: string;
@@ -27,6 +44,7 @@ export declare class StudentsService {
         class_id?: string;
         major_id?: string;
         batch_id?: string;
+        search?: string;
     }): Promise<{
         data: ({
             major: {
@@ -52,14 +70,14 @@ export declare class StudentsService {
             };
         } & {
             id: string;
+            phone: string;
+            address: string;
             nis: string;
             nik: string;
             full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
-            address: string;
-            phone: string;
             email: string;
             class_id: string;
             status: string;
@@ -100,21 +118,28 @@ export declare class StudentsService {
         parents: {
             id: string;
             student_id: string;
-            address: string;
-            phone: string;
             father_name: string;
             mother_name: string;
+            phone: string;
+            address: string;
+        }[];
+        histories: {
+            id: string;
+            student_id: string;
+            type: string;
+            description: string;
+            date: Date;
         }[];
     } & {
         id: string;
+        phone: string;
+        address: string;
         nis: string;
         nik: string;
         full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
-        address: string;
-        phone: string;
         email: string;
         class_id: string;
         status: string;
@@ -125,14 +150,14 @@ export declare class StudentsService {
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
         id: string;
+        phone: string;
+        address: string;
         nis: string;
         nik: string;
         full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
-        address: string;
-        phone: string;
         email: string;
         class_id: string;
         status: string;
@@ -143,14 +168,14 @@ export declare class StudentsService {
     }>;
     remove(id: string): Promise<{
         id: string;
+        phone: string;
+        address: string;
         nis: string;
         nik: string;
         full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
-        address: string;
-        phone: string;
         email: string;
         class_id: string;
         status: string;
@@ -158,5 +183,9 @@ export declare class StudentsService {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+    }>;
+    exportToExcel(res: Response): Promise<void>;
+    importFromExcel(file: Express.Multer.File): Promise<{
+        imported: number;
     }>;
 }

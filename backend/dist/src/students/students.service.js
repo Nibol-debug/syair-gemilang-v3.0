@@ -1,10 +1,43 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -12,33 +45,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StudentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const QRCode = __importStar(require("qrcode"));
+const ExcelJS = __importStar(require("exceljs"));
 let StudentsService = class StudentsService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
     async create(createStudentDto) {
+        const { parents, ...studentData } = createStudentDto;
         const studentClass = await this.prisma.class.findUnique({
-            where: { id: createStudentDto.class_id },
+            where: { id: studentData.class_id },
         });
         if (!studentClass) {
-            throw new common_1.NotFoundException(`Class with ID ${createStudentDto.class_id} not found`);
+            throw new common_1.NotFoundException(`Class with ID ${studentData.class_id} not found`);
         }
+        const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
         return this.prisma.student.create({
             data: {
-                ...createStudentDto,
+                ...studentData,
                 major_id: studentClass.major_id,
                 batch_id: studentClass.batch_id,
+                qr_code: qrCodeBase64,
+                parents: parents ? {
+                    create: parents
+                } : undefined,
+                histories: {
+                    create: {
+                        type: 'masuk',
+                        description: 'Siswa baru terdaftar',
+                        date: new Date(),
+                    }
+                }
             },
+            include: {
+                parents: true,
+                histories: true,
+            }
         });
     }
     async findAll(pagination, filters) {
         const page = pagination.page || 1;
         const limit = pagination.limit || 10;
         const skip = (page - 1) * limit;
+        const where = { ...filters };
+        if (filters.search) {
+            where.OR = [
+                { full_name: { contains: filters.search } },
+                { nis: { contains: filters.search } },
+            ];
+            delete where.search;
+        }
         const [data, total] = await Promise.all([
             this.prisma.student.findMany({
-                where: filters,
+                where,
                 skip,
                 take: limit,
                 include: {
@@ -47,7 +107,7 @@ let StudentsService = class StudentsService {
                     batch: true,
                 },
             }),
-            this.prisma.student.count({ where: filters }),
+            this.prisma.student.count({ where }),
         ]);
         return {
             data,
@@ -67,6 +127,7 @@ let StudentsService = class StudentsService {
                 major: true,
                 batch: true,
                 parents: true,
+                histories: true,
             },
         });
         if (!student)
@@ -74,10 +135,11 @@ let StudentsService = class StudentsService {
         return student;
     }
     async update(id, updateStudentDto) {
-        const data = { ...updateStudentDto };
-        if (updateStudentDto.class_id) {
+        const { parents, ...studentData } = updateStudentDto;
+        const data = { ...studentData };
+        if (studentData.class_id) {
             const studentClass = await this.prisma.class.findUnique({
-                where: { id: updateStudentDto.class_id },
+                where: { id: studentData.class_id },
             });
             if (!studentClass)
                 throw new common_1.NotFoundException('Class not found');
@@ -93,6 +155,84 @@ let StudentsService = class StudentsService {
         return this.prisma.student.delete({
             where: { id },
         });
+    }
+    async exportToExcel(res) {
+        const students = await this.prisma.student.findMany({
+            include: {
+                class: true,
+                major: true,
+                batch: true,
+            }
+        });
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Students');
+        worksheet.columns = [
+            { header: 'NIS', key: 'nis', width: 15 },
+            { header: 'Full Name', key: 'full_name', width: 30 },
+            { header: 'Class', key: 'class', width: 15 },
+            { header: 'Major', key: 'major', width: 15 },
+            { header: 'Status', key: 'status', width: 10 },
+        ];
+        students.forEach(s => {
+            worksheet.addRow({
+                nis: s.nis,
+                full_name: s.full_name,
+                class: s.class.name,
+                major: s.major.name,
+                status: s.status,
+            });
+        });
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=students.xlsx');
+        await workbook.xlsx.write(res);
+        res.end();
+    }
+    async importFromExcel(file) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(file.buffer);
+        const worksheet = workbook.getWorksheet(1);
+        if (!worksheet) {
+            throw new Error('Worksheet not found');
+        }
+        const rows = [];
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1)
+                rows.push(row);
+        });
+        let count = 0;
+        for (const row of rows) {
+            const nis = row.getCell(1).value?.toString();
+            const full_name = row.getCell(2).value?.toString();
+            const className = row.getCell(3).value?.toString();
+            const email = row.getCell(4).value?.toString() || `${nis}@school.com`;
+            if (nis && full_name && className) {
+                const studentClass = await this.prisma.class.findFirst({ where: { name: className } });
+                if (studentClass) {
+                    await this.prisma.student.upsert({
+                        where: { nis },
+                        update: { full_name, class_id: studentClass.id },
+                        create: {
+                            nis,
+                            nik: nis,
+                            full_name,
+                            email,
+                            gender: 'L',
+                            birth_place: '-',
+                            birth_date: new Date(),
+                            address: '-',
+                            phone: '-',
+                            class_id: studentClass.id,
+                            major_id: studentClass.major_id,
+                            batch_id: studentClass.batch_id,
+                            status: 'active',
+                            qr_code: await QRCode.toDataURL(nis),
+                        }
+                    });
+                    count++;
+                }
+            }
+        }
+        return { imported: count };
     }
 };
 exports.StudentsService = StudentsService;

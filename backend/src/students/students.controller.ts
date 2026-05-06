@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import type { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('students')
 export class StudentsController {
@@ -19,8 +21,20 @@ export class StudentsController {
     @Query('class_id') class_id?: string,
     @Query('major_id') major_id?: string,
     @Query('batch_id') batch_id?: string,
+    @Query('search') search?: string,
   ) {
-    return this.studentsService.findAll(pagination, { class_id, major_id, batch_id });
+    return this.studentsService.findAll(pagination, { class_id, major_id, batch_id, search });
+  }
+
+  @Get('export')
+  export(@Res() res: Response) {
+    return this.studentsService.exportToExcel(res);
+  }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  import(@UploadedFile() file: Express.Multer.File) {
+    return this.studentsService.importFromExcel(file);
   }
 
   @Get(':id')
