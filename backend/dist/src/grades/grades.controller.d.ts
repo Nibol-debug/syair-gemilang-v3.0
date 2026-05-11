@@ -6,10 +6,10 @@ export declare class GradesController {
     constructor(gradesService: GradesService);
     create(createGradeDto: CreateGradeDto): Promise<{
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
         created_at: Date;
+        student_id: string;
         type: string;
         subject_id: string;
         exam_id: string | null;
@@ -20,8 +20,8 @@ export declare class GradesController {
         data: ({
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
+                name: string;
             };
             exam: {
                 id: string;
@@ -35,10 +35,10 @@ export declare class GradesController {
             } | null;
         } & {
             id: string;
-            student_id: string;
             major_id: string;
             batch_id: string;
             created_at: Date;
+            student_id: string;
             type: string;
             subject_id: string;
             exam_id: string | null;
@@ -54,9 +54,9 @@ export declare class GradesController {
     }>;
     finalize(finalizeGradeDto: FinalizeGradeDto): Promise<{
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
+        student_id: string;
         description: string | null;
         subject_id: string;
         semester: number;
@@ -67,14 +67,14 @@ export declare class GradesController {
     getFinalReport(studentId: string): Promise<({
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         };
     } & {
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
+        student_id: string;
         description: string | null;
         subject_id: string;
         semester: number;
@@ -82,4 +82,13 @@ export declare class GradesController {
         grade_letter: string;
         is_passed: boolean;
     })[]>;
+    findByClass(classId: string, subjectId: string): Promise<{
+        id: string;
+        nis: string;
+        full_name: string;
+        cbt_score: number | import("@prisma/client/runtime/library").Decimal;
+        assignment_score: number | import("@prisma/client/runtime/library").Decimal;
+        final_score: import("@prisma/client/runtime/library").Decimal;
+        status: string;
+    }[]>;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Patch, Delete } from '@nestjs/common';
 import { ExamsService } from './exams.service';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -39,5 +39,24 @@ export class ExamsController {
       ...q,
       options: q.options.map(o => ({ id: o.id, option_text: o.option_text }))
     }));
+  }
+
+  // Questions management
+  @Post(':id/questions')
+  @Roles('admin', 'guru')
+  addQuestion(@Param('id') id: string, @Body() data: any) {
+    return this.examsService.addQuestion(id, data);
+  }
+
+  @Patch('questions/:questionId')
+  @Roles('admin', 'guru')
+  updateQuestion(@Param('questionId') questionId: string, @Body() data: any) {
+    return this.examsService.updateQuestion(questionId, data);
+  }
+
+  @Delete('questions/:questionId')
+  @Roles('admin', 'guru')
+  removeQuestion(@Param('questionId') questionId: string) {
+    return this.examsService.deleteQuestion(questionId);
   }
 }

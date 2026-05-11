@@ -41,6 +41,15 @@ let ExamsController = class ExamsController {
             options: q.options.map(o => ({ id: o.id, option_text: o.option_text }))
         }));
     }
+    addQuestion(id, data) {
+        return this.examsService.addQuestion(id, data);
+    }
+    updateQuestion(questionId, data) {
+        return this.examsService.updateQuestion(questionId, data);
+    }
+    removeQuestion(questionId) {
+        return this.examsService.deleteQuestion(questionId);
+    }
 };
 exports.ExamsController = ExamsController;
 __decorate([
@@ -74,6 +83,32 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ExamsController.prototype, "getQuestions", null);
+__decorate([
+    (0, common_1.Post)(':id/questions'),
+    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ExamsController.prototype, "addQuestion", null);
+__decorate([
+    (0, common_1.Patch)('questions/:questionId'),
+    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    __param(0, (0, common_1.Param)('questionId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ExamsController.prototype, "updateQuestion", null);
+__decorate([
+    (0, common_1.Delete)('questions/:questionId'),
+    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    __param(0, (0, common_1.Param)('questionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ExamsController.prototype, "removeQuestion", null);
 exports.ExamsController = ExamsController = __decorate([
     (0, common_1.Controller)('exams'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

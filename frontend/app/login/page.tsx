@@ -1,0 +1,118 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { apiRequest } from '@/lib/api';
+import { School, User, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const LoginPage = () => {
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const data = await apiRequest('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      });
+      
+      if (data.access_token) {
+        localStorage.setItem('token', data.access_token);
+        router.push('/dashboard');
+      } else {
+        setError('Terjadi kesalahan saat login');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan koneksi');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-surface flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-secondary/5 blur-3xl" />
+      </div>
+
+      <div className="w-full max-w-[420px] bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 shadow-2xl shadow-primary/5">
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-primary/20">
+            <School className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold text-on-surface tracking-tight">Syiar Gemilang</h1>
+          <p className="text-sm font-medium text-on-surface-variant mt-2 uppercase tracking-widest">Educational ERP</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1">Username</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
+              <input 
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full pl-12 pr-4 py-3.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-outline-variant placeholder:font-medium"
+                placeholder="Masukkan username"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1">Password</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
+              <input 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-12 pr-4 py-3.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-outline-variant placeholder:font-medium"
+                placeholder="Masukkan password"
+                required
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-error-container/30 border border-error/20 text-on-error-container text-sm font-semibold p-4 rounded-xl flex items-center gap-3 animate-pulse">
+              <AlertCircle className="w-5 h-5 text-error flex-shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <button 
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-primary text-on-primary rounded-xl py-3.5 font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              'Masuk ke Sistem'
+            )}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center border-t border-outline-variant/50 pt-8">
+          <p className="text-xs font-medium text-on-surface-variant">
+            Lupa kredensial akses? Hubungi <a href="#" className="text-primary font-bold hover:underline transition-all">Administrator IT</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

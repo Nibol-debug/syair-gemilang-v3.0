@@ -5,8 +5,8 @@ export declare class ExamSessionsService {
     constructor(prisma: PrismaService);
     startExam(studentId: string, examId: string, data: StartExamDto): Promise<{
         id: string;
-        student_id: string;
         status: string;
+        student_id: string;
         device_id: string | null;
         start_time: Date;
         end_time: Date | null;

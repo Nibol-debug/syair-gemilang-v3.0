@@ -54,18 +54,10 @@ let StudentsService = class StudentsService {
     }
     async create(createStudentDto) {
         const { parents, ...studentData } = createStudentDto;
-        const studentClass = await this.prisma.class.findUnique({
-            where: { id: studentData.class_id },
-        });
-        if (!studentClass) {
-            throw new common_1.NotFoundException(`Class with ID ${studentData.class_id} not found`);
-        }
         const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
         return this.prisma.student.create({
             data: {
                 ...studentData,
-                major_id: studentClass.major_id,
-                batch_id: studentClass.batch_id,
                 qr_code: qrCodeBase64,
                 parents: parents ? {
                     create: parents
@@ -105,6 +97,7 @@ let StudentsService = class StudentsService {
                     class: true,
                     major: true,
                     batch: true,
+                    parents: true,
                 },
             }),
             this.prisma.student.count({ where }),
@@ -136,19 +129,32 @@ let StudentsService = class StudentsService {
     }
     async update(id, updateStudentDto) {
         const { parents, ...studentData } = updateStudentDto;
+        const currentStudent = await this.prisma.student.findUnique({ where: { id } });
+        if (!currentStudent)
+            throw new common_1.NotFoundException(`Student with ID ${id} not found`);
         const data = { ...studentData };
-        if (studentData.class_id) {
-            const studentClass = await this.prisma.class.findUnique({
-                where: { id: studentData.class_id },
-            });
-            if (!studentClass)
-                throw new common_1.NotFoundException('Class not found');
-            data.major_id = studentClass.major_id;
-            data.batch_id = studentClass.batch_id;
+        if (studentData.nis && studentData.nis !== currentStudent.nis) {
+            data.qr_code = await QRCode.toDataURL(studentData.nis);
+        }
+        if (parents) {
+            data.parents = {
+                deleteMany: {},
+                create: parents,
+            };
+        }
+        if (studentData.status && studentData.status !== currentStudent.status) {
+            data.histories = {
+                create: {
+                    type: studentData.status,
+                    description: `Status diubah dari ${currentStudent.status} ke ${studentData.status}`,
+                    date: new Date(),
+                }
+            };
         }
         return this.prisma.student.update({
             where: { id },
             data,
+            include: { parents: true, histories: true }
         });
     }
     async remove(id) {
@@ -177,8 +183,8 @@ let StudentsService = class StudentsService {
             worksheet.addRow({
                 nis: s.nis,
                 full_name: s.full_name,
-                class: s.class.name,
-                major: s.major.name,
+                class: s.class?.name || '-',
+                major: s.major?.name || '-',
                 status: s.status,
             });
         });
@@ -210,7 +216,12 @@ let StudentsService = class StudentsService {
                 if (studentClass) {
                     await this.prisma.student.upsert({
                         where: { nis },
-                        update: { full_name, class_id: studentClass.id },
+                        update: {
+                            full_name,
+                            class_id: studentClass.id,
+                            major_id: studentClass.major_id,
+                            batch_id: studentClass.batch_id
+                        },
                         create: {
                             nis,
                             nik: nis,

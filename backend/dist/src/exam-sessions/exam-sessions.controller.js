@@ -23,7 +23,7 @@ let ExamSessionsController = class ExamSessionsController {
         this.examSessionsService = examSessionsService;
     }
     startExam(id, data, req) {
-        return this.examSessionsService.startExam(req.user.userId, id, data);
+        return this.examSessionsService.startExam(req.user.studentId, id, data);
     }
     submitAnswer(sessionId, data) {
         return this.examSessionsService.submitAnswer(sessionId, data);

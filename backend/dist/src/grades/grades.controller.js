@@ -37,6 +37,9 @@ let GradesController = class GradesController {
     getFinalReport(studentId) {
         return this.gradesService.getFinalReport(studentId);
     }
+    findByClass(classId, subjectId) {
+        return this.gradesService.findByClass(classId, subjectId);
+    }
 };
 exports.GradesController = GradesController;
 __decorate([
@@ -70,6 +73,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], GradesController.prototype, "getFinalReport", null);
+__decorate([
+    (0, common_1.Get)('class/:class_id'),
+    __param(0, (0, common_1.Param)('class_id')),
+    __param(1, (0, common_1.Query)('subject_id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], GradesController.prototype, "findByClass", null);
 exports.GradesController = GradesController = __decorate([
     (0, common_1.Controller)('grades'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

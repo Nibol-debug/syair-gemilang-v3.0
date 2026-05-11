@@ -1,0 +1,335 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { apiRequest } from '@/lib/api';
+import { 
+  Plus, 
+  Search, 
+  Eye, 
+  Edit2, 
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  X,
+  Loader2,
+  AlertCircle,
+  Briefcase,
+  GraduationCap,
+  Users,
+  Award,
+  ShieldCheck
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { ViewEmployeeModal, EditEmployeeModal, DeleteEmployeeModal } from '@/components/EmployeeModals';
+
+export default function EmployeesPage() {
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({ total: 0, teachers: 0, staff: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Master Data
+  const [majors, setMajors] = useState<any[]>([]);
+
+  // Filters & Search
+  const [filters, setFilters] = useState({
+    major_id: '',
+    search: ''
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    last_page: 1
+  });
+
+  // Modal State
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: 'view' | 'edit' | 'create' | 'delete' | null;
+    employee: any;
+  }>({
+    isOpen: false,
+    type: null,
+    employee: null
+  });
+
+  const fetchStats = async () => {
+    try {
+      const res = await apiRequest('/stats/employees');
+      setStats(res);
+    } catch (err) {
+      console.error('Gagal mengambil statistik:', err);
+    }
+  };
+
+  const fetchMasterData = async () => {
+    try {
+      const mRes = await apiRequest('/majors?limit=100');
+      setMajors(mRes.data || []);
+    } catch (err) {
+      console.error('Gagal mengambil data master:', err);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    setIsLoading(true);
+    try {
+      const query = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        ...(filters.major_id && { major_id: filters.major_id }),
+        ...(filters.search && { search: filters.search }),
+      }).toString();
+
+      const response = await apiRequest(`/employees?${query}`);
+      setEmployees(response.data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: response.meta.total,
+        last_page: response.meta.last_page
+      }));
+    } catch (err: any) {
+      console.error('Gagal mengambil data pegawai:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchMasterData();
+      fetchStats();
+    }
+  }, []);
+
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, [filters.major_id, filters.search]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const timer = setTimeout(() => {
+        fetchEmployees();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [filters, pagination.page]);
+
+  const openModal = (type: 'view' | 'edit' | 'create' | 'delete', employee: any = null) => {
+    setModalState({ isOpen: true, type, employee });
+  };
+
+  const closeModal = () => {
+    setModalState({ isOpen: false, type: null, employee: null });
+  };
+
+  return (
+    <div className="space-y-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+        <div>
+          <h2 className="text-3xl font-bold text-on-surface tracking-tight">Manajemen Kepegawaian</h2>
+          <p className="text-on-surface-variant font-medium mt-1">Kelola data Guru, Staf, dan dokumen kepegawaian.</p>
+        </div>
+        <button 
+          onClick={() => openModal('create')}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Tambah Pegawai</span>
+        </button>
+      </div>
+
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard title="Total Pegawai" value={stats.total} icon={<Users className="w-6 h-6" />} color="primary" />
+        <StatCard title="Guru / Pengajar" value={stats.teachers} icon={<Award className="w-6 h-6" />} color="secondary" />
+        <StatCard title="Staf Administrasi" value={stats.staff} icon={<ShieldCheck className="w-6 h-6" />} color="tertiary" />
+      </div>
+
+      {/* Filter Section */}
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pencarian</label>
+            <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
+              <Search className="w-4 h-4 text-outline mr-3" />
+              <input 
+                type="text" 
+                placeholder="Cari Nama atau Jabatan..." 
+                className="bg-transparent outline-none text-sm w-full text-on-surface placeholder:text-outline-variant pr-8"
+                value={filters.search}
+                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              />
+              {filters.search && (
+                <button 
+                  onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
+                  className="absolute right-3 text-outline hover:text-on-surface transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Jurusan (Guru)</label>
+            <select 
+              className="border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container text-sm text-on-surface font-medium outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+              value={filters.major_id}
+              onChange={(e) => setFilters(prev => ({ ...prev, major_id: e.target.value }))}
+            >
+              <option value="">Semua Jurusan</option>
+              {majors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface-container-low border-b border-outline-variant">
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Pegawai</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Jabatan</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Pendidikan</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Tgl Bergabung</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Status</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em] text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+                  </td>
+                </tr>
+              ) : employees.length === 0 ? (
+                <tr>
+                   <td colSpan={6} className="py-10 text-center text-on-surface-variant font-medium">
+                     Belum ada data pegawai.
+                   </td>
+                </tr>
+              ) : (
+                employees.map((emp) => (
+                  <tr key={emp.id} className="border-b border-surface-container-low hover:bg-surface-container/30 transition-colors group">
+                    <td className="py-4 px-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm uppercase">
+                          {emp.full_name?.charAt(0)}
+                        </div>
+                        <div>
+                          <span className="font-bold text-on-surface block">{emp.full_name}</span>
+                          <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider">{emp.major?.code || 'Staf'}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-8">
+                      <div className="flex items-center gap-2 text-on-surface font-semibold">
+                        <Briefcase className="w-3.5 h-3.5 text-outline" />
+                        {emp.position}
+                      </div>
+                    </td>
+                    <td className="py-4 px-8">
+                      <div className="flex items-center gap-2 text-on-surface-variant font-medium">
+                        <GraduationCap className="w-3.5 h-3.5 text-outline" />
+                        {emp.education}
+                      </div>
+                    </td>
+                    <td className="py-4 px-8 text-on-surface-variant font-medium">{new Date(emp.join_date).toLocaleDateString()}</td>
+                    <td className="py-4 px-8">
+                      <span className={cn(
+                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                        emp.status === 'active' 
+                          ? "bg-secondary-container/20 text-secondary" 
+                          : "bg-outline-variant/20 text-on-surface-variant"
+                      )}>
+                        {emp.status === 'active' ? 'Aktif' : emp.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-8 text-right">
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => openModal('view', emp)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => openModal('edit', emp)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => openModal('delete', emp)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                      <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-8 py-5 border-t border-outline-variant bg-surface-container-lowest">
+          <span className="text-xs font-medium text-on-surface-variant">Menampilkan {employees.length} pegawai</span>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+              disabled={pagination.page === 1}
+              className="p-2 rounded-lg text-outline hover:bg-surface-container disabled:opacity-50 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button className="w-9 h-9 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center shadow-md">{pagination.page}</button>
+            <button 
+              onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.last_page, prev.page + 1) }))}
+              disabled={pagination.page === pagination.last_page}
+              className="p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <ViewEmployeeModal 
+        isOpen={modalState.isOpen && modalState.type === 'view'} 
+        onClose={closeModal} 
+        employee={modalState.employee} 
+      />
+      
+      <EditEmployeeModal 
+        isOpen={modalState.isOpen && (modalState.type === 'edit' || modalState.type === 'create')} 
+        onClose={closeModal} 
+        employee={modalState.employee} 
+        isCreate={modalState.type === 'create'}
+        onSuccess={() => { fetchEmployees(); fetchStats(); }}
+        majors={majors}
+      />
+
+      <DeleteEmployeeModal 
+        isOpen={modalState.isOpen && modalState.type === 'delete'} 
+        onClose={closeModal} 
+        employee={modalState.employee} 
+        onSuccess={() => { fetchEmployees(); fetchStats(); }}
+      />
+    </div>
+  );
+}
+
+function StatCard({ title, value, icon, color }: any) {
+  const colorClasses: any = {
+    primary: "bg-primary/10 text-primary border-primary/20",
+    secondary: "bg-secondary/10 text-secondary border-secondary/20",
+    tertiary: "bg-tertiary/10 text-tertiary border-tertiary/20",
+  };
+
+  return (
+    <div className={cn("p-6 rounded-2xl border flex items-center gap-4 bg-surface-container-lowest shadow-sm relative overflow-hidden", colorClasses[color])}>
+      <div className="p-3 rounded-xl bg-current opacity-10" />
+      <div className="absolute p-3">{icon}</div>
+      <div className="ml-12">
+        <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">{title}</p>
+        <p className="text-2xl font-black">{value}</p>
+      </div>
+    </div>
+  );
+}

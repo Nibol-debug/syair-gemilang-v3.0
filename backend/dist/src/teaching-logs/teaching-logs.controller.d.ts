@@ -5,7 +5,9 @@ export declare class TeachingLogsController {
     constructor(teachingLogsService: TeachingLogsService);
     create(createTeachingLogDto: CreateTeachingLogDto): Promise<{
         id: string;
-        class_id: string;
+        major_id: string;
+        class_id: string | null;
+        batch_id: string;
         date: Date;
         subject_id: string;
         teacher_id: string;
@@ -14,29 +16,31 @@ export declare class TeachingLogsController {
     findAll(teacher_id?: string, class_id?: string): Promise<({
         class: {
             id: string;
-            name: string;
-            grade_level: number;
             major_id: string;
+            name: string;
             batch_id: string;
+            grade_level: number;
             homeroom_teacher_id: string | null;
-        };
+        } | null;
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         };
         teacher: {
             id: string;
             full_name: string;
-            status: string;
-            major_id: string | null;
             education: string;
             position: string;
             join_date: Date;
+            status: string;
+            major_id: string | null;
         };
     } & {
         id: string;
-        class_id: string;
+        major_id: string;
+        class_id: string | null;
+        batch_id: string;
         date: Date;
         subject_id: string;
         teacher_id: string;

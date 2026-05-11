@@ -7,18 +7,18 @@ export declare class AttendancesController {
     findByClass(classId: string, date: string): Promise<({
         student: {
             id: string;
-            phone: string;
-            address: string;
+            full_name: string;
+            status: string;
+            major_id: string;
             nis: string;
             nik: string;
-            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
+            address: string;
+            phone: string;
             email: string;
-            class_id: string;
-            status: string;
-            major_id: string;
+            class_id: string | null;
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
@@ -26,12 +26,14 @@ export declare class AttendancesController {
         schedule: {
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
+                name: string;
             };
         } & {
             id: string;
-            class_id: string;
+            major_id: string;
+            class_id: string | null;
+            batch_id: string;
             day: string;
             subject_id: string;
             teacher_id: string;
@@ -40,8 +42,8 @@ export declare class AttendancesController {
         };
     } & {
         id: string;
-        student_id: string;
         status: string;
+        student_id: string;
         date: Date;
         schedule_id: string;
     })[]>;

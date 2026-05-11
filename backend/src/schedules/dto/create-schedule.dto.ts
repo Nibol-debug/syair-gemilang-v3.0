@@ -7,6 +7,14 @@ export class CreateScheduleDto {
 
   @IsNotEmpty()
   @IsUUID()
+  major_id: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  batch_id: string;
+
+  @IsNotEmpty()
+  @IsUUID()
   subject_id: string;
 
   @IsNotEmpty()

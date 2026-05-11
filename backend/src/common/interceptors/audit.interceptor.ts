@@ -25,7 +25,7 @@ export class AuditInterceptor implements NestInterceptor {
           if (user) {
             await this.prisma.auditLog.create({
               data: {
-                user_id: user.id,
+                user: { connect: { id: user.id } },
                 action: method,
                 module: url.split('/')[3] || 'unknown',
                 data: {

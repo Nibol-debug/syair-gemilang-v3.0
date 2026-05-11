@@ -5,8 +5,8 @@ export declare class ExamSessionsController {
     constructor(examSessionsService: ExamSessionsService);
     startExam(id: string, data: StartExamDto, req: any): Promise<{
         id: string;
-        student_id: string;
         status: string;
+        student_id: string;
         device_id: string | null;
         start_time: Date;
         end_time: Date | null;

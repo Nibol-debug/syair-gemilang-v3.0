@@ -14,7 +14,9 @@ export declare class CreateStudentDto {
     address: string;
     phone: string;
     email: string;
-    class_id: string;
+    class_id?: string;
+    major_id: string;
+    batch_id: string;
     status?: string;
     parents?: CreateParentDto;
 }

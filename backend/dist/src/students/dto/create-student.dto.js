@@ -49,6 +49,8 @@ class CreateStudentDto {
     phone;
     email;
     class_id;
+    major_id;
+    batch_id;
     status;
     parents;
 }
@@ -100,10 +102,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "email", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "class_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateStudentDto.prototype, "major_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateStudentDto.prototype, "batch_id", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(['active', 'alumni', 'moved']),

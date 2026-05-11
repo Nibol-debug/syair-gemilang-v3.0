@@ -32,4 +32,9 @@ export class GradesController {
   getFinalReport(@Param('student_id') studentId: string) {
     return this.gradesService.getFinalReport(studentId);
   }
+
+  @Get('class/:class_id')
+  findByClass(@Param('class_id') classId: string, @Query('subject_id') subjectId: string) {
+    return this.gradesService.findByClass(classId, subjectId);
+  }
 }

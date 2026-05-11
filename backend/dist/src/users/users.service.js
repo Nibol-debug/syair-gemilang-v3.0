@@ -20,7 +20,9 @@ let UsersService = class UsersService {
     async findOne(username) {
         return this.prisma.user.findUnique({
             where: { username },
-            include: { role: true },
+            include: {
+                role: true,
+            },
         });
     }
     async create(data) {

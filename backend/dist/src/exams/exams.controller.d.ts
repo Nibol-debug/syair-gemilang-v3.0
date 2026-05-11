@@ -37,13 +37,13 @@ export declare class ExamsController {
                 created_at: Date;
                 code: string;
             };
-            subject: {
-                id: string;
-                name: string;
-                major_id: string | null;
-            };
             _count: {
                 questions: number;
+            };
+            subject: {
+                id: string;
+                major_id: string | null;
+                name: string;
             };
         } & {
             id: string;
@@ -71,8 +71,8 @@ export declare class ExamsController {
         };
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         };
         questions: ({
             options: {
@@ -109,4 +109,39 @@ export declare class ExamsController {
         difficulty: string;
         exam_id: string;
     }[]>;
+    addQuestion(id: string, data: any): Promise<{
+        options: {
+            id: string;
+            option_text: string;
+            is_correct: boolean;
+            question_id: string;
+        }[];
+    } & {
+        id: string;
+        type: string;
+        question_text: string;
+        difficulty: string;
+        exam_id: string;
+    }>;
+    updateQuestion(questionId: string, data: any): Promise<{
+        options: {
+            id: string;
+            option_text: string;
+            is_correct: boolean;
+            question_id: string;
+        }[];
+    } & {
+        id: string;
+        type: string;
+        question_text: string;
+        difficulty: string;
+        exam_id: string;
+    }>;
+    removeQuestion(questionId: string): Promise<{
+        id: string;
+        type: string;
+        question_text: string;
+        difficulty: string;
+        exam_id: string;
+    }>;
 }

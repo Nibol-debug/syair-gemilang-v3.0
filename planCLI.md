@@ -200,7 +200,39 @@ PATCH /roles/:id
 
 ---
 
-# 🥉 MODULE 3: HRM
+# 🏅 MODULE 3: PPDB (NEW)
+
+## TABLES
+
+### applicants
+- id
+- full_name
+- email
+- phone
+- gender
+- birth_place
+- birth_date
+- address
+- previous_school
+- status (pending, verified, accepted, rejected)
+- created_at
+
+---
+
+## API
+
+POST   /applicants
+GET    /applicants
+GET    /applicants/:id
+PATCH  /applicants/:id
+PATCH  /applicants/:id/verify
+DELETE /applicants/:id
+
+---
+
+---
+
+# 🥉 MODULE 4: HRM
 
 ## TABLES
 
@@ -243,7 +275,7 @@ POST /employees/:id/documents
 
 ---
 
-# 🏫 MODULE 4: ACADEMIC
+# 🏫 MODULE 5: ACADEMIC
 
 ## TABLES
 
@@ -316,7 +348,7 @@ POST /teaching-log
 
 ---
 
-# 🔥 MODULE 5: CBT
+# 🔥 MODULE 6: CBT
 
 ## TABLES
 
@@ -420,7 +452,7 @@ POST /answers
 
 ---
 
-# 🏆 MODULE 6: GRADING
+# 🏆 MODULE 7: GRADING
 
 ## TABLES
 
@@ -495,6 +527,69 @@ final_score =
 
 ---
 
+# 💰 MODULE 8: FINANCE (NEW)
+
+## TABLES
+
+### fees
+- id
+- name
+- amount
+- type
+- description
+
+---
+
+### payments
+- id
+- student_id
+- fee_id
+- amount
+- method
+- status
+- date
+
+---
+
+## API
+
+POST /finance/fees
+GET  /finance/fees
+POST /finance/payments
+GET  /finance/payments
+
+---
+
+---
+
+# 📦 MODULE 9: ASSETS (NEW)
+
+## TABLES
+
+### assets
+- id
+- code
+- name
+- category
+- location
+- condition
+- status
+- created_at
+
+---
+
+## API
+
+POST   /assets
+GET    /assets
+GET    /assets/:id
+PATCH  /assets/:id
+DELETE /assets/:id
+
+---
+
+---
+
 # 🚀 SYSTEM FLOW
 
 ## CBT FLOW
@@ -516,6 +611,19 @@ guru input → grades
 
 ---
 
+# 🗺️ ROADMAP (PROPOSAL ALIGNMENT)
+
+1. Master Data & User Management (DONE)
+2. Modul Siswa & Kepegawaian (DONE)
+3. Modul PPDB (BACKEND DONE, FRONTEND DONE)
+4. Modul Akademik (DONE)
+5. Modul CBT (CORE DONE, NEEDS REFINEMENT)
+6. Modul Penilaian (DONE)
+7. Modul Keuangan & Inventaris (BACKEND PARTIAL, FRONTEND MOCK)
+8. Dashboard & Reporting (PENDING)
+
+---
+
 # ⚠️ FINAL RULE (ANTI BINGUNG)
 
 - Kerjakan per module (jangan loncat)
@@ -534,5 +642,6 @@ Jika semua selesai:
 - Academic ✔
 - CBT ✔
 - Grading ✔
+- Finance & Assets ✔
 
 = ERP SEKOLAH CORE SYSTEM 🚀

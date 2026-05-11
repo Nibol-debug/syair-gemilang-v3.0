@@ -24,6 +24,8 @@ docker compose up -d
 ```bash
 cd backend
 npm install
+npx prisma db push --accept-data-loss
+npx prisma db seed
 # Database sudah di-migrate dan di-seed otomatis saat setup.
 npm run start:dev
 ```

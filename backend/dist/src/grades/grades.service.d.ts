@@ -7,10 +7,10 @@ export declare class GradesService {
     constructor(prisma: PrismaService);
     create(data: CreateGradeDto): Promise<{
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
         created_at: Date;
+        student_id: string;
         type: string;
         subject_id: string;
         exam_id: string | null;
@@ -21,8 +21,8 @@ export declare class GradesService {
         data: ({
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
+                name: string;
             };
             exam: {
                 id: string;
@@ -36,10 +36,10 @@ export declare class GradesService {
             } | null;
         } & {
             id: string;
-            student_id: string;
             major_id: string;
             batch_id: string;
             created_at: Date;
+            student_id: string;
             type: string;
             subject_id: string;
             exam_id: string | null;
@@ -55,9 +55,9 @@ export declare class GradesService {
     }>;
     finalizeGrade(data: FinalizeGradeDto): Promise<{
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
+        student_id: string;
         description: string | null;
         subject_id: string;
         semester: number;
@@ -68,14 +68,14 @@ export declare class GradesService {
     getFinalReport(studentId: string): Promise<({
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         };
     } & {
         id: string;
-        student_id: string;
         major_id: string;
         batch_id: string;
+        student_id: string;
         description: string | null;
         subject_id: string;
         semester: number;
@@ -83,4 +83,13 @@ export declare class GradesService {
         grade_letter: string;
         is_passed: boolean;
     })[]>;
+    findByClass(classId: string, subjectId: string): Promise<{
+        id: string;
+        nis: string;
+        full_name: string;
+        cbt_score: number | Prisma.Decimal;
+        assignment_score: number | Prisma.Decimal;
+        final_score: Prisma.Decimal;
+        status: string;
+    }[]>;
 }

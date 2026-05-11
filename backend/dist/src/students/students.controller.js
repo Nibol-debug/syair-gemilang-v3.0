@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const students_service_1 = require("./students.service");
 const create_student_dto_1 = require("./dto/create-student.dto");
 const update_student_dto_1 = require("./dto/update-student.dto");
-const pagination_dto_1 = require("../common/dto/pagination.dto");
+const student_query_dto_1 = require("./dto/student-query.dto");
 const platform_express_1 = require("@nestjs/platform-express");
 let StudentsController = class StudentsController {
     studentsService;
@@ -27,8 +27,9 @@ let StudentsController = class StudentsController {
     create(createStudentDto) {
         return this.studentsService.create(createStudentDto);
     }
-    findAll(pagination, class_id, major_id, batch_id, search) {
-        return this.studentsService.findAll(pagination, { class_id, major_id, batch_id, search });
+    findAll(query) {
+        const { page, limit, ...filters } = query;
+        return this.studentsService.findAll({ page, limit }, filters);
     }
     export(res) {
         return this.studentsService.exportToExcel(res);
@@ -57,12 +58,8 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
-    __param(1, (0, common_1.Query)('class_id')),
-    __param(2, (0, common_1.Query)('major_id')),
-    __param(3, (0, common_1.Query)('batch_id')),
-    __param(4, (0, common_1.Query)('search')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto, String, String, String, String]),
+    __metadata("design:paramtypes", [student_query_dto_1.StudentQueryDto]),
     __metadata("design:returntype", void 0)
 ], StudentsController.prototype, "findAll", null);
 __decorate([

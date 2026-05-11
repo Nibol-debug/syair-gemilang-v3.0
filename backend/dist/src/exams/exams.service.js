@@ -77,6 +77,42 @@ let ExamsService = class ExamsService {
             throw new common_1.NotFoundException('Exam not found');
         return exam;
     }
+    async addQuestion(examId, data) {
+        const { options, ...questionData } = data;
+        return this.prisma.question.create({
+            data: {
+                ...questionData,
+                exam: { connect: { id: examId } },
+                options: options ? {
+                    create: options
+                } : undefined
+            },
+            include: { options: true }
+        });
+    }
+    async updateQuestion(questionId, data) {
+        const { options, ...questionData } = data;
+        if (options) {
+            await this.prisma.questionOption.deleteMany({
+                where: { question_id: questionId }
+            });
+        }
+        return this.prisma.question.update({
+            where: { id: questionId },
+            data: {
+                ...questionData,
+                options: options ? {
+                    create: options
+                } : undefined
+            },
+            include: { options: true }
+        });
+    }
+    async deleteQuestion(questionId) {
+        return this.prisma.question.delete({
+            where: { id: questionId }
+        });
+    }
 };
 exports.ExamsService = ExamsService;
 exports.ExamsService = ExamsService = __decorate([

@@ -10,7 +10,7 @@ export class ExamSessionsController {
 
   @Post(':id/start')
   startExam(@Param('id') id: string, @Body() data: StartExamDto, @Request() req) {
-    return this.examSessionsService.startExam(req.user.userId, id, data);
+    return this.examSessionsService.startExam(req.user.studentId, id, data);
   }
 
   @Post('sessions/:sessionId/answers')

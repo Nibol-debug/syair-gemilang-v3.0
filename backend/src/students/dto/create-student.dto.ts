@@ -57,9 +57,17 @@ export class CreateStudentDto {
   @IsEmail()
   email: string;
 
+  @IsOptional()
+  @IsUUID()
+  class_id?: string;
+
   @IsNotEmpty()
   @IsUUID()
-  class_id: string;
+  major_id: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  batch_id: string;
 
   @IsOptional()
   @IsEnum(['active', 'alumni', 'moved'])

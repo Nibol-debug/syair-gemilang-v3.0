@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, UseInter
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { StudentQueryDto } from './dto/student-query.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -16,14 +17,9 @@ export class StudentsController {
   }
 
   @Get()
-  findAll(
-    @Query() pagination: PaginationDto,
-    @Query('class_id') class_id?: string,
-    @Query('major_id') major_id?: string,
-    @Query('batch_id') batch_id?: string,
-    @Query('search') search?: string,
-  ) {
-    return this.studentsService.findAll(pagination, { class_id, major_id, batch_id, search });
+  findAll(@Query() query: StudentQueryDto) {
+    const { page, limit, ...filters } = query;
+    return this.studentsService.findAll({ page, limit }, filters);
   }
 
   @Get('export')

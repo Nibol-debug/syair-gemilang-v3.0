@@ -28,7 +28,7 @@ model User {
   student_id    String? @unique
   employee_id   String? @unique
   
-  student       Student? @relation(fields: [student_id], references: [id])
+  student       Student? @relation(fields: [student_id], references: [id], onDelete: Cascade)
   employee      Employee? @relation(fields: [employee_id], references: [id])
   
   audit_logs    AuditLog[]
@@ -49,6 +49,8 @@ model Major {
   grades     Grade[]
   final_grades FinalGrade[]
   employees  Employee[]
+  schedules  Schedule[]
+  teaching_logs TeachingLog[]
 
   @@map("majors")
 }
@@ -63,6 +65,8 @@ model Batch {
   students   Student[]
   grades     Grade[]
   final_grades FinalGrade[]
+  schedules  Schedule[]
+  teaching_logs TeachingLog[]
 
   @@map("batches")
 }
@@ -98,31 +102,33 @@ model Student {
   email       String   @unique
   status      String   @default("active") // active, alumni, moved
   
-  class_id    String
-  class       Class    @relation(fields: [class_id], references: [id])
+  class_id    String?
+  class       Class?   @relation(fields: [class_id], references: [id])
   major_id    String
   major       Major    @relation(fields: [major_id], references: [id])
   batch_id    String
   batch       Batch    @relation(fields: [batch_id], references: [id])
   
-  qr_code     String?
+  qr_code     String?  @db.Text
   created_at  DateTime @default(now())
   
   parents     Parent[]
   histories   StudentHistory[]
   user        User?
   attendances Attendance[]
-  exam_sessions ExamSession[]
+  sessions    ExamSession[]
   grades      Grade[]
   final_grades FinalGrade[]
+  payments    Payment[]
 
   @@map("students")
-}
+  }
+
 
 model Parent {
   id          String  @id @default(uuid())
-  student_id  String
-  student     Student @relation(fields: [student_id], references: [id])
+  student_id  String  @unique
+  student     Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
   father_name String
   mother_name String
   phone       String
@@ -134,7 +140,7 @@ model Parent {
 model StudentHistory {
   id          String   @id @default(uuid())
   student_id  String
-  student     Student  @relation(fields: [student_id], references: [id])
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
   type        String   // masuk, pindah, keluar
   description String   @db.Text
   date        DateTime
@@ -238,8 +244,12 @@ model Subject {
 
 model Schedule {
   id          String   @id @default(uuid())
-  class_id    String
-  class       Class    @relation(fields: [class_id], references: [id])
+  class_id    String?
+  class       Class?    @relation(fields: [class_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+  batch_id    String
+  batch       Batch    @relation(fields: [batch_id], references: [id])
   subject_id  String
   subject     Subject  @relation(fields: [subject_id], references: [id])
   teacher_id  String
@@ -255,7 +265,7 @@ model Schedule {
 model Attendance {
   id          String   @id @default(uuid())
   student_id  String
-  student     Student  @relation(fields: [student_id], references: [id])
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
   schedule_id String
   schedule    Schedule @relation(fields: [schedule_id], references: [id])
   date        DateTime
@@ -268,8 +278,12 @@ model TeachingLog {
   id          String   @id @default(uuid())
   teacher_id  String
   teacher     Employee @relation(fields: [teacher_id], references: [id])
-  class_id    String
-  class       Class    @relation(fields: [class_id], references: [id])
+  class_id    String?
+  class       Class?    @relation(fields: [class_id], references: [id])
+  major_id    String
+  major       Major    @relation(fields: [major_id], references: [id])
+  batch_id    String
+  batch       Batch    @relation(fields: [batch_id], references: [id])
   subject_id  String
   subject     Subject  @relation(fields: [subject_id], references: [id])
   note        String   @db.Text
@@ -334,7 +348,7 @@ model ExamSession {
   exam_id     String
   exam        Exam     @relation(fields: [exam_id], references: [id])
   student_id  String
-  student     Student  @relation(fields: [student_id], references: [id])
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
   start_time  DateTime @default(now())
   end_time    DateTime?
   status      String   // ongoing, submitted, blocked
@@ -370,7 +384,7 @@ model ExamLog {
 model Grade {
   id          String   @id @default(uuid())
   student_id  String
-  student     Student  @relation(fields: [student_id], references: [id])
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
   subject_id  String
   subject     Subject  @relation(fields: [subject_id], references: [id])
   type        String   // assignment, uts, uas, cbt
@@ -398,7 +412,7 @@ model GradeComponent {
 model FinalGrade {
   id          String   @id @default(uuid())
   student_id  String
-  student     Student  @relation(fields: [student_id], references: [id])
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
   subject_id  String
   subject     Subject  @relation(fields: [subject_id], references: [id])
   final_score Decimal  @db.Decimal(5, 2)
@@ -412,4 +426,59 @@ model FinalGrade {
   major       Major    @relation(fields: [major_id], references: [id])
 
   @@map("final_grades")
+}
+
+model Applicant {
+  id              String   @id @default(uuid())
+  full_name       String
+  email           String   @unique
+  phone           String
+  gender          String
+  birth_place     String
+  birth_date      DateTime
+  address         String   @db.Text
+  previous_school String
+  status          String   @default("pending") // pending, verified, accepted, rejected
+  created_at      DateTime @default(now())
+
+  @@map("applicants")
+}
+
+model Fee {
+  id          String    @id @default(uuid())
+  name        String
+  amount      Decimal   @db.Decimal(12, 2)
+  type        String    // monthly, once, other
+  description String?   @db.Text
+  payments    Payment[]
+
+  @@map("fees")
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id])
+  fee_id      String
+  fee         Fee      @relation(fields: [fee_id], references: [id])
+  amount      Decimal  @db.Decimal(12, 2)
+  method      String   // cash, transfer, gateway
+  status      String   @default("pending") // pending, success, failed
+  date        DateTime @default(now())
+
+  @@map("payments")
+}
+
+model Asset {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  category    String
+  location    String
+  condition   String   // good, fair, broken
+  status      String   @default("available") // available, loaned, maintenance
+  qr_code     String?  @db.LongText
+  created_at  DateTime @default(now())
+
+  @@map("assets")
 }

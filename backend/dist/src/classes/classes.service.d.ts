@@ -7,10 +7,10 @@ export declare class ClassesService {
     constructor(prisma: PrismaService);
     create(createClassDto: CreateClassDto): Promise<{
         id: string;
-        name: string;
-        grade_level: number;
         major_id: string;
+        name: string;
         batch_id: string;
+        grade_level: number;
         homeroom_teacher_id: string | null;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
@@ -31,18 +31,18 @@ export declare class ClassesService {
             homeroom_teacher: {
                 id: string;
                 full_name: string;
-                status: string;
-                major_id: string | null;
                 education: string;
                 position: string;
                 join_date: Date;
+                status: string;
+                major_id: string | null;
             } | null;
         } & {
             id: string;
-            name: string;
-            grade_level: number;
             major_id: string;
+            name: string;
             batch_id: string;
+            grade_level: number;
             homeroom_teacher_id: string | null;
         })[];
         meta: {
@@ -69,34 +69,34 @@ export declare class ClassesService {
         homeroom_teacher: {
             id: string;
             full_name: string;
-            status: string;
-            major_id: string | null;
             education: string;
             position: string;
             join_date: Date;
+            status: string;
+            major_id: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
-        grade_level: number;
         major_id: string;
+        name: string;
         batch_id: string;
+        grade_level: number;
         homeroom_teacher_id: string | null;
     }>;
     update(id: string, updateClassDto: UpdateClassDto): Promise<{
         id: string;
-        name: string;
-        grade_level: number;
         major_id: string;
+        name: string;
         batch_id: string;
+        grade_level: number;
         homeroom_teacher_id: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
-        grade_level: number;
         major_id: string;
+        name: string;
         batch_id: string;
+        grade_level: number;
         homeroom_teacher_id: string | null;
     }>;
 }

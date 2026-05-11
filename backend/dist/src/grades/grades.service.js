@@ -127,6 +127,34 @@ let GradesService = class GradesService {
             orderBy: { semester: 'asc' }
         });
     }
+    async findByClass(classId, subjectId) {
+        const students = await this.prisma.student.findMany({
+            where: { class_id: classId },
+            include: {
+                grades: {
+                    where: { subject_id: subjectId },
+                    orderBy: { created_at: 'desc' }
+                },
+                final_grades: {
+                    where: { subject_id: subjectId }
+                }
+            }
+        });
+        return students.map(student => {
+            const cbtGrade = student.grades.find(g => g.type === 'cbt');
+            const assignmentGrade = student.grades.find(g => g.type === 'assignment');
+            const finalGrade = student.final_grades[0];
+            return {
+                id: student.id,
+                nis: student.nis,
+                full_name: student.full_name,
+                cbt_score: cbtGrade?.score || 0,
+                assignment_score: assignmentGrade?.score || 0,
+                final_score: finalGrade?.final_score || 0,
+                status: finalGrade?.is_passed ? 'Lulus' : (finalGrade ? 'Remedial' : 'Pending'),
+            };
+        });
+    }
 };
 exports.GradesService = GradesService;
 exports.GradesService = GradesService = __decorate([

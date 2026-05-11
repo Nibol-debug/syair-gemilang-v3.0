@@ -13,6 +13,8 @@ exports.CreateScheduleDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateScheduleDto {
     class_id;
+    major_id;
+    batch_id;
     subject_id;
     teacher_id;
     day;
@@ -25,6 +27,16 @@ __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "class_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateScheduleDto.prototype, "major_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateScheduleDto.prototype, "batch_id", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsUUID)(),

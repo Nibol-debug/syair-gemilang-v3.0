@@ -6,8 +6,8 @@ export declare class SubjectsController {
     constructor(subjectsService: SubjectsService);
     create(createSubjectDto: CreateSubjectDto): Promise<{
         id: string;
-        name: string;
         major_id: string | null;
+        name: string;
     }>;
     findAll(pagination: PaginationDto, major_id?: string): Promise<{
         data: ({
@@ -19,8 +19,8 @@ export declare class SubjectsController {
             } | null;
         } & {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         })[];
         meta: {
             total: number;
@@ -38,12 +38,12 @@ export declare class SubjectsController {
         } | null;
     } & {
         id: string;
-        name: string;
         major_id: string | null;
+        name: string;
     }>;
     remove(id: string): Promise<{
         id: string;
-        name: string;
         major_id: string | null;
+        name: string;
     }>;
 }

@@ -9,11 +9,11 @@ export declare class StudentsService {
     create(createStudentDto: CreateStudentDto): Promise<{
         parents: {
             id: string;
+            address: string;
+            phone: string;
             student_id: string;
             father_name: string;
             mother_name: string;
-            phone: string;
-            address: string;
         }[];
         histories: {
             id: string;
@@ -24,18 +24,18 @@ export declare class StudentsService {
         }[];
     } & {
         id: string;
-        phone: string;
-        address: string;
+        full_name: string;
+        status: string;
+        major_id: string;
         nis: string;
         nik: string;
-        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
+        address: string;
+        phone: string;
         email: string;
-        class_id: string;
-        status: string;
-        major_id: string;
+        class_id: string | null;
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
@@ -53,6 +53,14 @@ export declare class StudentsService {
                 created_at: Date;
                 code: string;
             };
+            class: {
+                id: string;
+                major_id: string;
+                name: string;
+                batch_id: string;
+                grade_level: number;
+                homeroom_teacher_id: string | null;
+            } | null;
             batch: {
                 id: string;
                 name: string;
@@ -60,28 +68,28 @@ export declare class StudentsService {
                 year_end: number;
                 is_active: boolean;
             };
-            class: {
+            parents: {
                 id: string;
-                name: string;
-                grade_level: number;
-                major_id: string;
-                batch_id: string;
-                homeroom_teacher_id: string | null;
-            };
+                address: string;
+                phone: string;
+                student_id: string;
+                father_name: string;
+                mother_name: string;
+            }[];
         } & {
             id: string;
-            phone: string;
-            address: string;
+            full_name: string;
+            status: string;
+            major_id: string;
             nis: string;
             nik: string;
-            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
+            address: string;
+            phone: string;
             email: string;
-            class_id: string;
-            status: string;
-            major_id: string;
+            class_id: string | null;
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
@@ -100,6 +108,14 @@ export declare class StudentsService {
             created_at: Date;
             code: string;
         };
+        class: {
+            id: string;
+            major_id: string;
+            name: string;
+            batch_id: string;
+            grade_level: number;
+            homeroom_teacher_id: string | null;
+        } | null;
         batch: {
             id: string;
             name: string;
@@ -107,21 +123,13 @@ export declare class StudentsService {
             year_end: number;
             is_active: boolean;
         };
-        class: {
-            id: string;
-            name: string;
-            grade_level: number;
-            major_id: string;
-            batch_id: string;
-            homeroom_teacher_id: string | null;
-        };
         parents: {
             id: string;
+            address: string;
+            phone: string;
             student_id: string;
             father_name: string;
             mother_name: string;
-            phone: string;
-            address: string;
         }[];
         histories: {
             id: string;
@@ -132,54 +140,70 @@ export declare class StudentsService {
         }[];
     } & {
         id: string;
-        phone: string;
-        address: string;
+        full_name: string;
+        status: string;
+        major_id: string;
         nis: string;
         nik: string;
-        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
+        address: string;
+        phone: string;
         email: string;
-        class_id: string;
-        status: string;
-        major_id: string;
+        class_id: string | null;
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
+        parents: {
+            id: string;
+            address: string;
+            phone: string;
+            student_id: string;
+            father_name: string;
+            mother_name: string;
+        }[];
+        histories: {
+            id: string;
+            student_id: string;
+            type: string;
+            description: string;
+            date: Date;
+        }[];
+    } & {
         id: string;
-        phone: string;
-        address: string;
+        full_name: string;
+        status: string;
+        major_id: string;
         nis: string;
         nik: string;
-        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
+        address: string;
+        phone: string;
         email: string;
-        class_id: string;
-        status: string;
-        major_id: string;
+        class_id: string | null;
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        phone: string;
-        address: string;
+        full_name: string;
+        status: string;
+        major_id: string;
         nis: string;
         nik: string;
-        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
+        address: string;
+        phone: string;
         email: string;
-        class_id: string;
-        status: string;
-        major_id: string;
+        class_id: string | null;
         batch_id: string;
         qr_code: string | null;
         created_at: Date;

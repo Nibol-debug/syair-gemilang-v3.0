@@ -5,7 +5,9 @@ export declare class SchedulesService {
     constructor(prisma: PrismaService);
     create(data: CreateScheduleDto): Promise<{
         id: string;
-        class_id: string;
+        major_id: string;
+        class_id: string | null;
+        batch_id: string;
         day: string;
         subject_id: string;
         teacher_id: string;
@@ -19,29 +21,31 @@ export declare class SchedulesService {
     }): Promise<({
         class: {
             id: string;
-            name: string;
-            grade_level: number;
             major_id: string;
+            name: string;
             batch_id: string;
+            grade_level: number;
             homeroom_teacher_id: string | null;
-        };
+        } | null;
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
+            name: string;
         };
         teacher: {
             id: string;
             full_name: string;
-            status: string;
-            major_id: string | null;
             education: string;
             position: string;
             join_date: Date;
+            status: string;
+            major_id: string | null;
         };
     } & {
         id: string;
-        class_id: string;
+        major_id: string;
+        class_id: string | null;
+        batch_id: string;
         day: string;
         subject_id: string;
         teacher_id: string;
@@ -50,7 +54,9 @@ export declare class SchedulesService {
     })[]>;
     remove(id: string): Promise<{
         id: string;
-        class_id: string;
+        major_id: string;
+        class_id: string | null;
+        batch_id: string;
         day: string;
         subject_id: string;
         teacher_id: string;

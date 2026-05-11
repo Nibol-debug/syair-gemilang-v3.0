@@ -71,4 +71,50 @@ export class ExamsService {
     if (!exam) throw new NotFoundException('Exam not found');
     return exam;
   }
+
+  // Questions Management
+  async addQuestion(examId: string, data: any) {
+    const { options, ...questionData } = data;
+    return this.prisma.question.create({
+      data: {
+        ...questionData,
+        exam: { connect: { id: examId } },
+        options: options ? {
+          create: options
+        } : undefined
+      },
+      include: { options: true }
+    });
+  }
+
+  async updateQuestion(questionId: string, data: any) {
+    const { options, ...questionData } = data;
+
+    // If options are provided, we might want to recreate them or update them.
+    // For simplicity, if options are provided, we delete old ones and create new ones.
+    if (options) {
+      await this.prisma.questionOption.deleteMany({
+        where: { question_id: questionId }
+      });
+    }
+
+    return this.prisma.question.update({
+      where: { id: questionId },
+      data: {
+        ...questionData,
+        options: options ? {
+          create: options
+        } : undefined
+      },
+      include: { options: true }
+    });
+  }
+
+  async deleteQuestion(questionId: string) {
+    // Cascade delete is handled by prisma if configured, 
+    // but here we manually delete options first if needed or let onDelete handle it.
+    return this.prisma.question.delete({
+      where: { id: questionId }
+    });
+  }
 }

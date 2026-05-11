@@ -30,6 +30,10 @@ const academic_calendar_module_1 = require("./academic-calendar/academic-calenda
 const exams_module_1 = require("./exams/exams.module");
 const exam_sessions_module_1 = require("./exam-sessions/exam-sessions.module");
 const grades_module_1 = require("./grades/grades.module");
+const stats_module_1 = require("./stats/stats.module");
+const applicants_module_1 = require("./applicants/applicants.module");
+const finance_module_1 = require("./finance/finance.module");
+const assets_module_1 = require("./assets/assets.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -54,6 +58,10 @@ exports.AppModule = AppModule = __decorate([
             exams_module_1.ExamsModule,
             exam_sessions_module_1.ExamSessionsModule,
             grades_module_1.GradesModule,
+            stats_module_1.StatsModule,
+            applicants_module_1.ApplicantsModule,
+            finance_module_1.FinanceModule,
+            assets_module_1.AssetsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

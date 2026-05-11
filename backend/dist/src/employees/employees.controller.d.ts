@@ -8,11 +8,11 @@ export declare class EmployeesController {
     create(createEmployeeDto: CreateEmployeeDto): Promise<{
         id: string;
         full_name: string;
-        status: string;
-        major_id: string | null;
         education: string;
         position: string;
         join_date: Date;
+        status: string;
+        major_id: string | null;
     }>;
     findAll(pagination: PaginationDto, major_id?: string, search?: string): Promise<{
         data: ({
@@ -25,11 +25,11 @@ export declare class EmployeesController {
         } & {
             id: string;
             full_name: string;
-            status: string;
-            major_id: string | null;
             education: string;
             position: string;
             join_date: Date;
+            status: string;
+            major_id: string | null;
         })[];
         meta: {
             total: number;
@@ -45,44 +45,44 @@ export declare class EmployeesController {
             created_at: Date;
             code: string;
         } | null;
-        attendance: {
-            id: string;
-            employee_id: string;
-            status: string;
-            date: Date;
-        }[];
         documents: {
             id: string;
             employee_id: string;
             type: string;
             file_url: string;
         }[];
+        attendance: {
+            id: string;
+            status: string;
+            employee_id: string;
+            date: Date;
+        }[];
     } & {
         id: string;
         full_name: string;
-        status: string;
-        major_id: string | null;
         education: string;
         position: string;
         join_date: Date;
+        status: string;
+        major_id: string | null;
     }>;
     update(id: string, updateEmployeeDto: UpdateEmployeeDto): Promise<{
         id: string;
         full_name: string;
-        status: string;
-        major_id: string | null;
         education: string;
         position: string;
         join_date: Date;
+        status: string;
+        major_id: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         full_name: string;
-        status: string;
-        major_id: string | null;
         education: string;
         position: string;
         join_date: Date;
+        status: string;
+        major_id: string | null;
     }>;
     uploadDocument(id: string, file: Express.Multer.File, type: string): Promise<{
         id: string;

@@ -14,23 +14,12 @@ export class StudentsService {
   async create(createStudentDto: CreateStudentDto) {
     const { parents, ...studentData } = createStudentDto;
 
-    // Get major_id and batch_id from class
-    const studentClass = await this.prisma.class.findUnique({
-      where: { id: studentData.class_id },
-    });
-
-    if (!studentClass) {
-      throw new NotFoundException(`Class with ID ${studentData.class_id} not found`);
-    }
-
     // Generate QR Code content (NIS)
     const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
 
     return this.prisma.student.create({
       data: {
         ...studentData,
-        major_id: studentClass.major_id,
-        batch_id: studentClass.batch_id,
         qr_code: qrCodeBase64,
         parents: parents ? {
           create: parents
@@ -73,6 +62,7 @@ export class StudentsService {
           class: true,
           major: true,
           batch: true,
+          parents: true,
         },
       }),
       this.prisma.student.count({ where }),
@@ -106,20 +96,40 @@ export class StudentsService {
 
   async update(id: string, updateStudentDto: UpdateStudentDto) {
     const { parents, ...studentData } = updateStudentDto;
+    
+    // Get current student to check status change
+    const currentStudent = await this.prisma.student.findUnique({ where: { id } });
+    if (!currentStudent) throw new NotFoundException(`Student with ID ${id} not found`);
+
     const data: any = { ...studentData };
 
-    if (studentData.class_id) {
-      const studentClass = await this.prisma.class.findUnique({
-        where: { id: studentData.class_id },
-      });
-      if (!studentClass) throw new NotFoundException('Class not found');
-      data.major_id = studentClass.major_id;
-      data.batch_id = studentClass.batch_id;
+    // Regenerate QR Code if NIS changed
+    if (studentData.nis && studentData.nis !== currentStudent.nis) {
+      data.qr_code = await QRCode.toDataURL(studentData.nis);
     }
 
+    if (parents) {
+      data.parents = {
+        deleteMany: {},
+        create: parents,
+      };
+    }
+
+    // Add history if status changed
+    if (studentData.status && studentData.status !== currentStudent.status) {
+      data.histories = {
+        create: {
+          type: studentData.status,
+          description: `Status diubah dari ${currentStudent.status} ke ${studentData.status}`,
+          date: new Date(),
+        }
+      };
+    }
+    
     return this.prisma.student.update({
       where: { id },
       data,
+      include: { parents: true, histories: true }
     });
   }
 
@@ -153,8 +163,8 @@ export class StudentsService {
       worksheet.addRow({
         nis: s.nis,
         full_name: s.full_name,
-        class: s.class.name,
-        major: s.major.name,
+        class: s.class?.name || '-',
+        major: s.major?.name || '-',
         status: s.status,
       });
     });
@@ -192,7 +202,12 @@ export class StudentsService {
         if (studentClass) {
           await this.prisma.student.upsert({
             where: { nis },
-            update: { full_name, class_id: studentClass.id },
+            update: { 
+              full_name, 
+              class_id: studentClass.id,
+              major_id: studentClass.major_id,
+              batch_id: studentClass.batch_id
+            },
             create: {
               nis,
               nik: nis,

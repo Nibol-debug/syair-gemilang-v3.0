@@ -15,6 +15,8 @@ const class_transformer_1 = require("class-transformer");
 class CreateTeachingLogDto {
     teacher_id;
     class_id;
+    major_id;
+    batch_id;
     subject_id;
     note;
     date;
@@ -30,6 +32,16 @@ __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateTeachingLogDto.prototype, "class_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateTeachingLogDto.prototype, "major_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateTeachingLogDto.prototype, "batch_id", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsUUID)(),
