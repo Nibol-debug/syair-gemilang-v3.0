@@ -22,9 +22,9 @@ export declare class EmployeesService {
             major: {
                 id: string;
                 name: string;
+                code: string;
                 branch_id: string;
                 created_at: Date;
-                code: string;
             } | null;
         } & {
             id: string;
@@ -46,15 +46,15 @@ export declare class EmployeesService {
         major: {
             id: string;
             name: string;
+            code: string;
             branch_id: string;
             created_at: Date;
-            code: string;
         } | null;
         documents: {
             id: string;
             employee_id: string;
-            type: string;
             file_url: string;
+            type: string;
         }[];
         attendance: {
             id: string;
@@ -92,7 +92,20 @@ export declare class EmployeesService {
     addDocument(employeeId: string, fileUrl: string, type: string): Promise<{
         id: string;
         employee_id: string;
-        type: string;
         file_url: string;
+        type: string;
+    }>;
+    getAttendanceByDate(dateStr: string): Promise<{
+        id: string;
+        full_name: string;
+        position: string;
+        major: string;
+        status: string;
+    }[]>;
+    recordBulkAttendance(dateStr: string, records: {
+        employee_id: string;
+        status: string;
+    }[]): Promise<{
+        count: number;
     }>;
 }

@@ -167,12 +167,31 @@ let StatsService = class StatsService {
         };
     }
     async getEmployeeStats() {
-        const [total, teachers, staff] = await Promise.all([
+        const [total, teachers, staff, employees] = await Promise.all([
             this.prisma.employee.count(),
             this.prisma.employee.count({ where: { position: { contains: 'Guru' } } }),
             this.prisma.employee.count({ where: { NOT: { position: { contains: 'Guru' } } } }),
+            this.prisma.employee.findMany({
+                select: { education: true, status: true, major_id: true }
+            }),
         ]);
-        return { total, teachers, staff };
+        const educationDist = {};
+        employees.forEach(e => {
+            const label = e.education || 'Lainnya';
+            educationDist[label] = (educationDist[label] || 0) + 1;
+        });
+        const statusDist = {};
+        employees.forEach(e => {
+            const label = e.status || 'unknown';
+            statusDist[label] = (statusDist[label] || 0) + 1;
+        });
+        return {
+            total,
+            teachers,
+            staff,
+            educationDistribution: Object.entries(educationDist).map(([name, value]) => ({ name, value })),
+            statusDistribution: Object.entries(statusDist).map(([name, value]) => ({ name, value }))
+        };
     }
 };
 exports.StatsService = StatsService;

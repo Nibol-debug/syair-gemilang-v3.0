@@ -28,7 +28,8 @@ let ExamSessionsService = class ExamSessionsService {
             throw new common_1.BadRequestException('Invalid exam token');
         }
         const student = await this.prisma.student.findUnique({
-            where: { id: studentId }
+            where: { id: studentId },
+            include: { user: true }
         });
         if (!student)
             throw new common_1.NotFoundException('Student not found');
@@ -38,6 +39,26 @@ let ExamSessionsService = class ExamSessionsService {
         const now = new Date();
         if (now < exam.start_time || now > exam.end_time) {
             throw new common_1.BadRequestException('Exam is not currently active');
+        }
+        if (student.user && data.device_id) {
+            const activeDevices = await this.prisma.userDevice.findMany({
+                where: { user_id: student.user.id, is_active: true }
+            });
+            if (activeDevices.length > 0) {
+                const isDeviceAllowed = activeDevices.some(d => d.device_id === data.device_id);
+                if (!isDeviceAllowed) {
+                    throw new common_1.ForbiddenException('Akun Anda terkunci pada perangkat lain. Silakan hubungi Administrator untuk mereset perangkat.');
+                }
+            }
+            else {
+                await this.prisma.userDevice.create({
+                    data: {
+                        user_id: student.user.id,
+                        device_id: data.device_id,
+                        is_active: true
+                    }
+                });
+            }
         }
         const existing = await this.prisma.examSession.findFirst({
             where: { student_id: studentId, exam_id: examId }
@@ -75,12 +96,22 @@ let ExamSessionsService = class ExamSessionsService {
         });
     }
     async logViolation(sessionId, data) {
-        return this.prisma.examLog.create({
+        const log = await this.prisma.examLog.create({
             data: {
                 session_id: sessionId,
                 type: data.type,
             }
         });
+        const violationCount = await this.prisma.examLog.count({
+            where: { session_id: sessionId }
+        });
+        if (violationCount >= 3) {
+            const session = await this.prisma.examSession.findUnique({ where: { id: sessionId } });
+            if (session && session.status !== 'submitted') {
+                await this.finalizeExam(sessionId);
+            }
+        }
+        return log;
     }
     async finalizeExam(sessionId) {
         const session = await this.prisma.examSession.findUnique({

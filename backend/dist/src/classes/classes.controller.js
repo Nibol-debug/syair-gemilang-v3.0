@@ -18,6 +18,9 @@ const classes_service_1 = require("./classes.service");
 const create_class_dto_1 = require("./dto/create-class.dto");
 const update_class_dto_1 = require("./dto/update-class.dto");
 const pagination_dto_1 = require("../common/dto/pagination.dto");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let ClassesController = class ClassesController {
     classesService;
     constructor(classesService) {
@@ -42,6 +45,7 @@ let ClassesController = class ClassesController {
 exports.ClassesController = ClassesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_class_dto_1.CreateClassDto]),
@@ -63,6 +67,7 @@ __decorate([
 ], ClassesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -71,6 +76,7 @@ __decorate([
 ], ClassesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -78,6 +84,7 @@ __decorate([
 ], ClassesController.prototype, "remove", null);
 exports.ClassesController = ClassesController = __decorate([
     (0, common_1.Controller)('classes'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [classes_service_1.ClassesService])
 ], ClassesController);
 //# sourceMappingURL=classes.controller.js.map

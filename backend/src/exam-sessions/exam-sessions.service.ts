@@ -19,9 +19,10 @@ export class ExamSessionsService {
       throw new BadRequestException('Invalid exam token');
     }
 
-    // 2. Check Student Major
+    // 2. Check Student Major & User linkage for Device Locking
     const student = await this.prisma.student.findUnique({
-      where: { id: studentId }
+      where: { id: studentId },
+      include: { user: true }
     });
     if (!student) throw new NotFoundException('Student not found');
     
@@ -35,7 +36,31 @@ export class ExamSessionsService {
       throw new BadRequestException('Exam is not currently active');
     }
 
-    // 4. Check Existing Session
+    // 4. Implement Device Locking (Proposal 4.2 & 4.6)
+    if (student.user && data.device_id) {
+      const activeDevices = await this.prisma.userDevice.findMany({
+        where: { user_id: student.user.id, is_active: true }
+      });
+
+      if (activeDevices.length > 0) {
+        // Cek apakah device_id yang digunakan saat ini terdaftar dan aktif
+        const isDeviceAllowed = activeDevices.some(d => d.device_id === data.device_id);
+        if (!isDeviceAllowed) {
+          throw new ForbiddenException('Akun Anda terkunci pada perangkat lain. Silakan hubungi Administrator untuk mereset perangkat.');
+        }
+      } else {
+        // Jika belum ada device aktif, daftarkan device ini sebagai yang terkunci
+        await this.prisma.userDevice.create({
+          data: {
+            user_id: student.user.id,
+            device_id: data.device_id,
+            is_active: true
+          }
+        });
+      }
+    }
+
+    // 5. Check Existing Session
     const existing = await this.prisma.examSession.findFirst({
       where: { student_id: studentId, exam_id: examId }
     });
@@ -76,12 +101,26 @@ export class ExamSessionsService {
   }
 
   async logViolation(sessionId: string, data: LogViolationDto) {
-    return this.prisma.examLog.create({
+    const log = await this.prisma.examLog.create({
       data: {
         session_id: sessionId,
         type: data.type,
       }
     });
+
+    // Check violation count for auto-submit safety (Proposal 4.6)
+    const violationCount = await this.prisma.examLog.count({
+      where: { session_id: sessionId }
+    });
+
+    if (violationCount >= 3) {
+      const session = await this.prisma.examSession.findUnique({ where: { id: sessionId } });
+      if (session && session.status !== 'submitted') {
+        await this.finalizeExam(sessionId);
+      }
+    }
+
+    return log;
   }
 
   async finalizeExam(sessionId: string) {

@@ -18,6 +18,9 @@ const majors_service_1 = require("./majors.service");
 const create_major_dto_1 = require("./dto/create-major.dto");
 const update_major_dto_1 = require("./dto/update-major.dto");
 const pagination_dto_1 = require("../common/dto/pagination.dto");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let MajorsController = class MajorsController {
     majorsService;
     constructor(majorsService) {
@@ -42,6 +45,7 @@ let MajorsController = class MajorsController {
 exports.MajorsController = MajorsController;
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_major_dto_1.CreateMajorDto]),
@@ -63,6 +67,7 @@ __decorate([
 ], MajorsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -71,6 +76,7 @@ __decorate([
 ], MajorsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -78,6 +84,7 @@ __decorate([
 ], MajorsController.prototype, "remove", null);
 exports.MajorsController = MajorsController = __decorate([
     (0, common_1.Controller)('majors'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [majors_service_1.MajorsService])
 ], MajorsController);
 //# sourceMappingURL=majors.controller.js.map

@@ -32,6 +32,8 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
+  const [warnings, setWarnings] = useState(0);
+  const WARNING_LIMIT = 3;
 
   const fetchExamInfo = async () => {
     try {
@@ -55,23 +57,57 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     if (session && timeLeft > 0) {
       const handleVisibilityChange = () => {
         if (document.hidden) {
-          logViolation('tab_switch');
+          handleViolation('tab_switch', 'Jangan berpindah tab browser saat ujian!');
         }
       };
 
       const handleBlur = () => {
-        logViolation('window_blur');
+        handleViolation('window_blur', 'Jangan meninggalkan jendela ujian!');
+      };
+
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+          handleViolation('exit_fullscreen', 'Ujian harus dalam mode Layar Penuh (Fullscreen)!');
+        }
       };
 
       window.addEventListener('visibilitychange', handleVisibilityChange);
       window.addEventListener('blur', handleBlur);
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
 
       return () => {
         window.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('blur', handleBlur);
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
       };
     }
-  }, [session, timeLeft]);
+  }, [session, timeLeft, warnings]);
+
+  const handleViolation = async (type: string, message: string) => {
+    if (!session || isSubmitting) return;
+    
+    const newWarnings = warnings + 1;
+    setWarnings(newWarnings);
+    
+    // Log to backend
+    logViolation(type);
+
+    if (newWarnings >= WARNING_LIMIT) {
+      alert(`DISKUALIFIKASI: Anda telah melanggar aturan ujian sebanyak ${WARNING_LIMIT} kali. Ujian akan dikumpulkan otomatis.`);
+      forceSubmitExam();
+    } else {
+      alert(`PERINGATAN (${newWarnings}/${WARNING_LIMIT}): ${message}\n\nJika mencapai ${WARNING_LIMIT} kali, ujian akan dikumpulkan otomatis!`);
+      
+      // Try to re-enforce fullscreen if they exited
+      if (type === 'exit_fullscreen') {
+        try {
+          await document.documentElement.requestFullscreen();
+        } catch (err) {
+          console.error('Failed to re-enforce fullscreen');
+        }
+      }
+    }
+  };
 
   const logViolation = async (type: string) => {
     if (!session) return;
@@ -80,10 +116,21 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
         method: 'POST',
         body: JSON.stringify({ type })
       });
-      // Optionally show a warning to the student
-      console.warn(`Violation detected: ${type}`);
     } catch (err) {
       console.error('Failed to log violation', err);
+    }
+  };
+
+  const forceSubmitExam = async () => {
+    setIsSubmitting(true);
+    try {
+      await apiRequest(`/exams/sessions/${session.id}/submit`, {
+        method: 'POST'
+      });
+      router.push('/cbt');
+    } catch (err: any) {
+      console.error('Failed to auto-submit', err);
+      router.push('/cbt');
     }
   };
 

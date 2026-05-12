@@ -110,5 +110,13 @@ export declare class StatsService {
         total: number;
         teachers: number;
         staff: number;
+        educationDistribution: {
+            name: string;
+            value: number;
+        }[];
+        statusDistribution: {
+            name: string;
+            value: number;
+        }[];
     }>;
 }

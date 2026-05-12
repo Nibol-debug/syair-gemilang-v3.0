@@ -18,6 +18,9 @@ const batches_service_1 = require("./batches.service");
 const create_batch_dto_1 = require("./dto/create-batch.dto");
 const update_batch_dto_1 = require("./dto/update-batch.dto");
 const pagination_dto_1 = require("../common/dto/pagination.dto");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let BatchesController = class BatchesController {
     batchesService;
     constructor(batchesService) {
@@ -42,6 +45,7 @@ let BatchesController = class BatchesController {
 exports.BatchesController = BatchesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_batch_dto_1.CreateBatchDto]),
@@ -63,6 +67,7 @@ __decorate([
 ], BatchesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -71,6 +76,7 @@ __decorate([
 ], BatchesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -78,6 +84,7 @@ __decorate([
 ], BatchesController.prototype, "remove", null);
 exports.BatchesController = BatchesController = __decorate([
     (0, common_1.Controller)('batches'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [batches_service_1.BatchesService])
 ], BatchesController);
 //# sourceMappingURL=batches.controller.js.map

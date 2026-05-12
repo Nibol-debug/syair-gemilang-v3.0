@@ -85,6 +85,63 @@ let EmployeesService = class EmployeesService {
             },
         });
     }
+    async getAttendanceByDate(dateStr) {
+        const date = new Date(dateStr);
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+        const employees = await this.prisma.employee.findMany({
+            include: {
+                attendance: {
+                    where: {
+                        date: {
+                            gte: date,
+                            lt: nextDay,
+                        },
+                    },
+                },
+                major: true,
+            },
+            orderBy: { full_name: 'asc' },
+        });
+        return employees.map(emp => ({
+            id: emp.id,
+            full_name: emp.full_name,
+            position: emp.position,
+            major: emp.major?.code || 'STAF',
+            status: emp.attendance[0]?.status || '',
+        }));
+    }
+    async recordBulkAttendance(dateStr, records) {
+        const date = new Date(dateStr);
+        date.setHours(0, 0, 0, 0);
+        const nextDay = new Date(date);
+        nextDay.setDate(date.getDate() + 1);
+        const validRecords = records.filter(r => r.status);
+        return this.prisma.$transaction(async (tx) => {
+            await tx.employeeAttendance.deleteMany({
+                where: {
+                    date: {
+                        gte: date,
+                        lt: nextDay,
+                    },
+                    employee_id: {
+                        in: validRecords.map(r => r.employee_id)
+                    }
+                }
+            });
+            if (validRecords.length > 0) {
+                await tx.employeeAttendance.createMany({
+                    data: validRecords.map(r => ({
+                        employee_id: r.employee_id,
+                        status: r.status,
+                        date: date,
+                    }))
+                });
+            }
+            return { count: validRecords.length };
+        });
+    }
 };
 exports.EmployeesService = EmployeesService;
 exports.EmployeesService = EmployeesService = __decorate([

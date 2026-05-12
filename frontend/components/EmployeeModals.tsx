@@ -6,10 +6,45 @@ import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 
 // --- View Detail Modal ---
-export const ViewEmployeeModal = ({ employee, isOpen, onClose }: any) => {
+export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }: any) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'education' | 'documents'>('profile');
+  const [employee, setEmployee] = useState(initialEmployee);
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    setEmployee(initialEmployee);
+  }, [initialEmployee, isOpen]);
 
   if (!isOpen || !employee) return null;
+
+  const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const type = prompt('Jenis Dokumen (Ijazah, SK, Sertifikasi, dll):', 'Ijazah');
+    if (!type) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    try {
+      const res = await apiRequest(`/employees/${employee.id}/documents`, {
+        method: 'POST',
+        body: formData
+      });
+      setEmployee({
+        ...employee,
+        documents: [...(employee.documents || []), res]
+      });
+      alert('Dokumen berhasil diunggah!');
+    } catch (err: any) {
+      alert('Gagal unggah: ' + err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -125,10 +160,13 @@ export const ViewEmployeeModal = ({ employee, isOpen, onClose }: any) => {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                <div className="flex justify-between items-center mb-4">
                  <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Dokumen Pendukung</h5>
-                 <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 cursor-pointer transition-all">
-                    <Upload className="w-3.5 h-3.5" />
-                    Upload Baru
-                    <input type="file" className="hidden" />
+                 <label className={cn(
+                    "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 cursor-pointer transition-all",
+                    isUploading && "opacity-50 pointer-events-none"
+                 )}>
+                    {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                    {isUploading ? 'Mengunggah...' : 'Upload Baru'}
+                    <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploading} />
                  </label>
                </div>
                
@@ -142,10 +180,10 @@ export const ViewEmployeeModal = ({ employee, isOpen, onClose }: any) => {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-on-surface truncate max-w-[150px]">{doc.type}</p>
-                            <p className="text-[10px] font-medium text-on-surface-variant">Terunggah: {new Date().toLocaleDateString()}</p>
+                            <p className="text-[10px] font-medium text-on-surface-variant">Terunggah: {new Date(doc.created_at || Date.now()).toLocaleDateString()}</p>
                           </div>
                         </div>
-                        <a href={doc.file_url} target="_blank" className="p-2 text-outline-variant hover:text-primary transition-colors">
+                        <a href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${doc.file_url}`} target="_blank" className="p-2 text-outline-variant hover:text-primary transition-colors">
                           <Download className="w-4 h-4" />
                         </a>
                      </div>

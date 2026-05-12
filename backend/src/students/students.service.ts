@@ -14,6 +14,22 @@ export class StudentsService {
   async create(createStudentDto: CreateStudentDto) {
     const { parents, ...studentData } = createStudentDto;
 
+    // Force major_id and batch_id to follow class if class_id is provided
+    if (studentData.class_id) {
+      const selectedClass = await this.prisma.class.findUnique({
+        where: { id: studentData.class_id },
+        include: { major: true }
+      });
+      
+      if (!selectedClass) {
+        throw new NotFoundException(`Class with ID ${studentData.class_id} not found`);
+      }
+
+      studentData.major_id = selectedClass.major_id;
+      studentData.batch_id = selectedClass.batch_id;
+      studentData.branch_id = selectedClass.major.branch_id;
+    }
+
     // Generate QR Code content (NIS)
     const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
 
@@ -104,6 +120,22 @@ export class StudentsService {
     if (!currentStudent) throw new NotFoundException(`Student with ID ${id} not found`);
 
     const data: any = { ...studentData };
+
+    // Force major_id and batch_id to follow class if class_id is provided or changed
+    if (studentData.class_id) {
+      const selectedClass = await this.prisma.class.findUnique({
+        where: { id: studentData.class_id },
+        include: { major: true }
+      });
+      
+      if (!selectedClass) {
+        throw new NotFoundException(`Class with ID ${studentData.class_id} not found`);
+      }
+
+      data.major_id = selectedClass.major_id;
+      data.batch_id = selectedClass.batch_id;
+      data.branch_id = selectedClass.major.branch_id;
+    }
 
     // Regenerate QR Code if NIS changed
     if (studentData.nis && studentData.nis !== currentStudent.nis) {
@@ -205,16 +237,18 @@ export class StudentsService {
       const className = row.getCell(4).value?.toString();
       const email = row.getCell(5).value?.toString() || `${nis}@school.com`;
 
-      if (nis && full_name && className && branchName) {
-        const studentBranch = await this.prisma.branch.findFirst({ where: { name: branchName } });
-        const studentClass = await this.prisma.class.findFirst({ where: { name: className } });
+      if (nis && full_name && className) {
+        const studentClass = await this.prisma.class.findFirst({ 
+          where: { name: className },
+          include: { major: true }
+        });
         
-        if (studentClass && studentBranch) {
+        if (studentClass) {
           await this.prisma.student.upsert({
             where: { nis },
             update: { 
               full_name, 
-              branch_id: studentBranch.id,
+              branch_id: studentClass.major.branch_id,
               class_id: studentClass.id,
               major_id: studentClass.major_id,
               batch_id: studentClass.batch_id
@@ -229,7 +263,7 @@ export class StudentsService {
               birth_date: new Date(),
               address: '-',
               phone: '-',
-              branch_id: studentBranch.id,
+              branch_id: studentClass.major.branch_id,
               class_id: studentClass.id,
               major_id: studentClass.major_id,
               batch_id: studentClass.batch_id,

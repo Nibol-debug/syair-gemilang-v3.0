@@ -54,6 +54,18 @@ let StudentsService = class StudentsService {
     }
     async create(createStudentDto) {
         const { parents, ...studentData } = createStudentDto;
+        if (studentData.class_id) {
+            const selectedClass = await this.prisma.class.findUnique({
+                where: { id: studentData.class_id },
+                include: { major: true }
+            });
+            if (!selectedClass) {
+                throw new common_1.NotFoundException(`Class with ID ${studentData.class_id} not found`);
+            }
+            studentData.major_id = selectedClass.major_id;
+            studentData.batch_id = selectedClass.batch_id;
+            studentData.branch_id = selectedClass.major.branch_id;
+        }
         const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
         return this.prisma.student.create({
             data: {
@@ -135,6 +147,18 @@ let StudentsService = class StudentsService {
         if (!currentStudent)
             throw new common_1.NotFoundException(`Student with ID ${id} not found`);
         const data = { ...studentData };
+        if (studentData.class_id) {
+            const selectedClass = await this.prisma.class.findUnique({
+                where: { id: studentData.class_id },
+                include: { major: true }
+            });
+            if (!selectedClass) {
+                throw new common_1.NotFoundException(`Class with ID ${studentData.class_id} not found`);
+            }
+            data.major_id = selectedClass.major_id;
+            data.batch_id = selectedClass.batch_id;
+            data.branch_id = selectedClass.major.branch_id;
+        }
         if (studentData.nis && studentData.nis !== currentStudent.nis) {
             data.qr_code = await QRCode.toDataURL(studentData.nis);
         }
@@ -219,15 +243,17 @@ let StudentsService = class StudentsService {
             const branchName = row.getCell(3).value?.toString();
             const className = row.getCell(4).value?.toString();
             const email = row.getCell(5).value?.toString() || `${nis}@school.com`;
-            if (nis && full_name && className && branchName) {
-                const studentBranch = await this.prisma.branch.findFirst({ where: { name: branchName } });
-                const studentClass = await this.prisma.class.findFirst({ where: { name: className } });
-                if (studentClass && studentBranch) {
+            if (nis && full_name && className) {
+                const studentClass = await this.prisma.class.findFirst({
+                    where: { name: className },
+                    include: { major: true }
+                });
+                if (studentClass) {
                     await this.prisma.student.upsert({
                         where: { nis },
                         update: {
                             full_name,
-                            branch_id: studentBranch.id,
+                            branch_id: studentClass.major.branch_id,
                             class_id: studentClass.id,
                             major_id: studentClass.major_id,
                             batch_id: studentClass.batch_id
@@ -242,7 +268,7 @@ let StudentsService = class StudentsService {
                             birth_date: new Date(),
                             address: '-',
                             phone: '-',
-                            branch_id: studentBranch.id,
+                            branch_id: studentClass.major.branch_id,
                             class_id: studentClass.id,
                             major_id: studentClass.major_id,
                             batch_id: studentClass.batch_id,

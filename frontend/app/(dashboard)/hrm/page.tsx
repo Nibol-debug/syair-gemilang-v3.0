@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
 import { 
   Plus, 
@@ -18,7 +19,8 @@ import {
   GraduationCap,
   Users,
   Award,
-  ShieldCheck
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewEmployeeModal, EditEmployeeModal, DeleteEmployeeModal } from '@/components/EmployeeModals';
@@ -133,13 +135,22 @@ export default function EmployeesPage() {
           <h2 className="text-3xl font-bold text-on-surface tracking-tight">Manajemen Kepegawaian</h2>
           <p className="text-on-surface-variant font-medium mt-1">Kelola data Guru, Staf, dan dokumen kepegawaian.</p>
         </div>
-        <button 
-          onClick={() => openModal('create')}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tambah Pegawai</span>
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <Link 
+            href="/hrm/attendance"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-all active:scale-95 shadow-sm"
+          >
+            <Clock className="w-4 h-4 text-primary" />
+            <span>Kelola Presensi</span>
+          </Link>
+          <button 
+            onClick={() => openModal('create')}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Pegawai</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats Dashboard */}
