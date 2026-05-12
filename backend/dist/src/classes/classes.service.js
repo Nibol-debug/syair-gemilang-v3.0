@@ -30,7 +30,7 @@ let ClassesService = class ClassesService {
                 skip,
                 take: limit,
                 include: {
-                    major: true,
+                    major: { include: { branch: true } },
                     batch: true,
                     homeroom_teacher: true,
                 },

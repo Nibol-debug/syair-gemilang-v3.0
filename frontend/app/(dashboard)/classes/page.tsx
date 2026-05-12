@@ -13,10 +13,11 @@ import {
   X,
   Loader2,
   AlertCircle,
-  Layers,
   Users,
   Save,
-  UserCheck
+  UserCheck,
+  MapPin,
+  GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +49,7 @@ export default function ClassesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    grade_level: 10,
+    grade_level: 1,
     major_id: '',
     batch_id: '',
     homeroom_teacher_id: ''
@@ -124,9 +125,9 @@ export default function ClassesPage() {
       setSelectedClass(null);
       setFormData({
         name: '',
-        grade_level: 10,
+        grade_level: 1,
         major_id: majors[0]?.id || '',
-        batch_id: batches[0]?.id || '',
+        batch_id: batches.find(b => b.is_active)?.id || batches[0]?.id || '',
         homeroom_teacher_id: ''
       });
     }
@@ -186,7 +187,7 @@ export default function ClassesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
           <h2 className="text-3xl font-bold text-on-surface tracking-tight">Data Kelas</h2>
-          <p className="text-on-surface-variant font-medium mt-1">Kelola rombongan belajar dan wali kelas.</p>
+          <p className="text-on-surface-variant font-medium mt-1">Gunakan tabel ini untuk pemantauan rombongan belajar santri.</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
@@ -197,17 +198,11 @@ export default function ClassesPage() {
         </button>
       </div>
 
-      {/* Stats Dashboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Kelas" value={stats.total} icon={<Layers className="w-6 h-6" />} color="primary" />
-        <StatCard title="Aktif" value={stats.total} icon={<UserCheck className="w-6 h-6" />} color="success" />
-      </div>
-
       {/* Filter Section */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
         <div className="max-w-md">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pencarian</label>
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cari Rombel</label>
             <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
               <Search className="w-4 h-4 text-outline mr-3" />
               <input 
@@ -236,9 +231,8 @@ export default function ClassesPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
-                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Nama Kelas</th>
-                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Level</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Jurusan</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Cabang</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Angkatan</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Wali Kelas</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em] text-right">Aksi</th>
@@ -247,16 +241,13 @@ export default function ClassesPage() {
             <tbody className="text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                      <p className="text-on-surface-variant font-medium text-sm">Memuat data...</p>
-                    </div>
+                  <td colSpan={5} className="py-10 text-center">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : classes.length === 0 ? (
                 <tr>
-                   <td colSpan={6} className="py-10 text-center text-on-surface-variant font-medium flex flex-col items-center gap-2">
+                   <td colSpan={5} className="py-10 text-center text-on-surface-variant font-medium flex flex-col items-center gap-2">
                      <AlertCircle className="w-8 h-8 opacity-20" />
                      Belum ada data kelas.
                    </td>
@@ -264,14 +255,18 @@ export default function ClassesPage() {
               ) : (
                 classes.map((cls) => (
                   <tr key={cls.id} className="border-b border-surface-container-low hover:bg-surface-container/30 transition-colors group">
-                    <td className="py-4 px-8 font-bold text-on-surface">{cls.name}</td>
-                    <td className="py-4 px-8 font-semibold text-on-surface-variant">{cls.grade_level}</td>
+                    <td className="py-4 px-8 font-bold text-on-surface">{cls.major?.name || '-'}</td>
                     <td className="py-4 px-8">
-                      <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-                        {cls.major?.code || '-'}
+                      <span className="flex items-center gap-2 text-on-surface-variant font-bold text-xs uppercase tracking-wider">
+                        <MapPin className="w-3 h-3 text-primary" />
+                        {cls.major?.branch?.name || '-'}
                       </span>
                     </td>
-                    <td className="py-4 px-8 text-on-surface-variant font-medium">{cls.batch?.name || '-'}</td>
+                    <td className="py-4 px-8">
+                       <span className="px-3 py-1 rounded-lg bg-primary/10 text-primary font-black text-xs">
+                         Angkatan {cls.batch?.name || '-'}
+                       </span>
+                    </td>
                     <td className="py-4 px-8 text-on-surface-variant font-medium">{cls.homeroom_teacher?.full_name || '-'}</td>
                     <td className="py-4 px-8 text-right">
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -288,7 +283,7 @@ export default function ClassesPage() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
+                      <MoreHorizontal className="w-4 h-4 text-on-surface-variant group-hover:hidden ml-auto" />
                     </td>
                   </tr>
                 ))
@@ -325,7 +320,7 @@ export default function ClassesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
-              <h3 className="text-lg font-bold text-on-surface">{selectedClass ? 'Edit Kelas' : 'Tambah Kelas'}</h3>
+              <h3 className="text-lg font-bold text-on-surface">{selectedClass ? 'Edit Rombel' : 'Tambah Rombel'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -333,11 +328,11 @@ export default function ClassesPage() {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Kelas</label>
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Rombongan Belajar</label>
                 <input 
                   type="text" 
                   required 
-                  placeholder="Contoh: X RPL 1"
+                  placeholder="Contoh: 34 FD DPK 1"
                   value={formData.name} 
                   onChange={e => setFormData({...formData, name: e.target.value})} 
                   className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" 
@@ -346,20 +341,7 @@ export default function ClassesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tingkat / Level</label>
-                  <select 
-                    required 
-                    value={formData.grade_level} 
-                    onChange={e => setFormData({...formData, grade_level: parseInt(e.target.value)})} 
-                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
-                  >
-                    <option value={10}>Level 10</option>
-                    <option value={11}>Level 11</option>
-                    <option value={12}>Level 12</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Jurusan</label>
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Jurusan & Cabang</label>
                   <select 
                     required 
                     value={formData.major_id} 
@@ -367,12 +349,9 @@ export default function ClassesPage() {
                     className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
                   >
                     <option value="" disabled>Pilih Jurusan</option>
-                    {majors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    {majors.map(m => <option key={m.id} value={m.id}>{m.name} ({m.branch?.name})</option>)}
                   </select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Angkatan</label>
                   <select 
@@ -385,17 +364,18 @@ export default function ClassesPage() {
                     {batches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Wali Kelas (Opsional)</label>
-                  <select 
-                    value={formData.homeroom_teacher_id} 
-                    onChange={e => setFormData({...formData, homeroom_teacher_id: e.target.value})} 
-                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
-                  >
-                    <option value="">Tanpa Wali Kelas</option>
-                    {employees.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
-                  </select>
-                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Wali Kelas</label>
+                <select 
+                  value={formData.homeroom_teacher_id} 
+                  onChange={e => setFormData({...formData, homeroom_teacher_id: e.target.value})} 
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer"
+                >
+                  <option value="">Pilih Wali Kelas</option>
+                  {employees.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
+                </select>
               </div>
               
               <div className="pt-4 flex justify-end gap-3">
@@ -412,7 +392,7 @@ export default function ClassesPage() {
                   className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95"
                 >
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  <span>{selectedClass ? 'Update Kelas' : 'Simpan Kelas'}</span>
+                  <span>{selectedClass ? 'Update Data' : 'Simpan Data'}</span>
                 </button>
               </div>
             </form>
@@ -424,13 +404,13 @@ export default function ClassesPage() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
-            <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error">
+            <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
               <Trash2 className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-on-surface">Hapus Kelas?</h3>
+              <h3 className="text-xl font-bold text-on-surface">Hapus Rombel?</h3>
               <p className="text-on-surface-variant font-medium">
-                Anda akan menghapus kelas <span className="text-on-surface font-bold">"{selectedClass?.name}"</span>. Data siswa di kelas ini mungkin akan kehilangan referensi kelas.
+                Menghapus rombel <span className="text-on-surface font-bold">"{selectedClass?.name}"</span> akan melepaskan referensi kelas dari para santri di dalamnya.
               </p>
             </div>
             <div className="flex gap-3 pt-2">
@@ -447,26 +427,6 @@ export default function ClassesPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function StatCard({ title, value, icon, color }: any) {
-  const colorClasses: any = {
-    primary: "bg-primary/10 text-primary border-primary/20",
-    secondary: "bg-secondary/10 text-secondary border-secondary/20",
-    tertiary: "bg-tertiary/10 text-tertiary border-tertiary/20",
-    success: "bg-success-container/30 text-success border-success/20",
-  };
-
-  return (
-    <div className={cn("p-6 rounded-2xl border flex items-center gap-4 bg-surface-container-lowest shadow-sm", colorClasses[color])}>
-      <div className="p-3 rounded-xl bg-current opacity-10" />
-      <div className="absolute p-3">{icon}</div>
-      <div className="ml-12">
-        <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">{title}</p>
-        <p className="text-2xl font-black">{value}</p>
-      </div>
     </div>
   );
 }

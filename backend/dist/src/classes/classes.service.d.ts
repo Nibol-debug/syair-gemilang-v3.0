@@ -16,6 +16,12 @@ export declare class ClassesService {
     findAll(paginationDto: PaginationDto): Promise<{
         data: ({
             major: {
+                branch: {
+                    id: string;
+                    name: string;
+                    created_at: Date;
+                };
+            } & {
                 id: string;
                 name: string;
                 branch_id: string;

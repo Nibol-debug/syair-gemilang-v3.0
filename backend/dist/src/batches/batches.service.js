@@ -52,7 +52,13 @@ let BatchesService = class BatchesService {
         return batch;
     }
     async update(id, updateBatchDto) {
-        await this.findOne(id);
+        const batch = await this.findOne(id);
+        if (batch.is_active === true && updateBatchDto.is_active === false) {
+            await this.prisma.student.updateMany({
+                where: { batch_id: id, status: 'active' },
+                data: { status: 'alumni' },
+            });
+        }
         return this.prisma.batch.update({
             where: { id },
             data: updateBatchDto,

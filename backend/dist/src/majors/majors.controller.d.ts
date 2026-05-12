@@ -13,13 +13,19 @@ export declare class MajorsController {
         code: string;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
-        data: {
+        data: ({
+            branch: {
+                id: string;
+                name: string;
+                created_at: Date;
+            };
+        } & {
             id: string;
             name: string;
             branch_id: string;
             created_at: Date;
             code: string;
-        }[];
+        })[];
         meta: {
             total: number;
             page: number;

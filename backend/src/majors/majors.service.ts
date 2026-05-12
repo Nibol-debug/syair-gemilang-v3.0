@@ -22,6 +22,7 @@ export class MajorsService {
       this.prisma.major.findMany({
         skip,
         take: limit,
+        include: { branch: true },
         orderBy: { created_at: 'desc' },
       }),
       this.prisma.major.count(),
