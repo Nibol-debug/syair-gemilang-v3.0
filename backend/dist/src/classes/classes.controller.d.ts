@@ -18,14 +18,15 @@ export declare class ClassesController {
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             };
             batch: {
                 id: string;
                 name: string;
-                year_start: number;
-                year_end: number;
+                start_date: Date;
+                end_date: Date;
                 is_active: boolean;
             };
             homeroom_teacher: {
@@ -56,14 +57,15 @@ export declare class ClassesController {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         };
         batch: {
             id: string;
             name: string;
-            year_start: number;
-            year_end: number;
+            start_date: Date;
+            end_date: Date;
             is_active: boolean;
         };
         homeroom_teacher: {

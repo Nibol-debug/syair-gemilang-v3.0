@@ -34,7 +34,7 @@ let AttendancesController = class AttendancesController {
 exports.AttendancesController = AttendancesController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_attendance_dto_1.BulkCreateAttendanceDto]),
@@ -42,7 +42,7 @@ __decorate([
 ], AttendancesController.prototype, "bulkCreate", null);
 __decorate([
     (0, common_1.Get)('class/:id'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Query)('date')),
     __metadata("design:type", Function),

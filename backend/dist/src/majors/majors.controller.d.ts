@@ -8,6 +8,7 @@ export declare class MajorsController {
     create(createMajorDto: CreateMajorDto): Promise<{
         id: string;
         name: string;
+        branch_id: string;
         created_at: Date;
         code: string;
     }>;
@@ -15,6 +16,7 @@ export declare class MajorsController {
         data: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         }[];
@@ -28,18 +30,21 @@ export declare class MajorsController {
     findOne(id: string): Promise<{
         id: string;
         name: string;
+        branch_id: string;
         created_at: Date;
         code: string;
     }>;
     update(id: string, updateMajorDto: UpdateMajorDto): Promise<{
         id: string;
         name: string;
+        branch_id: string;
         created_at: Date;
         code: string;
     }>;
     remove(id: string): Promise<{
         id: string;
         name: string;
+        branch_id: string;
         created_at: Date;
         code: string;
     }>;

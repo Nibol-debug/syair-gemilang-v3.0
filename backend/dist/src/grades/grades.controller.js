@@ -44,7 +44,7 @@ let GradesController = class GradesController {
 exports.GradesController = GradesController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [grade_dto_1.CreateGradeDto]),
@@ -60,7 +60,7 @@ __decorate([
 ], GradesController.prototype, "findByStudent", null);
 __decorate([
     (0, common_1.Post)('finalize'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [grade_dto_1.FinalizeGradeDto]),

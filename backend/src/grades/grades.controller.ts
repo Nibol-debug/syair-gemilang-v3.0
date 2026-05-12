@@ -12,7 +12,7 @@ export class GradesController {
   constructor(private readonly gradesService: GradesService) {}
 
   @Post()
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   create(@Body() createGradeDto: CreateGradeDto) {
     return this.gradesService.create(createGradeDto);
   }
@@ -23,7 +23,7 @@ export class GradesController {
   }
 
   @Post('finalize')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   finalize(@Body() finalizeGradeDto: FinalizeGradeDto) {
     return this.gradesService.finalizeGrade(finalizeGradeDto);
   }

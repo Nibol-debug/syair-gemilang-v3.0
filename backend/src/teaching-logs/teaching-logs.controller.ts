@@ -11,13 +11,13 @@ export class TeachingLogsController {
   constructor(private readonly teachingLogsService: TeachingLogsService) {}
 
   @Post()
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   create(@Body() createTeachingLogDto: CreateTeachingLogDto) {
     return this.teachingLogsService.create(createTeachingLogDto);
   }
 
   @Get()
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   findAll(@Query('teacher_id') teacher_id?: string, @Query('class_id') class_id?: string) {
     return this.teachingLogsService.findAll({ teacher_id, class_id });
   }

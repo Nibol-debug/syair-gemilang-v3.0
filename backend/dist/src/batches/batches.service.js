@@ -29,7 +29,7 @@ let BatchesService = class BatchesService {
             this.prisma.batch.findMany({
                 skip,
                 take: limit,
-                orderBy: { year_start: 'desc' },
+                orderBy: { start_date: 'desc' },
             }),
             this.prisma.batch.count(),
         ]);

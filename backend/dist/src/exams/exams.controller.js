@@ -54,7 +54,7 @@ let ExamsController = class ExamsController {
 exports.ExamsController = ExamsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_exam_dto_1.CreateExamDto]),
@@ -85,7 +85,7 @@ __decorate([
 ], ExamsController.prototype, "getQuestions", null);
 __decorate([
     (0, common_1.Post)(':id/questions'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -94,7 +94,7 @@ __decorate([
 ], ExamsController.prototype, "addQuestion", null);
 __decorate([
     (0, common_1.Patch)('questions/:questionId'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('questionId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -103,7 +103,7 @@ __decorate([
 ], ExamsController.prototype, "updateQuestion", null);
 __decorate([
     (0, common_1.Delete)('questions/:questionId'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('questionId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

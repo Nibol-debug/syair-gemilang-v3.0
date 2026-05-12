@@ -34,7 +34,6 @@ export default function PPDBRegistrationPage() {
     address: '',
     previous_school: '',
     document_url: '',
-    branch: '',
     major_id: ''
   });
 
@@ -81,8 +80,8 @@ export default function PPDBRegistrationPage() {
       alert('Harap upload ijazah / berkas terlebih dahulu');
       return;
     }
-    if (!formData.branch || !formData.major_id) {
-      alert('Harap pilih Cabang dan Jurusan');
+    if (!formData.major_id) {
+      alert('Harap pilih Jurusan & Cabang');
       return;
     }
     setIsLoading(true);
@@ -198,34 +197,19 @@ export default function PPDBRegistrationPage() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <h2 className="text-xl font-bold text-on-surface flex items-center gap-3">
                   <School className="w-5 h-5 text-primary" />
-                  Pilihan Cabang & Jurusan
+                  Pilihan Jurusan & Cabang Kampus
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Cabang (Kampus)</label>
-                    <select 
-                      required
-                      value={formData.branch}
-                      onChange={e => setFormData({...formData, branch: e.target.value})}
-                      className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                    >
-                      <option value="">-- Pilih Cabang --</option>
-                      <option value="Depok">Depok</option>
-                      <option value="Magelang">Magelang</option>
-                      <option value="Jakarta">Jakarta</option>
-                    </select>
-                  </div>
-
+                <div className="grid grid-cols-1 gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Jurusan</label>
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Jurusan & Lokasi Kampus</label>
                     <select 
                       required
                       value={formData.major_id}
                       onChange={e => setFormData({...formData, major_id: e.target.value})}
                       className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                     >
-                      <option value="">-- Pilih Jurusan --</option>
+                      <option value="">-- Pilih Jurusan & Lokasi --</option>
                       {majors.map(m => (
                         <option key={m.id} value={m.id}>{m.name}</option>
                       ))}
@@ -279,8 +263,7 @@ export default function PPDBRegistrationPage() {
                   <ReviewItem label="Nama" value={formData.full_name} />
                   <ReviewItem label="Email" value={formData.email} />
                   <ReviewItem label="Telepon" value={formData.phone} />
-                  <ReviewItem label="Cabang Kampus" value={formData.branch} />
-                  <ReviewItem label="Jurusan" value={majors.find(m => m.id === formData.major_id)?.name} />
+                  <ReviewItem label="Jurusan & Cabang" value={majors.find(m => m.id === formData.major_id)?.name} />
                   <ReviewItem label="Asal Sekolah" value={formData.previous_school} />
                 </div>
                 <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20">

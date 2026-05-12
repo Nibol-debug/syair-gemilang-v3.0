@@ -12,7 +12,7 @@ export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
 
   @Post()
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   create(@Body() createExamDto: CreateExamDto) {
     return this.examsService.create(createExamDto);
   }
@@ -43,19 +43,19 @@ export class ExamsController {
 
   // Questions management
   @Post(':id/questions')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   addQuestion(@Param('id') id: string, @Body() data: any) {
     return this.examsService.addQuestion(id, data);
   }
 
   @Patch('questions/:questionId')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   updateQuestion(@Param('questionId') questionId: string, @Body() data: any) {
     return this.examsService.updateQuestion(questionId, data);
   }
 
   @Delete('questions/:questionId')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   removeQuestion(@Param('questionId') questionId: string) {
     return this.examsService.deleteQuestion(questionId);
   }

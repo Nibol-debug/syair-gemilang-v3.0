@@ -23,17 +23,24 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle().pipe(
         tap(async (data) => {
           if (user) {
-            await this.prisma.auditLog.create({
-              data: {
-                user: { connect: { id: user.id } },
-                action: method,
-                module: url.split('/')[3] || 'unknown',
-                data: {
-                  body: request.body,
-                  response: data,
-                },
-              },
-            });
+            try {
+              const userId = user.userId || user.id;
+              if (userId) {
+                await this.prisma.auditLog.create({
+                  data: {
+                    user: { connect: { id: userId } },
+                    action: method,
+                    module: url.split('/')[3] || 'unknown',
+                    data: {
+                      body: request.body,
+                      response: data,
+                    },
+                  },
+                });
+              }
+            } catch (err) {
+              console.error('Failed to create audit log:', err);
+            }
           }
         }),
       );

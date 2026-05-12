@@ -30,7 +30,7 @@ let AuditLogsController = class AuditLogsController {
 exports.AuditLogsController = AuditLogsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Query)('page')),
     __param(1, (0, common_1.Query)('limit')),
     __param(2, (0, common_1.Query)('module')),

@@ -1,6 +1,6 @@
 export declare class CreateBatchDto {
     name: string;
-    year_start: number;
-    year_end: number;
+    start_date: Date;
+    end_date: Date;
     is_active?: boolean;
 }

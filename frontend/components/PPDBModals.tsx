@@ -77,8 +77,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
             <div className="space-y-6">
                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Pendidikan & Lokasi</h4>
                <InfoRow icon={<School />} label="Asal Sekolah" value={applicant.previous_school} />
-               <InfoRow icon={<MapPin />} label="Cabang Kampus" value={applicant.branch} />
-               <InfoRow icon={<Award />} label="Pilihan Jurusan" value={applicant.major?.name} />
+               <InfoRow icon={<Award />} label="Pilihan Jurusan & Cabang" value={applicant.major?.name} />
                <InfoRow icon={<MapPin />} label="Alamat" value={applicant.address} />
             </div>
           </div>

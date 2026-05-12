@@ -50,7 +50,7 @@ let EmployeesController = class EmployeesController {
 exports.EmployeesController = EmployeesController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin', 'kepala_sekolah'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_employee_dto_1.CreateEmployeeDto]),
@@ -74,7 +74,7 @@ __decorate([
 ], EmployeesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, roles_decorator_1.Roles)('admin', 'kepala_sekolah'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -83,7 +83,7 @@ __decorate([
 ], EmployeesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -91,7 +91,7 @@ __decorate([
 ], EmployeesController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)(':id/documents'),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.UploadedFile)()),

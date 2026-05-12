@@ -19,6 +19,7 @@ export declare class EmployeesController {
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             } | null;
@@ -42,6 +43,7 @@ export declare class EmployeesController {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         } | null;

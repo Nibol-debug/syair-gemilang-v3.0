@@ -11,7 +11,7 @@ export class SchedulesController {
   constructor(private readonly schedulesService: SchedulesService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() createScheduleDto: CreateScheduleDto) {
     return this.schedulesService.create(createScheduleDto);
   }
@@ -26,7 +26,7 @@ export class SchedulesController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.schedulesService.remove(id);
   }

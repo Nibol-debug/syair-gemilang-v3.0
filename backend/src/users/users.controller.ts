@@ -23,7 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -34,37 +34,37 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() data: any) {
     return this.usersService.create(data);
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   update(@Param('id') id: string, @Body() data: any) {
     return this.usersService.update(id, data);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 
   @Get(':id/devices')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   getDevices(@Param('id') id: string) {
     return this.usersService.getDevices(id);
   }
 
   @Patch(':id/devices/:deviceId')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   toggleDevice(
     @Param('id') id: string,
     @Param('deviceId') deviceId: string,

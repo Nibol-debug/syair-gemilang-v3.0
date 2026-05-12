@@ -37,6 +37,11 @@ let StudentsController = class StudentsController {
     import(file) {
         return this.studentsService.importFromExcel(file);
     }
+    uploadPhoto(file) {
+        return {
+            url: `/uploads/profiles/${file.filename}`
+        };
+    }
     findOne(id) {
         return this.studentsService.findOne(id);
     }
@@ -77,6 +82,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], StudentsController.prototype, "import", null);
+__decorate([
+    (0, common_1.Post)('upload-photo'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photo', {
+        dest: './uploads/profiles',
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], StudentsController.prototype, "uploadPhoto", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

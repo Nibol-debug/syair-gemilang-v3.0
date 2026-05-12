@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 class CreateMajorDto {
     code;
     name;
+    branch_id;
 }
 exports.CreateMajorDto = CreateMajorDto;
 __decorate([
@@ -26,4 +27,9 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateMajorDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], CreateMajorDto.prototype, "branch_id", void 0);
 //# sourceMappingURL=create-major.dto.js.map

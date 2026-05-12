@@ -37,6 +37,7 @@ export declare class ExamsService {
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             };
@@ -69,6 +70,7 @@ export declare class ExamsService {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         };

@@ -10,25 +10,25 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() data: { name: string }) {
     return this.rolesService.create(data);
   }
 
   @Get()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findAll() {
     return this.rolesService.findAll();
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   update(@Param('id') id: string, @Body() data: { name?: string; permissionIds?: string[] }) {
     return this.rolesService.update(id, data);
   }

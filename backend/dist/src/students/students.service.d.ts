@@ -35,6 +35,11 @@ export declare class StudentsService {
         address: string;
         phone: string;
         email: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        branch_id: string;
         class_id: string | null;
         batch_id: string;
         qr_code: string | null;
@@ -44,14 +49,21 @@ export declare class StudentsService {
         class_id?: string;
         major_id?: string;
         batch_id?: string;
+        branch_id?: string;
         search?: string;
     }): Promise<{
         data: ({
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
+            };
+            branch: {
+                id: string;
+                name: string;
+                created_at: Date;
             };
             class: {
                 id: string;
@@ -64,8 +76,8 @@ export declare class StudentsService {
             batch: {
                 id: string;
                 name: string;
-                year_start: number;
-                year_end: number;
+                start_date: Date;
+                end_date: Date;
                 is_active: boolean;
             };
             parents: {
@@ -89,6 +101,11 @@ export declare class StudentsService {
             address: string;
             phone: string;
             email: string;
+            health_history: string | null;
+            profile_picture: string | null;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            branch_id: string;
             class_id: string | null;
             batch_id: string;
             qr_code: string | null;
@@ -105,8 +122,14 @@ export declare class StudentsService {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
+        };
+        branch: {
+            id: string;
+            name: string;
+            created_at: Date;
         };
         class: {
             id: string;
@@ -119,8 +142,8 @@ export declare class StudentsService {
         batch: {
             id: string;
             name: string;
-            year_start: number;
-            year_end: number;
+            start_date: Date;
+            end_date: Date;
             is_active: boolean;
         };
         parents: {
@@ -151,12 +174,22 @@ export declare class StudentsService {
         address: string;
         phone: string;
         email: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        branch_id: string;
         class_id: string | null;
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
+        branch: {
+            id: string;
+            name: string;
+            created_at: Date;
+        };
         parents: {
             id: string;
             address: string;
@@ -185,6 +218,11 @@ export declare class StudentsService {
         address: string;
         phone: string;
         email: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        branch_id: string;
         class_id: string | null;
         batch_id: string;
         qr_code: string | null;
@@ -203,6 +241,11 @@ export declare class StudentsService {
         address: string;
         phone: string;
         email: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        branch_id: string;
         class_id: string | null;
         batch_id: string;
         qr_code: string | null;

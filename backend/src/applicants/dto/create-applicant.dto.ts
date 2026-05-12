@@ -39,9 +39,5 @@ export class CreateApplicantDto {
 
   @IsString()
   @IsNotEmpty()
-  branch: string;
-
-  @IsString()
-  @IsNotEmpty()
   major_id: string;
 }

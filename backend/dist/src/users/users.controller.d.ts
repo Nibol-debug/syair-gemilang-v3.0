@@ -53,6 +53,11 @@ export declare class UsersController {
             address: string;
             phone: string;
             email: string;
+            health_history: string | null;
+            profile_picture: string | null;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            branch_id: string;
             class_id: string | null;
             batch_id: string;
             qr_code: string | null;

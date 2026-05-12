@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const serve_static_1 = require("@nestjs/serve-static");
+const path_1 = require("path");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
@@ -35,12 +37,17 @@ const applicants_module_1 = require("./applicants/applicants.module");
 const finance_module_1 = require("./finance/finance.module");
 const assets_module_1 = require("./assets/assets.module");
 const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
+const branches_module_1 = require("./branches/branches.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            serve_static_1.ServeStaticModule.forRoot({
+                rootPath: (0, path_1.join)(__dirname, '..', '..', 'uploads'),
+                serveRoot: '/uploads',
+            }),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
@@ -64,6 +71,7 @@ exports.AppModule = AppModule = __decorate([
             finance_module_1.FinanceModule,
             assets_module_1.AssetsModule,
             audit_logs_module_1.AuditLogsModule,
+            branches_module_1.BranchesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

@@ -8,6 +8,5 @@ export declare class CreateApplicantDto {
     address: string;
     previous_school: string;
     document_url?: string;
-    branch: string;
     major_id: string;
 }

@@ -14,7 +14,7 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Post()
-  @Roles('admin', 'kepala_sekolah')
+  @Roles('Administrator Utama', 'Kepala Sekolah')
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeesService.create(createEmployeeDto);
   }
@@ -34,19 +34,19 @@ export class EmployeesController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'kepala_sekolah')
+  @Roles('Administrator Utama', 'Kepala Sekolah')
   update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeesService.update(id, updateEmployeeDto);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.employeesService.remove(id);
   }
 
   @Post(':id/documents')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(
     @Param('id') id: string,

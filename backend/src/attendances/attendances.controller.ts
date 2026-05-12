@@ -11,13 +11,13 @@ export class AttendancesController {
   constructor(private readonly attendancesService: AttendancesService) {}
 
   @Post()
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   bulkCreate(@Body() data: BulkCreateAttendanceDto) {
     return this.attendancesService.bulkCreate(data);
   }
 
   @Get('class/:id')
-  @Roles('admin', 'guru')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   findByClass(@Param('id') classId: string, @Query('date') date: string) {
     return this.attendancesService.findByClass(classId, new Date(date));
   }

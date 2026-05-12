@@ -22,6 +22,7 @@ export declare class EmployeesService {
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             } | null;
@@ -45,6 +46,7 @@ export declare class EmployeesService {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         } | null;

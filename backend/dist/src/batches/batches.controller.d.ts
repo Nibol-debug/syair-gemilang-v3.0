@@ -8,16 +8,16 @@ export declare class BatchesController {
     create(createBatchDto: CreateBatchDto): Promise<{
         id: string;
         name: string;
-        year_start: number;
-        year_end: number;
+        start_date: Date;
+        end_date: Date;
         is_active: boolean;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
         data: {
             id: string;
             name: string;
-            year_start: number;
-            year_end: number;
+            start_date: Date;
+            end_date: Date;
             is_active: boolean;
         }[];
         meta: {
@@ -30,22 +30,22 @@ export declare class BatchesController {
     findOne(id: string): Promise<{
         id: string;
         name: string;
-        year_start: number;
-        year_end: number;
+        start_date: Date;
+        end_date: Date;
         is_active: boolean;
     }>;
     update(id: string, updateBatchDto: UpdateBatchDto): Promise<{
         id: string;
         name: string;
-        year_start: number;
-        year_end: number;
+        start_date: Date;
+        end_date: Date;
         is_active: boolean;
     }>;
     remove(id: string): Promise<{
         id: string;
         name: string;
-        year_start: number;
-        year_end: number;
+        start_date: Date;
+        end_date: Date;
         is_active: boolean;
     }>;
 }

@@ -17,7 +17,6 @@ export declare class ApplicantsController {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     uploadDocument(file: Express.Multer.File): {
         url: string;
@@ -27,6 +26,7 @@ export declare class ApplicantsController {
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             };
@@ -44,7 +44,6 @@ export declare class ApplicantsController {
             created_at: Date;
             previous_school: string;
             document_url: string | null;
-            branch: string;
         })[];
         meta: {
             total: number;
@@ -57,6 +56,7 @@ export declare class ApplicantsController {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         };
@@ -74,7 +74,6 @@ export declare class ApplicantsController {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     update(id: string, data: any): Promise<{
         id: string;
@@ -90,7 +89,6 @@ export declare class ApplicantsController {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     verify(id: string, status: string): Promise<{
         id: string;
@@ -106,7 +104,6 @@ export declare class ApplicantsController {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -122,6 +119,5 @@ export declare class ApplicantsController {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
 }

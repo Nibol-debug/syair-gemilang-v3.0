@@ -42,8 +42,8 @@ export default function BatchesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    year_start: new Date().getFullYear(),
-    year_end: new Date().getFullYear() + 3,
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0],
     is_active: true
   });
 
@@ -92,16 +92,16 @@ export default function BatchesPage() {
       setSelectedBatch(batch);
       setFormData({
         name: batch.name,
-        year_start: batch.year_start,
-        year_end: batch.year_end,
+        start_date: new Date(batch.start_date).toISOString().split('T')[0],
+        end_date: new Date(batch.end_date).toISOString().split('T')[0],
         is_active: batch.is_active ?? true
       });
     } else {
       setSelectedBatch(null);
       setFormData({
         name: '',
-        year_start: new Date().getFullYear(),
-        year_end: new Date().getFullYear() + 3,
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0],
         is_active: true
       });
     }
@@ -114,8 +114,8 @@ export default function BatchesPage() {
     try {
       const payload = {
         ...formData,
-        year_start: parseInt(formData.year_start.toString()),
-        year_end: parseInt(formData.year_end.toString())
+        start_date: new Date(formData.start_date).toISOString(),
+        end_date: new Date(formData.end_date).toISOString(),
       };
 
       if (selectedBatch) {
@@ -161,7 +161,7 @@ export default function BatchesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
           <h2 className="text-3xl font-bold text-on-surface tracking-tight">Data Angkatan</h2>
-          <p className="text-on-surface-variant font-medium mt-1">Kelola data tahun ajaran dan angkatan siswa.</p>
+          <p className="text-on-surface-variant font-medium mt-1">Kelola data siklus angkatan 6 bulan (RGI).</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
@@ -212,8 +212,8 @@ export default function BatchesPage() {
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Nama Angkatan</th>
-                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Mulai</th>
-                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Selesai</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Tanggal Mulai</th>
+                <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Tanggal Selesai</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Status</th>
                 <th className="py-5 px-8 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em] text-right">Aksi</th>
               </tr>
@@ -239,8 +239,8 @@ export default function BatchesPage() {
                 batches.map((batch) => (
                   <tr key={batch.id} className="border-b border-surface-container-low hover:bg-surface-container/30 transition-colors group">
                     <td className="py-4 px-8 font-bold text-on-surface">{batch.name}</td>
-                    <td className="py-4 px-8 font-semibold text-on-surface-variant">{batch.year_start}</td>
-                    <td className="py-4 px-8 font-semibold text-on-surface-variant">{batch.year_end}</td>
+                    <td className="py-4 px-8 font-semibold text-on-surface-variant">{new Date(batch.start_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</td>
+                    <td className="py-4 px-8 font-semibold text-on-surface-variant">{new Date(batch.end_date).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</td>
                     <td className="py-4 px-8">
                       <span className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
@@ -315,7 +315,7 @@ export default function BatchesPage() {
                 <input 
                   type="text" 
                   required 
-                  placeholder="Contoh: Angkatan 1"
+                  placeholder="Contoh: 34"
                   value={formData.name} 
                   onChange={e => setFormData({...formData, name: e.target.value})} 
                   className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" 
@@ -324,22 +324,22 @@ export default function BatchesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Mulai (Tahun)</label>
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tanggal Mulai</label>
                   <input 
-                    type="number" 
+                    type="date" 
                     required 
-                    value={formData.year_start} 
-                    onChange={e => setFormData({...formData, year_start: parseInt(e.target.value)})} 
+                    value={formData.start_date} 
+                    onChange={e => setFormData({...formData, start_date: e.target.value})} 
                     className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" 
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Selesai (Tahun)</label>
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tanggal Selesai</label>
                   <input 
-                    type="number" 
+                    type="date" 
                     required 
-                    value={formData.year_end} 
-                    onChange={e => setFormData({...formData, year_end: parseInt(e.target.value)})} 
+                    value={formData.end_date} 
+                    onChange={e => setFormData({...formData, end_date: e.target.value})} 
                     className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" 
                   />
                 </div>

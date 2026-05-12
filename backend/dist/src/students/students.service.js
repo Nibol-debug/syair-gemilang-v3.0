@@ -97,6 +97,7 @@ let StudentsService = class StudentsService {
                     class: true,
                     major: true,
                     batch: true,
+                    branch: true,
                     parents: true,
                 },
             }),
@@ -119,6 +120,7 @@ let StudentsService = class StudentsService {
                 class: true,
                 major: true,
                 batch: true,
+                branch: true,
                 parents: true,
                 histories: true,
             },
@@ -154,7 +156,7 @@ let StudentsService = class StudentsService {
         return this.prisma.student.update({
             where: { id },
             data,
-            include: { parents: true, histories: true }
+            include: { parents: true, histories: true, branch: true }
         });
     }
     async remove(id) {
@@ -168,6 +170,7 @@ let StudentsService = class StudentsService {
                 class: true,
                 major: true,
                 batch: true,
+                branch: true,
             }
         });
         const workbook = new ExcelJS.Workbook();
@@ -175,16 +178,20 @@ let StudentsService = class StudentsService {
         worksheet.columns = [
             { header: 'NIS', key: 'nis', width: 15 },
             { header: 'Full Name', key: 'full_name', width: 30 },
+            { header: 'Branch', key: 'branch', width: 15 },
             { header: 'Class', key: 'class', width: 15 },
-            { header: 'Major', key: 'major', width: 15 },
+            { header: 'Major', key: 'major', width: 25 },
+            { header: 'Batch', key: 'batch', width: 10 },
             { header: 'Status', key: 'status', width: 10 },
         ];
         students.forEach(s => {
             worksheet.addRow({
                 nis: s.nis,
                 full_name: s.full_name,
+                branch: s.branch?.name || '-',
                 class: s.class?.name || '-',
                 major: s.major?.name || '-',
+                batch: s.batch?.name || '-',
                 status: s.status,
             });
         });
@@ -209,15 +216,18 @@ let StudentsService = class StudentsService {
         for (const row of rows) {
             const nis = row.getCell(1).value?.toString();
             const full_name = row.getCell(2).value?.toString();
-            const className = row.getCell(3).value?.toString();
-            const email = row.getCell(4).value?.toString() || `${nis}@school.com`;
-            if (nis && full_name && className) {
+            const branchName = row.getCell(3).value?.toString();
+            const className = row.getCell(4).value?.toString();
+            const email = row.getCell(5).value?.toString() || `${nis}@school.com`;
+            if (nis && full_name && className && branchName) {
+                const studentBranch = await this.prisma.branch.findFirst({ where: { name: branchName } });
                 const studentClass = await this.prisma.class.findFirst({ where: { name: className } });
-                if (studentClass) {
+                if (studentClass && studentBranch) {
                     await this.prisma.student.upsert({
                         where: { nis },
                         update: {
                             full_name,
+                            branch_id: studentBranch.id,
                             class_id: studentClass.id,
                             major_id: studentClass.major_id,
                             batch_id: studentClass.batch_id
@@ -232,6 +242,7 @@ let StudentsService = class StudentsService {
                             birth_date: new Date(),
                             address: '-',
                             phone: '-',
+                            branch_id: studentBranch.id,
                             class_id: studentClass.id,
                             major_id: studentClass.major_id,
                             batch_id: studentClass.batch_id,

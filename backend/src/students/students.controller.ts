@@ -33,6 +33,16 @@ export class StudentsController {
     return this.studentsService.importFromExcel(file);
   }
 
+  @Post('upload-photo')
+  @UseInterceptors(FileInterceptor('photo', {
+    dest: './uploads/profiles',
+  }))
+  uploadPhoto(@UploadedFile() file: Express.Multer.File) {
+    return { 
+      url: `/uploads/profiles/${file.filename}` 
+    };
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studentsService.findOne(id);

@@ -37,7 +37,7 @@ let SchedulesController = class SchedulesController {
 exports.SchedulesController = SchedulesController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_schedule_dto_1.CreateScheduleDto]),
@@ -54,7 +54,7 @@ __decorate([
 ], SchedulesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

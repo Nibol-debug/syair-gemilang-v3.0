@@ -11,83 +11,99 @@ export declare class StudentsController {
             id: string;
             address: string;
             phone: string;
-            student_id: string;
             father_name: string;
             mother_name: string;
+            student_id: string;
         }[];
         histories: {
             id: string;
-            student_id: string;
             type: string;
             description: string;
             date: Date;
+            student_id: string;
         }[];
     } & {
         id: string;
-        full_name: string;
-        status: string;
-        major_id: string;
         nis: string;
         nik: string;
+        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
         phone: string;
         email: string;
-        class_id: string | null;
-        batch_id: string;
+        status: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
         qr_code: string | null;
         created_at: Date;
+        branch_id: string;
+        class_id: string | null;
+        major_id: string;
+        batch_id: string;
     }>;
     findAll(query: StudentQueryDto): Promise<{
         data: ({
-            major: {
+            branch: {
                 id: string;
-                name: string;
                 created_at: Date;
-                code: string;
+                name: string;
             };
             class: {
                 id: string;
                 major_id: string;
-                name: string;
                 batch_id: string;
+                name: string;
                 grade_level: number;
                 homeroom_teacher_id: string | null;
             } | null;
+            major: {
+                id: string;
+                created_at: Date;
+                branch_id: string;
+                name: string;
+                code: string;
+            };
             batch: {
                 id: string;
                 name: string;
-                year_start: number;
-                year_end: number;
+                start_date: Date;
+                end_date: Date;
                 is_active: boolean;
             };
             parents: {
                 id: string;
                 address: string;
                 phone: string;
-                student_id: string;
                 father_name: string;
                 mother_name: string;
+                student_id: string;
             }[];
         } & {
             id: string;
-            full_name: string;
-            status: string;
-            major_id: string;
             nis: string;
             nik: string;
+            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
             phone: string;
             email: string;
-            class_id: string | null;
-            batch_id: string;
+            status: string;
+            health_history: string | null;
+            profile_picture: string | null;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
             qr_code: string | null;
             created_at: Date;
+            branch_id: string;
+            class_id: string | null;
+            major_id: string;
+            batch_id: string;
         })[];
         meta: {
             total: number;
@@ -100,111 +116,140 @@ export declare class StudentsController {
     import(file: Express.Multer.File): Promise<{
         imported: number;
     }>;
+    uploadPhoto(file: Express.Multer.File): {
+        url: string;
+    };
     findOne(id: string): Promise<{
-        major: {
+        branch: {
             id: string;
-            name: string;
             created_at: Date;
-            code: string;
+            name: string;
         };
         class: {
             id: string;
             major_id: string;
-            name: string;
             batch_id: string;
+            name: string;
             grade_level: number;
             homeroom_teacher_id: string | null;
         } | null;
+        major: {
+            id: string;
+            created_at: Date;
+            branch_id: string;
+            name: string;
+            code: string;
+        };
         batch: {
             id: string;
             name: string;
-            year_start: number;
-            year_end: number;
+            start_date: Date;
+            end_date: Date;
             is_active: boolean;
         };
         parents: {
             id: string;
             address: string;
             phone: string;
-            student_id: string;
             father_name: string;
             mother_name: string;
+            student_id: string;
         }[];
         histories: {
             id: string;
-            student_id: string;
             type: string;
             description: string;
             date: Date;
+            student_id: string;
         }[];
     } & {
         id: string;
-        full_name: string;
-        status: string;
-        major_id: string;
         nis: string;
         nik: string;
+        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
         phone: string;
         email: string;
-        class_id: string | null;
-        batch_id: string;
+        status: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
         qr_code: string | null;
         created_at: Date;
+        branch_id: string;
+        class_id: string | null;
+        major_id: string;
+        batch_id: string;
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
+        branch: {
+            id: string;
+            created_at: Date;
+            name: string;
+        };
         parents: {
             id: string;
             address: string;
             phone: string;
-            student_id: string;
             father_name: string;
             mother_name: string;
+            student_id: string;
         }[];
         histories: {
             id: string;
-            student_id: string;
             type: string;
             description: string;
             date: Date;
+            student_id: string;
         }[];
     } & {
         id: string;
-        full_name: string;
-        status: string;
-        major_id: string;
         nis: string;
         nik: string;
+        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
         phone: string;
         email: string;
-        class_id: string | null;
-        batch_id: string;
+        status: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
         qr_code: string | null;
         created_at: Date;
+        branch_id: string;
+        class_id: string | null;
+        major_id: string;
+        batch_id: string;
     }>;
     remove(id: string): Promise<{
         id: string;
-        full_name: string;
-        status: string;
-        major_id: string;
         nis: string;
         nik: string;
+        full_name: string;
         gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
         phone: string;
         email: string;
-        class_id: string | null;
-        batch_id: string;
+        status: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
         qr_code: string | null;
         created_at: Date;
+        branch_id: string;
+        class_id: string | null;
+        major_id: string;
+        batch_id: string;
     }>;
 }

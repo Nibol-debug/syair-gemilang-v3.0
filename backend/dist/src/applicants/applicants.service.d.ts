@@ -17,13 +17,13 @@ export declare class ApplicantsService {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     findAll(query: any): Promise<{
         data: ({
             major: {
                 id: string;
                 name: string;
+                branch_id: string;
                 created_at: Date;
                 code: string;
             };
@@ -41,7 +41,6 @@ export declare class ApplicantsService {
             created_at: Date;
             previous_school: string;
             document_url: string | null;
-            branch: string;
         })[];
         meta: {
             total: number;
@@ -54,6 +53,7 @@ export declare class ApplicantsService {
         major: {
             id: string;
             name: string;
+            branch_id: string;
             created_at: Date;
             code: string;
         };
@@ -71,7 +71,6 @@ export declare class ApplicantsService {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     update(id: string, data: any): Promise<{
         id: string;
@@ -87,7 +86,6 @@ export declare class ApplicantsService {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -103,7 +101,6 @@ export declare class ApplicantsService {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
     verify(id: string, status: string): Promise<{
         id: string;
@@ -119,6 +116,5 @@ export declare class ApplicantsService {
         created_at: Date;
         previous_school: string;
         document_url: string | null;
-        branch: string;
     }>;
 }

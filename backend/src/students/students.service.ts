@@ -39,7 +39,7 @@ export class StudentsService {
     });
   }
 
-  async findAll(pagination: PaginationDto, filters: { class_id?: string; major_id?: string; batch_id?: string; search?: string }) {
+  async findAll(pagination: PaginationDto, filters: { class_id?: string; major_id?: string; batch_id?: string; branch_id?: string; search?: string }) {
     const page = pagination.page || 1;
     const limit = pagination.limit || 10;
     const skip = (page - 1) * limit;
@@ -62,6 +62,7 @@ export class StudentsService {
           class: true,
           major: true,
           batch: true,
+          branch: true,
           parents: true,
         },
       }),
@@ -86,6 +87,7 @@ export class StudentsService {
         class: true,
         major: true,
         batch: true,
+        branch: true,
         parents: true,
         histories: true,
       },
@@ -129,7 +131,7 @@ export class StudentsService {
     return this.prisma.student.update({
       where: { id },
       data,
-      include: { parents: true, histories: true }
+      include: { parents: true, histories: true, branch: true }
     });
   }
 
@@ -145,6 +147,7 @@ export class StudentsService {
         class: true,
         major: true,
         batch: true,
+        branch: true,
       }
     });
 
@@ -154,8 +157,10 @@ export class StudentsService {
     worksheet.columns = [
       { header: 'NIS', key: 'nis', width: 15 },
       { header: 'Full Name', key: 'full_name', width: 30 },
+      { header: 'Branch', key: 'branch', width: 15 },
       { header: 'Class', key: 'class', width: 15 },
-      { header: 'Major', key: 'major', width: 15 },
+      { header: 'Major', key: 'major', width: 25 },
+      { header: 'Batch', key: 'batch', width: 10 },
       { header: 'Status', key: 'status', width: 10 },
     ];
 
@@ -163,8 +168,10 @@ export class StudentsService {
       worksheet.addRow({
         nis: s.nis,
         full_name: s.full_name,
+        branch: s.branch?.name || '-',
         class: s.class?.name || '-',
         major: s.major?.name || '-',
+        batch: s.batch?.name || '-',
         status: s.status,
       });
     });
@@ -194,16 +201,20 @@ export class StudentsService {
     for (const row of rows) {
       const nis = row.getCell(1).value?.toString();
       const full_name = row.getCell(2).value?.toString();
-      const className = row.getCell(3).value?.toString();
-      const email = row.getCell(4).value?.toString() || `${nis}@school.com`;
+      const branchName = row.getCell(3).value?.toString();
+      const className = row.getCell(4).value?.toString();
+      const email = row.getCell(5).value?.toString() || `${nis}@school.com`;
 
-      if (nis && full_name && className) {
+      if (nis && full_name && className && branchName) {
+        const studentBranch = await this.prisma.branch.findFirst({ where: { name: branchName } });
         const studentClass = await this.prisma.class.findFirst({ where: { name: className } });
-        if (studentClass) {
+        
+        if (studentClass && studentBranch) {
           await this.prisma.student.upsert({
             where: { nis },
             update: { 
               full_name, 
+              branch_id: studentBranch.id,
               class_id: studentClass.id,
               major_id: studentClass.major_id,
               batch_id: studentClass.batch_id
@@ -218,6 +229,7 @@ export class StudentsService {
               birth_date: new Date(),
               address: '-',
               phone: '-',
+              branch_id: studentBranch.id,
               class_id: studentClass.id,
               major_id: studentClass.major_id,
               batch_id: studentClass.batch_id,

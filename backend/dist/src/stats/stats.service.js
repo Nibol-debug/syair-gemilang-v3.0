@@ -123,15 +123,48 @@ let StatsService = class StatsService {
         return colors[index];
     }
     async getStudentStats() {
-        const [total, male, female, active, alumni, moved] = await Promise.all([
+        const [total, male, female, active, alumni, moved, students, branches] = await Promise.all([
             this.prisma.student.count(),
             this.prisma.student.count({ where: { gender: 'L' } }),
             this.prisma.student.count({ where: { gender: 'P' } }),
             this.prisma.student.count({ where: { status: 'active' } }),
             this.prisma.student.count({ where: { status: 'alumni' } }),
             this.prisma.student.count({ where: { status: 'moved' } }),
+            this.prisma.student.findMany({
+                select: {
+                    birth_date: true,
+                }
+            }),
+            this.prisma.branch.findMany({
+                include: { _count: { select: { students: true } } }
+            })
         ]);
-        return { total, male, female, active, alumni, moved };
+        const ageDist = {};
+        const now = new Date();
+        students.forEach(s => {
+            const birth = new Date(s.birth_date);
+            let age = now.getFullYear() - birth.getFullYear();
+            const m = now.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+                age--;
+            }
+            const ageLabel = age < 15 ? '< 15' : age > 20 ? '> 20' : `${age} thn`;
+            ageDist[ageLabel] = (ageDist[ageLabel] || 0) + 1;
+        });
+        const locationDistribution = branches.map(b => ({
+            name: b.name,
+            value: b._count.students
+        }));
+        return {
+            total,
+            male,
+            female,
+            active,
+            alumni,
+            moved,
+            ageDistribution: Object.entries(ageDist).map(([name, value]) => ({ name, value })),
+            locationDistribution
+        };
     }
     async getEmployeeStats() {
         const [total, teachers, staff] = await Promise.all([

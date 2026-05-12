@@ -12,7 +12,7 @@ export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() createSubjectDto: CreateSubjectDto) {
     return this.subjectsService.create(createSubjectDto);
   }
@@ -28,7 +28,7 @@ export class SubjectsController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.subjectsService.remove(id);
   }

@@ -14,6 +14,11 @@ export declare class CreateStudentDto {
     address: string;
     phone: string;
     email: string;
+    health_history?: string;
+    profile_picture?: string;
+    latitude?: number;
+    longitude?: number;
+    branch_id: string;
     class_id?: string;
     major_id: string;
     batch_id: string;

@@ -21,7 +21,6 @@ class CreateApplicantDto {
     address;
     previous_school;
     document_url;
-    branch;
     major_id;
 }
 exports.CreateApplicantDto = CreateApplicantDto;
@@ -70,11 +69,6 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateApplicantDto.prototype, "document_url", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateApplicantDto.prototype, "branch", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),

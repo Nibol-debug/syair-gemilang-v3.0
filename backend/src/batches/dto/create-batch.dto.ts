@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsInt, IsBoolean, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDate, IsBoolean, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateBatchDto {
   @IsNotEmpty()
@@ -6,12 +7,14 @@ export class CreateBatchDto {
   name: string;
 
   @IsNotEmpty()
-  @IsInt()
-  year_start: number;
+  @Type(() => Date)
+  @IsDate()
+  start_date: Date;
 
   @IsNotEmpty()
-  @IsInt()
-  year_end: number;
+  @Type(() => Date)
+  @IsDate()
+  end_date: Date;
 
   @IsOptional()
   @IsBoolean()

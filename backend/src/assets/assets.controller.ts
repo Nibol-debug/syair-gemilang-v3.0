@@ -13,7 +13,7 @@ export class AssetsController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() createAssetDto: CreateAssetDto) {
     return this.assetsService.create(createAssetDto);
   }
@@ -35,13 +35,13 @@ export class AssetsController {
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   update(@Param('id') id: string, @Body() updateAssetDto: UpdateAssetDto) {
     return this.assetsService.update(id, updateAssetDto);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.assetsService.remove(id);
   }

@@ -58,6 +58,26 @@ export class CreateStudentDto {
   email: string;
 
   @IsOptional()
+  @IsString()
+  health_history?: string;
+
+  @IsOptional()
+  @IsString()
+  profile_picture?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  latitude?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  longitude?: number;
+
+  @IsNotEmpty()
+  @IsUUID()
+  branch_id: string;
+
+  @IsOptional()
   @IsUUID()
   class_id?: string;
 

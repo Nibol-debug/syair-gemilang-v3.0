@@ -10,25 +10,25 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() data: { name: string }) {
     return this.permissionsService.create(data);
   }
 
   @Get()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findAll() {
     return this.permissionsService.findAll();
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(id);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.permissionsService.remove(id);
   }

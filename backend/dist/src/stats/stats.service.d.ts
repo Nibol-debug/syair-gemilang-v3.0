@@ -28,26 +28,26 @@ export declare class StatsService {
         recentTeachingLogs: ({
             class: {
                 id: string;
-                name: string;
-                homeroom_teacher_id: string | null;
                 major_id: string;
+                name: string;
                 batch_id: string;
                 grade_level: number;
+                homeroom_teacher_id: string | null;
             } | null;
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
+                name: string;
             };
         } & {
             id: string;
-            teacher_id: string;
-            class_id: string | null;
             major_id: string;
+            class_id: string | null;
             batch_id: string;
-            subject_id: string;
-            note: string;
             date: Date;
+            subject_id: string;
+            teacher_id: string;
+            note: string;
         })[];
     }>;
     getStudentDashboardStats(studentId: string): Promise<{
@@ -56,34 +56,34 @@ export declare class StatsService {
         recentGrades: ({
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
+                name: string;
             };
         } & {
             id: string;
-            created_at: Date;
             major_id: string;
             batch_id: string;
-            subject_id: string;
+            created_at: Date;
             student_id: string;
             type: string;
+            subject_id: string;
+            exam_id: string | null;
             score: import("@prisma/client/runtime/library").Decimal;
             weight: import("@prisma/client/runtime/library").Decimal;
-            exam_id: string | null;
         })[];
         unpaidFees: ({
             fee: {
                 id: string;
                 name: string;
                 type: string;
-                amount: import("@prisma/client/runtime/library").Decimal;
                 description: string | null;
+                amount: import("@prisma/client/runtime/library").Decimal;
             };
         } & {
-            status: string;
             id: string;
-            date: Date;
+            status: string;
             student_id: string;
+            date: Date;
             fee_id: string;
             amount: import("@prisma/client/runtime/library").Decimal;
             method: string;
@@ -97,6 +97,14 @@ export declare class StatsService {
         active: number;
         alumni: number;
         moved: number;
+        ageDistribution: {
+            name: string;
+            value: number;
+        }[];
+        locationDistribution: {
+            name: string;
+            value: number;
+        }[];
     }>;
     getEmployeeStats(): Promise<{
         total: number;

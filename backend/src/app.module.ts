@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -26,9 +28,14 @@ import { ApplicantsModule } from './applicants/applicants.module';
 import { FinanceModule } from './finance/finance.module';
 import { AssetsModule } from './assets/assets.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { BranchesModule } from './branches/branches.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -52,6 +59,7 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
     FinanceModule,
     AssetsModule,
     AuditLogsModule,
+    BranchesModule,
   ],
   controllers: [AppController],
   providers: [

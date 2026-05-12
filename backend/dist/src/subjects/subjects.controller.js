@@ -41,7 +41,7 @@ let SubjectsController = class SubjectsController {
 exports.SubjectsController = SubjectsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_subject_dto_1.CreateSubjectDto]),
@@ -64,7 +64,7 @@ __decorate([
 ], SubjectsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

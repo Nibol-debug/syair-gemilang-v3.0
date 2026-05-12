@@ -34,7 +34,7 @@ let TeachingLogsController = class TeachingLogsController {
 exports.TeachingLogsController = TeachingLogsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_teaching_log_dto_1.CreateTeachingLogDto]),
@@ -42,7 +42,7 @@ __decorate([
 ], TeachingLogsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('admin', 'guru'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Query)('teacher_id')),
     __param(1, (0, common_1.Query)('class_id')),
     __metadata("design:type", Function),

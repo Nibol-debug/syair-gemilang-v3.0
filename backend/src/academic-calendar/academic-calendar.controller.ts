@@ -11,7 +11,7 @@ export class AcademicCalendarController {
   constructor(private readonly academicCalendarService: AcademicCalendarService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles('Administrator Utama')
   create(@Body() createCalendarDto: CreateCalendarDto) {
     return this.academicCalendarService.create(createCalendarDto);
   }
@@ -22,7 +22,7 @@ export class AcademicCalendarController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('Administrator Utama')
   remove(@Param('id') id: string) {
     return this.academicCalendarService.remove(id);
   }
