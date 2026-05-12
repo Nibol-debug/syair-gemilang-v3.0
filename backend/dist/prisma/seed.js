@@ -37,68 +37,72 @@ const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma = new client_1.PrismaClient();
 async function main() {
-    const adminRole = await prisma.role.upsert({
-        where: { name: 'admin' },
-        update: {},
-        create: { name: 'admin' },
-    });
-    await prisma.role.upsert({
-        where: { name: 'guru' },
-        update: {},
-        create: { name: 'guru' },
-    });
-    await prisma.role.upsert({
-        where: { name: 'siswa' },
-        update: {},
-        create: { name: 'siswa' },
-    });
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    await prisma.user.upsert({
-        where: { username: 'admin' },
-        update: {},
-        create: {
-            username: 'admin',
-            password_hash: hashedPassword,
-            role_id: adminRole.id,
-        },
-    });
-    const viewStudents = await prisma.permission.upsert({
-        where: { name: 'view_students' },
-        update: {},
-        create: { name: 'view_students' },
-    });
-    const manageStudents = await prisma.permission.upsert({
-        where: { name: 'manage_students' },
-        update: {},
-        create: { name: 'manage_students' },
-    });
-    await prisma.rolePermission.upsert({
-        where: {
-            role_id_permission_id: {
+    const rolesData = [
+        'Administrator Utama',
+        'Kepala Sekolah',
+        'Guru Mata Pelajaran',
+        'Wali Kelas',
+        'Bendahara',
+        'Staf Sarpras',
+        'Siswa',
+        'Orang Tua'
+    ];
+    const roles = await Promise.all(rolesData.map(async (name) => {
+        return prisma.role.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+        });
+    }));
+    const adminRole = roles.find(r => r.name === 'Administrator Utama');
+    if (adminRole) {
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        await prisma.user.upsert({
+            where: { username: 'admin' },
+            update: {
                 role_id: adminRole.id,
-                permission_id: viewStudents.id,
+                password_hash: hashedPassword,
             },
-        },
-        update: {},
-        create: {
-            role_id: adminRole.id,
-            permission_id: viewStudents.id,
-        },
-    });
-    await prisma.rolePermission.upsert({
-        where: {
-            role_id_permission_id: {
+            create: {
+                username: 'admin',
+                password_hash: hashedPassword,
                 role_id: adminRole.id,
-                permission_id: manageStudents.id,
             },
-        },
-        update: {},
-        create: {
-            role_id: adminRole.id,
-            permission_id: manageStudents.id,
-        },
-    });
-    console.log('Seed data created successfully');
+        });
+    }
+    const permissionsData = [
+        'view_students', 'manage_students',
+        'view_applicants', 'manage_applicants',
+        'view_hrm', 'manage_hrm',
+        'view_finance', 'manage_finance',
+        'view_assets', 'manage_assets',
+        'view_exams', 'manage_exams'
+    ];
+    const permissions = await Promise.all(permissionsData.map(async (name) => {
+        return prisma.permission.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+        });
+    }));
+    if (adminRole) {
+        await Promise.all(permissions.map(async (p) => {
+            return prisma.rolePermission.upsert({
+                where: {
+                    role_id_permission_id: {
+                        role_id: adminRole.id,
+                        permission_id: p.id,
+                    },
+                },
+                update: {},
+                create: {
+                    role_id: adminRole.id,
+                    permission_id: p.id,
+                },
+            });
+        }));
+    }
+    console.log('Seed data created successfully with 8 Proposal Roles and Permissions');
 }
 main()
     .catch((e) => {

@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -18,7 +21,17 @@ let StatsController = class StatsController {
     constructor(statsService) {
         this.statsService = statsService;
     }
-    getDashboardStats() {
+    getDashboardStats(req) {
+        const { role, employeeId, studentId } = req.user;
+        if (role === 'Administrator Utama' || role === 'Kepala Sekolah' || role === 'Bendahara') {
+            return this.statsService.getDashboardStats();
+        }
+        if (role === 'Guru Mata Pelajaran' || role === 'Wali Kelas') {
+            return this.statsService.getGuruDashboardStats(employeeId);
+        }
+        if (role === 'Siswa' || role === 'Orang Tua') {
+            return this.statsService.getStudentDashboardStats(studentId);
+        }
         return this.statsService.getDashboardStats();
     }
     getStudentStats() {
@@ -32,8 +45,9 @@ exports.StatsController = StatsController;
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('dashboard'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], StatsController.prototype, "getDashboardStats", null);
 __decorate([

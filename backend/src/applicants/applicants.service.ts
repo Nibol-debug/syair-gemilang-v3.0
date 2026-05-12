@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateApplicantDto } from './dto/create-applicant.dto';
 
 @Injectable()
 export class ApplicantsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: any) {
+  async create(data: CreateApplicantDto) {
     return this.prisma.applicant.create({
       data: {
         ...data,
@@ -34,6 +35,9 @@ export class ApplicantsService {
         where,
         skip,
         take: Number(limit),
+        include: {
+          major: true,
+        },
         orderBy: { created_at: 'desc' },
       }),
       this.prisma.applicant.count({ where }),
@@ -51,7 +55,12 @@ export class ApplicantsService {
   }
 
   async findOne(id: string) {
-    const applicant = await this.prisma.applicant.findUnique({ where: { id } });
+    const applicant = await this.prisma.applicant.findUnique({ 
+      where: { id },
+      include: {
+        major: true,
+      }
+    });
     if (!applicant) throw new NotFoundException(`Applicant with ID ${id} not found`);
     return applicant;
   }

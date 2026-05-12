@@ -25,6 +25,7 @@ import { StatsModule } from './stats/stats.module';
 import { ApplicantsModule } from './applicants/applicants.module';
 import { FinanceModule } from './finance/finance.module';
 import { AssetsModule } from './assets/assets.module';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AssetsModule } from './assets/assets.module';
     ApplicantsModule,
     FinanceModule,
     AssetsModule,
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [

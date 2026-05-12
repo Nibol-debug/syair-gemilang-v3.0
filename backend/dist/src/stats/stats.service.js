@@ -63,6 +63,60 @@ let StatsService = class StatsService {
             majorDistribution,
         };
     }
+    async getGuruDashboardStats(employeeId) {
+        const [totalClasses, ongoingExams, upcomingExams, recentTeachingLogs,] = await Promise.all([
+            this.prisma.class.count({ where: { homeroom_teacher_id: employeeId } }),
+            this.prisma.examSession.count({
+                where: {
+                    status: 'ongoing'
+                }
+            }),
+            this.prisma.examSession.count({
+                where: {
+                    status: 'pending',
+                    start_time: { gte: new Date() }
+                }
+            }),
+            this.prisma.teachingLog.findMany({
+                where: { teacher_id: employeeId },
+                take: 5,
+                orderBy: { date: 'desc' },
+                include: { class: true, subject: true }
+            }),
+        ]);
+        return {
+            totalClasses,
+            ongoingExams,
+            upcomingExams,
+            recentTeachingLogs,
+        };
+    }
+    async getStudentDashboardStats(studentId) {
+        const [ongoingExams, attendance, recentGrades, unpaidFees,] = await Promise.all([
+            this.prisma.examSession.count({
+                where: { status: 'ongoing' }
+            }),
+            this.prisma.attendance.count({
+                where: { student_id: studentId, status: 'present' }
+            }),
+            this.prisma.grade.findMany({
+                where: { student_id: studentId },
+                take: 5,
+                orderBy: { created_at: 'desc' },
+                include: { subject: true }
+            }),
+            this.prisma.payment.findMany({
+                where: { student_id: studentId, status: 'pending' },
+                include: { fee: true }
+            }),
+        ]);
+        return {
+            ongoingExams,
+            attendanceCount: attendance,
+            recentGrades,
+            unpaidFees,
+        };
+    }
     getRandomColor(seed) {
         const colors = ['#1e40af', '#173bab', '#3755c3', '#4f46e5', '#6366f1'];
         const index = seed.length % colors.length;

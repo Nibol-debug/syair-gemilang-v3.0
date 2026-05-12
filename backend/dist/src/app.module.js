@@ -34,6 +34,7 @@ const stats_module_1 = require("./stats/stats.module");
 const applicants_module_1 = require("./applicants/applicants.module");
 const finance_module_1 = require("./finance/finance.module");
 const assets_module_1 = require("./assets/assets.module");
+const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -62,6 +63,7 @@ exports.AppModule = AppModule = __decorate([
             applicants_module_1.ApplicantsModule,
             finance_module_1.FinanceModule,
             assets_module_1.AssetsModule,
+            audit_logs_module_1.AuditLogsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

@@ -84,8 +84,8 @@ export declare class FinanceService {
         status: string;
         student_id: string;
         date: Date;
-        amount: import("@prisma/client/runtime/library").Decimal;
         fee_id: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
         method: string;
     }>;
     findAllPayments(pagination: PaginationDto, filters: {
@@ -124,8 +124,8 @@ export declare class FinanceService {
             status: string;
             student_id: string;
             date: Date;
-            amount: import("@prisma/client/runtime/library").Decimal;
             fee_id: string;
+            amount: import("@prisma/client/runtime/library").Decimal;
             method: string;
         })[];
         meta: {
@@ -166,8 +166,8 @@ export declare class FinanceService {
         status: string;
         student_id: string;
         date: Date;
-        amount: import("@prisma/client/runtime/library").Decimal;
         fee_id: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
         method: string;
     }>;
     updatePayment(id: string, updatePaymentDto: UpdatePaymentDto): Promise<{
@@ -201,8 +201,8 @@ export declare class FinanceService {
         status: string;
         student_id: string;
         date: Date;
-        amount: import("@prisma/client/runtime/library").Decimal;
         fee_id: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
         method: string;
     }>;
     removePayment(id: string): Promise<{
@@ -210,8 +210,8 @@ export declare class FinanceService {
         status: string;
         student_id: string;
         date: Date;
-        amount: import("@prisma/client/runtime/library").Decimal;
         fee_id: string;
+        amount: import("@prisma/client/runtime/library").Decimal;
         method: string;
     }>;
 }

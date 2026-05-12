@@ -1,95 +1,53 @@
-# 📊 Syiar Gemilang ERP - Progress & Structure Report
-
-Laporan ini merangkum perubahan yang telah dilakukan pada sistem ERP Syiar Gemilang, mencakup struktur awal dan pembaruan per modul.
-
----
-
-## 🏗️ Struktur Proyek Awal
-
-Sistem ini menggunakan arsitektur **Monorepo** sederhana dengan pemisahan antara Backend dan Frontend.
-
-```text
-SyIAR gemilangv3.0/
-├── backend/            # NestJS API
-│   ├── prisma/         # Database Schema & Migrations
-│   └── src/            # Application Logic
-└── frontend/           # Next.js Application
-    ├── app/            # App Router & Pages
-    ├── components/     # Reusable UI Components
-    └── lib/            # Utilities (API Client, etc.)
-```
+# 📊 LAPORAN PROGRESS PENGEMBANGAN ERP SYIAR GEMILANG
+**Tanggal:** 11 Mei 2026
+**Status Proyek:** Fase 1 & 2 Selesai (Master Data & User Management, PPDB Online)
 
 ---
 
-## 🛠️ Perubahan per Modul
+## ✅ Modul yang Telah Diselesaikan
 
-### 1. ⚙️ Core & Environment
-- **Fix Build Error**: Memperbaiki error PostCSS pada Tailwind CSS v4 dengan menginstal `@tailwindcss/postcss` dan memperbarui `postcss.config.mjs`.
-- **API Client**: Mengonfigurasi `frontend/lib/api.ts` untuk terhubung ke `http://localhost:3001/api/v1`.
-- **Database**: Menjalankan migrasi Prisma dan seeding data awal.
+### 1. Modul Manajemen Pengguna & Hak Akses (ACL - 4.2)
+*   **Role-Based Access Control (RBAC)**: Implementasi 8 role sesuai proposal (Administrator Utama, Kepala Sekolah, Guru, Siswa, dll).
+*   **Audit Log (Audit Trail)**: Sistem pencatatan aktivitas otomatis untuk setiap perubahan data (POST, PATCH, DELETE) yang dapat dipantau admin.
+*   **Device Locking**: Fitur penguncian perangkat untuk keamanan ujian CBT (bisa kunci/buka kunci via admin).
+*   **Keamanan**: Integrasi JWT Authentication dan penguncian password terenkripsi.
 
-### 2. 🔐 Auth & Security
-- **Login Page**: Implementasi UI login modern di `frontend/app/login/page.tsx`.
-- **JWT Auth**: Backend sudah mendukung validasi JWT dan proteksi route.
-- **Seeding**: Menambahkan user default (Admin) agar sistem bisa langsung digunakan.
+### 2. Modul Dashboard Multi-User (4.10)
+*   **Portal Personalisasi**: Dashboard dinamis yang berubah tampilan berdasarkan role pengguna:
+    *   **Admin**: Statistik global ERP (Total Siswa, Guru, Keuangan, Aset).
+    *   **Guru**: Fokus pada manajemen kelas, jadwal ujian, dan jurnal mengajar.
+    *   **Siswa**: Fokus pada jadwal ujian CBT, nilai, absensi, dan tagihan SPP.
+*   **Sidebar Dinamis**: Menu navigasi otomatis menyesuaikan hak akses pengguna (menyembunyikan menu yang tidak diizinkan).
 
-### 3. 👥 Student Management
-- **UI Implementation**: Membuat halaman daftar siswa di `frontend/app/(dashboard)/students/page.tsx`.
-- **Features**: Mendukung filter (Jurusan, Kelas, Angkatan) dan pencarian.
-
-### 4. 💼 HRM (Human Resource Management)
-- **UI Implementation**: Membuat halaman manajemen pegawai di `frontend/app/(dashboard)/hrm/page.tsx`.
-- **Backend Integration**: Menghubungkan tabel pegawai dengan filter status dan jabatan.
-
-### 5. 🏫 Academic
-- **UI Implementation**: Membuat halaman jadwal pelajaran di `frontend/app/(dashboard)/academic/page.tsx`.
-- **Features**: Menampilkan jadwal mingguan per kelas dan guru pengajar.
-
-### 6. 📝 CBT (Computer Based Test) - Core System
-- **Question Bank**: Implementasi UI detail ujian untuk mengelola soal (Tambah/Hapus/List) di `/cbt/[id]`.
-- **Student Interface**: Membuat halaman "Mulai Ujian" dengan konfirmasi token dan timer di `/cbt/take/[id]`.
-- **Auto Grading**: Backend sudah mendukung penilaian otomatis untuk soal pilihan ganda.
-- **Security**: Pencatatan device ID (navigator user agent) saat memulai ujian.
-
-### 7. 🏆 Grading
-- **Class View**: Pembaruan halaman penilaian untuk menampilkan nilai per kelas dan per mata pelajaran.
-- **Real-time Sync**: Menampilkan sinkronisasi nilai otomatis dari modul CBT dan tugas.
-- **Finalization**: Mendukung proses finalisasi nilai rapor per semester.
-
-### 8. 💰 Finance & 📦 Assets (NEW)
-- **Backend Assets**: Implementasi modul Assets (Service, Controller, DTO) lengkap dengan Audit Log.
-- **Finance Integration**: Menghubungkan halaman Keuangan ke data pembayaran riil dari database.
-- **CRUD Modals**: Menambahkan modal untuk input data Aset baru dan catatan Pembayaran SPP baru.
-
-### 9. 📊 Dashboard & Reporting
-- **Real Stats**: Widget statistik di dashboard utama kini mengambil data riil dari `/stats/dashboard`.
-- **Activity Log**: Menampilkan log aktivitas mutasi data melalui Audit Interceptor.
+### 3. Modul PPDB Online (4.5)
+*   **Landing Page Pendaftaran**: Formulir pendaftaran multi-step yang responsif (Biodata -> Alamat -> Cabang & Jurusan -> Review).
+*   **Manajemen Cabang & Jurusan**: Dukungan pilihan kampus (Depok, Magelang, Jakarta) dan integrasi otomatis dengan master data jurusan.
+*   **Sistem Upload Ijazah**: Fitur unggah dokumen fisik (PDF/JPG) yang tersimpan langsung di server backend.
+*   **Panel Verifikasi Admin**: Dashboard khusus untuk admin meninjau pendaftar, melihat ijazah, dan mengubah status (Verified/Rejected).
 
 ---
 
-## 🔑 Kredensial Login (Default)
-...
-| **CBT Core** | `/cbt/[id]` | Manajemen Bank Soal |
-| **CBT Student** | `/cbt/take/[id]` | Lembar Ujian Siswa |
-| **Assets** | `/assets` | Manajemen Inventaris |
-| **Finance** | `/finance` | Pencatatan Pembayaran |
-
-Jika Anda belum bisa login, pastikan backend sudah berjalan dan gunakan akun berikut:
-
-- **Username**: `admin`
-- **Password**: `admin123`
+## 🛠️ Pembaruan Teknis (Backend & Database)
+*   **Database Schema**: Pembaruan tabel `Applicant` untuk mendukung `document_url`, `branch`, dan relasi `major`.
+*   **Validation Engine**: Implementasi Class-Validator (DTO) untuk memastikan integritas data pendaftaran.
+*   **Static Assets**: Konfigurasi server untuk melayani file upload secara aman.
+*   **Auto-Seeder**: Skrip database untuk sinkronisasi role dan reset kredensial admin utama secara instan.
 
 ---
 
-## 📂 File-file Baru & Modifikasi Penting
+## 🚀 Rencana Selanjutnya (Roadmap)
+Sesuai dengan urutan prioritas proposal asli:
 
-| Modul | File Utama | Keterangan |
-| :--- | :--- | :--- |
-| **Global** | `frontend/postcss.config.mjs` | Update plugin Tailwind v4 |
-| **Auth** | `backend/prisma/seed.ts` | Data awal User & Role |
-| **HRM** | `frontend/app/(dashboard)/hrm/page.tsx` | UI Manajemen Pegawai |
-| **Academic** | `frontend/app/(dashboard)/academic/page.tsx` | UI Jadwal Pelajaran |
-| **Dashboard** | `frontend/app/(dashboard)/dashboard/page.tsx` | Widget Statistik |
+1.  **Modul Kepegawaian (HRM - 4.3)**:
+    *   E-Wallet Dokumen (Upload SK, Sertifikat Guru).
+    *   Sistem Presensi/Absensi Guru & Staf.
+2.  **Modul Akademik (4.4)**:
+    *   Penjadwalan Pelajaran Otomatis (Anti-bentrok).
+    *   Jurnal Mengajar Guru & Absensi Siswa Real-time.
+3.  **Modul Ujian Online (CBT - 4.6)**:
+    *   Bank Soal Terpusat & Fitur Anti-Cheat.
 
 ---
-*Laporan ini dibuat otomatis untuk mempermudah tracking pengembangan.*
+
+**Catatan Tambahan:**
+Sistem saat ini sudah stabil dan backend telah lulus pengecekan tipe data (TypeScript). Siap untuk dilanjutkan ke tahap fungsionalitas akademik.

@@ -43,6 +43,9 @@ let ApplicantsService = class ApplicantsService {
                 where,
                 skip,
                 take: Number(limit),
+                include: {
+                    major: true,
+                },
                 orderBy: { created_at: 'desc' },
             }),
             this.prisma.applicant.count({ where }),
@@ -58,7 +61,12 @@ let ApplicantsService = class ApplicantsService {
         };
     }
     async findOne(id) {
-        const applicant = await this.prisma.applicant.findUnique({ where: { id } });
+        const applicant = await this.prisma.applicant.findUnique({
+            where: { id },
+            include: {
+                major: true,
+            }
+        });
         if (!applicant)
             throw new common_1.NotFoundException(`Applicant with ID ${id} not found`);
         return applicant;

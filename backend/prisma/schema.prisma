@@ -51,6 +51,7 @@ model Major {
   employees  Employee[]
   schedules  Schedule[]
   teaching_logs TeachingLog[]
+  applicants Applicant[]
 
   @@map("majors")
 }
@@ -438,6 +439,10 @@ model Applicant {
   birth_date      DateTime
   address         String   @db.Text
   previous_school String
+  document_url    String?  @db.Text
+  branch          String   // Cabang (Depok, Magelang, Jakarta)
+  major_id        String
+  major           Major    @relation(fields: [major_id], references: [id])
   status          String   @default("pending") // pending, verified, accepted, rejected
   created_at      DateTime @default(now())
 

@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -8,7 +8,21 @@ export class StatsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('dashboard')
-  getDashboardStats() {
+  getDashboardStats(@Request() req: any) {
+    const { role, employeeId, studentId } = req.user;
+
+    if (role === 'Administrator Utama' || role === 'Kepala Sekolah' || role === 'Bendahara') {
+      return this.statsService.getDashboardStats();
+    }
+
+    if (role === 'Guru Mata Pelajaran' || role === 'Wali Kelas') {
+      return this.statsService.getGuruDashboardStats(employeeId);
+    }
+
+    if (role === 'Siswa' || role === 'Orang Tua') {
+      return this.statsService.getStudentDashboardStats(studentId);
+    }
+
     return this.statsService.getDashboardStats();
   }
 

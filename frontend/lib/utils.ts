@@ -26,3 +26,29 @@ export function formatDateTime(date: string | Date) {
     timeStyle: 'short',
   }).format(new Date(date));
 }
+
+export function getUserFromToken() {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    const payload = JSON.parse(jsonPayload);
+    return {
+      username: payload.username,
+      id: payload.sub,
+      role: payload.role,
+      studentId: payload.studentId,
+      employeeId: payload.employeeId
+    };
+  } catch (err) {
+    console.error('Failed to decode token', err);
+    return null;
+  }
+}
