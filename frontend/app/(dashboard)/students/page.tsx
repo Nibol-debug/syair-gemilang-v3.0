@@ -192,14 +192,38 @@ export default function StudentsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      // Clean empty strings — backend expects UUID or undefined, not ''
+      const payload: any = {
+        nis: formData.nis,
+        nik: formData.nik,
+        full_name: formData.full_name,
+        gender: formData.gender,
+        birth_place: formData.birth_place,
+        birth_date: new Date(formData.birth_date).toISOString(),
+        address: formData.address,
+        phone: formData.phone,
+        email: formData.email,
+        status: formData.status || 'active',
+      };
+
+      // Only include UUID fields if they have a value
+      if (formData.branch_id) payload.branch_id = formData.branch_id;
+      if (formData.major_id) payload.major_id = formData.major_id;
+      if (formData.batch_id) payload.batch_id = formData.batch_id;
+      if (formData.class_id) payload.class_id = formData.class_id;
+      if (formData.health_history) payload.health_history = formData.health_history;
+      if (formData.profile_picture) payload.profile_picture = formData.profile_picture;
+      if (formData.latitude) payload.latitude = parseFloat(formData.latitude);
+      if (formData.longitude) payload.longitude = parseFloat(formData.longitude);
+      
+      // Parent data
+      if (formData.parents?.father_name || formData.parents?.mother_name) {
+        payload.parents = formData.parents;
+      }
+
       await apiRequest('/students', {
         method: 'POST',
-        body: JSON.stringify({
-          ...formData,
-          birth_date: new Date(formData.birth_date).toISOString(),
-          latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-          longitude: formData.longitude ? parseFloat(formData.longitude) : null,
-        })
+        body: JSON.stringify(payload)
       });
       setIsAddModalOpen(false);
       fetchStudents();

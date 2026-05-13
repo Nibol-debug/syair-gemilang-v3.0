@@ -18,6 +18,7 @@ const branches_service_1 = require("./branches.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const public_decorator_1 = require("../common/decorators/public.decorator");
 let BranchesController = class BranchesController {
     branchesService;
     constructor(branchesService) {
@@ -50,6 +51,7 @@ __decorate([
 ], BranchesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, public_decorator_1.Public)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)

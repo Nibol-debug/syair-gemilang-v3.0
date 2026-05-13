@@ -56,6 +56,21 @@ export class ClassesService {
     return classData;
   }
 
+  async findStudents(id: string) {
+    await this.findOne(id);
+    return this.prisma.student.findMany({
+      where: { class_id: id, status: 'active' },
+      orderBy: { full_name: 'asc' },
+      select: {
+        id: true,
+        nis: true,
+        full_name: true,
+        gender: true,
+        profile_picture: true,
+      },
+    });
+  }
+
   async update(id: string, updateClassDto: UpdateClassDto) {
     await this.findOne(id);
     return this.prisma.class.update({

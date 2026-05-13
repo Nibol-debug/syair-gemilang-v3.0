@@ -1,31 +1,28 @@
 'use client';
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, useCallback, useRef, use } from 'react';
 import { apiRequest } from '@/lib/api';
-import { 
-  Loader2,
-  AlertCircle,
-  Clock,
-  Send,
-  CheckCircle2,
-  Lock,
-  ArrowLeft,
-  ArrowRight,
-  Monitor
-} from 'lucide-react';
+import { Loader2, AlertCircle, Clock, Send, CheckCircle2, Lock, ArrowLeft, ArrowRight, Monitor, Shield, AlertTriangle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  
   const [exam, setExam] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  
   const [isLoading, setIsLoading] = useState(true);
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,183 +30,151 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
   const [warnings, setWarnings] = useState(0);
+  const [isDisqualified, setIsDisqualified] = useState(false);
+  const [showWarningOverlay, setShowWarningOverlay] = useState(false);
+  const [warningMsg, setWarningMsg] = useState('');
   const WARNING_LIMIT = 3;
-
-  const fetchExamInfo = async () => {
-    try {
-      const examData = await apiRequest(`/exams/${id}`);
-      setExam(examData);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const warningsRef = useRef(0);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && id) {
-      fetchExamInfo();
+    const t = localStorage.getItem('token');
+    if (t && id) {
+      apiRequest(`/exams/${id}`).then(d => setExam(d)).catch(e => setError(e.message)).finally(() => setIsLoading(false));
     }
   }, [id]);
 
+  // Timer countdown
   useEffect(() => {
-    if (session && timeLeft > 0) {
-      const handleVisibilityChange = () => {
-        if (document.hidden) {
-          handleViolation('tab_switch', 'Jangan berpindah tab browser saat ujian!');
-        }
-      };
+    if (!session || timeLeft <= 0) return;
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) { clearInterval(interval); forceSubmitExam(); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [session]);
 
-      const handleBlur = () => {
-        handleViolation('window_blur', 'Jangan meninggalkan jendela ujian!');
-      };
+  // Anti-cheat listeners
+  useEffect(() => {
+    if (!session || timeLeft <= 0 || isDisqualified || isSubmitting) return;
 
-      const handleFullscreenChange = () => {
-        if (!document.fullscreenElement) {
-          handleViolation('exit_fullscreen', 'Ujian harus dalam mode Layar Penuh (Fullscreen)!');
-        }
-      };
+    const onVisibility = () => { if (document.hidden) handleViolation('tab_switch', 'Pindah tab terdeteksi!'); };
+    const onBlur = () => handleViolation('window_blur', 'Jendela ujian kehilangan fokus!');
+    const onFullscreen = () => { if (!document.fullscreenElement) handleViolation('exit_fullscreen', 'Keluar dari mode fullscreen!'); };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault(); handleViolation('devtools', 'Percobaan membuka DevTools!');
+      }
+    };
+    const onContext = (e: MouseEvent) => e.preventDefault();
 
-      window.addEventListener('visibilitychange', handleVisibilityChange);
-      window.addEventListener('blur', handleBlur);
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('blur', onBlur);
+    document.addEventListener('fullscreenchange', onFullscreen);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('contextmenu', onContext);
+    return () => {
+      window.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('blur', onBlur);
+      document.removeEventListener('fullscreenchange', onFullscreen);
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('contextmenu', onContext);
+    };
+  }, [session, timeLeft, isDisqualified, isSubmitting]);
 
-      return () => {
-        window.removeEventListener('visibilitychange', handleVisibilityChange);
-        window.removeEventListener('blur', handleBlur);
-        document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      };
-    }
-  }, [session, timeLeft, warnings]);
-
-  const handleViolation = async (type: string, message: string) => {
+  const handleViolation = useCallback(async (type: string, message: string) => {
     if (!session || isSubmitting) return;
-    
-    const newWarnings = warnings + 1;
-    setWarnings(newWarnings);
-    
-    // Log to backend
-    logViolation(type);
+    const newW = warningsRef.current + 1;
+    warningsRef.current = newW;
+    setWarnings(newW);
 
-    if (newWarnings >= WARNING_LIMIT) {
-      alert(`DISKUALIFIKASI: Anda telah melanggar aturan ujian sebanyak ${WARNING_LIMIT} kali. Ujian akan dikumpulkan otomatis.`);
+    try { await apiRequest(`/exams/sessions/${session.id}/log`, { method: 'POST', body: JSON.stringify({ type, description: message }) }); } catch {}
+
+    if (newW >= WARNING_LIMIT) {
+      setIsDisqualified(true);
       forceSubmitExam();
     } else {
-      alert(`PERINGATAN (${newWarnings}/${WARNING_LIMIT}): ${message}\n\nJika mencapai ${WARNING_LIMIT} kali, ujian akan dikumpulkan otomatis!`);
-      
-      // Try to re-enforce fullscreen if they exited
-      if (type === 'exit_fullscreen') {
-        try {
-          await document.documentElement.requestFullscreen();
-        } catch (err) {
-          console.error('Failed to re-enforce fullscreen');
-        }
-      }
+      setWarningMsg(`PERINGATAN ${newW}/${WARNING_LIMIT}: ${message}`);
+      setShowWarningOverlay(true);
+      setTimeout(() => setShowWarningOverlay(false), 4000);
+      if (type === 'exit_fullscreen') { try { await document.documentElement.requestFullscreen(); } catch {} }
     }
-  };
-
-  const logViolation = async (type: string) => {
-    if (!session) return;
-    try {
-      await apiRequest(`/exams/sessions/${session.id}/log`, {
-        method: 'POST',
-        body: JSON.stringify({ type })
-      });
-    } catch (err) {
-      console.error('Failed to log violation', err);
-    }
-  };
+  }, [session, isSubmitting]);
 
   const forceSubmitExam = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await apiRequest(`/exams/sessions/${session.id}/submit`, {
-        method: 'POST'
-      });
-      router.push('/cbt');
-    } catch (err: any) {
-      console.error('Failed to auto-submit', err);
-      router.push('/cbt');
-    }
+      await apiRequest(`/exams/sessions/${session.id}/submit`, { method: 'POST' });
+    } catch {}
+    if (document.fullscreenElement) try { await document.exitFullscreen(); } catch {}
   };
 
   const handleStartExam = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsStarting(true);
-    setError('');
+    setIsStarting(true); setError('');
     try {
-      // Request Fullscreen
-      try {
-        await document.documentElement.requestFullscreen();
-      } catch (err) {
-        console.warn('Fullscreen request denied or failed');
+      try { await document.documentElement.requestFullscreen(); } catch {}
+      const sess = await apiRequest(`/exams/${id}/start`, { method: 'POST', body: JSON.stringify({ token, device_id: navigator.userAgent }) });
+      setSession(sess);
+      const qs = await apiRequest(`/exams/${id}/questions`);
+      setQuestions(shuffleArray(qs).map((q: any) => ({ ...q, options: q.options ? shuffleArray(q.options) : [] })));
+      const dur = exam.duration * 60;
+      const elapsed = (Date.now() - new Date(sess.start_time).getTime()) / 1000;
+      setTimeLeft(Math.max(0, Math.floor(dur - elapsed)));
+      if (sess.warning_count) { warningsRef.current = sess.warning_count; setWarnings(sess.warning_count); }
+      if (sess.answers) {
+        const loaded: Record<string, string> = {};
+        sess.answers.forEach((a: any) => { loaded[a.question_id] = a.answer; });
+        setAnswers(loaded);
       }
-
-      const sessionData = await apiRequest(`/exams/${id}/start`, {
-        method: 'POST',
-        body: JSON.stringify({ token, device_id: navigator.userAgent })
-      });
-      setSession(sessionData);
-      
-      const questionsData = await apiRequest(`/exams/${id}/questions`);
-      setQuestions(questionsData);
-      
-      // Calculate time left
-      const duration = exam.duration * 60; // seconds
-      const elapsed = (new Date().getTime() - new Date(sessionData.start_time).getTime()) / 1000;
-      setTimeLeft(Math.max(0, duration - elapsed));
-      
-      // Load existing answers if resuming
-      if (sessionData.answers) {
-        const loadedAnswers: Record<string, string> = {};
-        sessionData.answers.forEach((a: any) => {
-          loadedAnswers[a.question_id] = a.answer;
-        });
-        setAnswers(loadedAnswers);
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsStarting(false);
-    }
+    } catch (err: any) { setError(err.message); }
+    finally { setIsStarting(false); }
   };
 
-  const handleSelectOption = async (questionId: string, optionText: string) => {
-    setAnswers(prev => ({ ...prev, [questionId]: optionText }));
-    try {
-      await apiRequest(`/exams/sessions/${session.id}/answers`, {
-        method: 'POST',
-        body: JSON.stringify({ question_id: questionId, answer: optionText })
-      });
-    } catch (err) {
-      console.error('Failed to save answer', err);
-    }
+  const handleSelectOption = async (qId: string, text: string) => {
+    setAnswers(prev => ({ ...prev, [qId]: text }));
+    try { await apiRequest(`/exams/sessions/${session.id}/answers`, { method: 'POST', body: JSON.stringify({ question_id: qId, answer: text }) }); } catch {}
+  };
+
+  const handleEssayAnswer = async (qId: string, text: string) => {
+    setAnswers(prev => ({ ...prev, [qId]: text }));
+  };
+
+  const saveEssay = async (qId: string) => {
+    const text = answers[qId];
+    if (!text) return;
+    try { await apiRequest(`/exams/sessions/${session.id}/answers`, { method: 'POST', body: JSON.stringify({ question_id: qId, answer: text }) }); } catch {}
   };
 
   const handleSubmitExam = async () => {
     if (timeLeft > 0 && !confirm('Yakin ingin mengakhiri ujian sekarang?')) return;
-    
     setIsSubmitting(true);
     try {
-      await apiRequest(`/exams/sessions/${session.id}/submit`, {
-        method: 'POST'
-      });
-      alert('Ujian berhasil dikumpulkan!');
+      const result = await apiRequest(`/exams/sessions/${session.id}/submit`, { method: 'POST' });
+      if (document.fullscreenElement) try { await document.exitFullscreen(); } catch {}
+      alert(`Ujian berhasil dikumpulkan!\nNilai: ${result.score?.toFixed(1)} (${result.total_correct}/${result.total_questions} benar)`);
       router.push('/cbt');
-    } catch (err: any) {
-      alert('Gagal mengumpulkan ujian: ' + err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch (err: any) { alert('Gagal: ' + err.message); setIsSubmitting(false); }
   };
 
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  const formatTime = (s: number) => {
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+    return `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
+
+  // --- DISQUALIFIED SCREEN ---
+  if (isDisqualified) return (
+    <div className="min-h-screen bg-error/5 flex items-center justify-center p-6">
+      <div className="bg-surface-container-lowest border-2 border-error/30 rounded-3xl p-12 max-w-md w-full shadow-2xl text-center space-y-6">
+        <div className="w-24 h-24 bg-error/10 rounded-full flex items-center justify-center mx-auto"><XCircle className="w-14 h-14 text-error" /></div>
+        <h2 className="text-2xl font-black text-error">DISKUALIFIKASI</h2>
+        <p className="text-on-surface-variant font-medium leading-relaxed">Anda telah melanggar aturan ujian sebanyak <strong className="text-error">{WARNING_LIMIT} kali</strong>. Ujian telah dikumpulkan otomatis dan dilaporkan ke pengawas.</p>
+        <button onClick={() => router.push('/cbt')} className="w-full bg-error text-on-error py-4 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-xl shadow-error/20">Kembali ke Dashboard</button>
+      </div>
+    </div>
+  );
 
   if (isLoading) return (
     <div className="min-h-screen bg-surface flex flex-col items-center justify-center gap-4">
@@ -218,205 +183,160 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     </div>
   );
 
+  // --- TOKEN ENTRY SCREEN ---
   if (!session) return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-6">
       <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 max-w-md w-full shadow-2xl space-y-8">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4">
-            <Lock className="w-8 h-8" />
-          </div>
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4"><Lock className="w-8 h-8" /></div>
           <h2 className="text-2xl font-black text-on-surface tracking-tight">Konfirmasi Token</h2>
-          <p className="text-sm font-medium text-on-surface-variant">
-            Silakan masukkan token ujian untuk memulai <strong>{exam?.title}</strong>.
-          </p>
+          <p className="text-sm font-medium text-on-surface-variant">Masukkan token ujian untuk memulai <strong>{exam?.title}</strong>.</p>
         </div>
-
         {error && (
-          <div className="bg-error-container/20 border border-error/20 p-4 rounded-xl flex gap-3 text-error text-sm font-bold animate-shake">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p>{error}</p>
+          <div className="bg-error-container/20 border border-error/20 p-4 rounded-xl flex gap-3 text-error text-sm font-bold">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" /><p>{error}</p>
           </div>
         )}
-
         <form onSubmit={handleStartExam} className="space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] font-black text-outline uppercase tracking-[0.2em]">Token Ujian</label>
-            <input 
-              type="text" 
-              required
-              value={token}
-              onChange={e => setToken(e.target.value.toUpperCase())}
-              placeholder="ABCD-123"
-              className="w-full px-6 py-4 bg-surface-container border-2 border-outline-variant rounded-2xl text-center text-2xl font-black text-primary tracking-[0.3em] focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
-            />
+            <input type="text" required value={token} onChange={e => setToken(e.target.value.toUpperCase())} placeholder="ABCDEF"
+              className="w-full px-6 py-4 bg-surface-container border-2 border-outline-variant rounded-2xl text-center text-2xl font-black text-primary tracking-[0.3em] focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none" />
           </div>
-          
-          <div className="p-4 bg-surface-container-high rounded-2xl flex gap-3">
-             <Monitor className="w-5 h-5 text-outline-variant flex-shrink-0" />
-             <p className="text-[10px] font-bold text-on-surface-variant uppercase leading-relaxed tracking-wider">
-               Perangkat Anda akan dicatat. Pastikan koneksi internet stabil selama ujian berlangsung.
-             </p>
+          <div className="p-4 bg-surface-container-high rounded-2xl space-y-2">
+            <div className="flex gap-3"><Shield className="w-5 h-5 text-error flex-shrink-0" /><p className="text-[10px] font-bold text-on-surface-variant uppercase leading-relaxed tracking-wider">Fitur Anti-Cheat aktif: Fullscreen, Focus Tracking, Device Lock. Batas pelanggaran: 3x.</p></div>
           </div>
-
-          <button 
-            disabled={isStarting}
-            className="w-full bg-primary text-on-primary py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:opacity-95 transition-all active:scale-[0.98] shadow-xl shadow-primary/20 flex items-center justify-center gap-2"
-          >
-            {isStarting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-            Mulai Ujian Sekarang
+          <button disabled={isStarting} className="w-full bg-primary text-on-primary py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:opacity-95 shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
+            {isStarting ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />} Mulai Ujian Sekarang
           </button>
         </form>
       </div>
     </div>
   );
 
-  const currentQuestion = questions[currentQuestionIdx];
+  // --- EXAM TAKING UI ---
+  const currentQ = questions[currentIdx];
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
-      {/* Exam Header */}
-      <header className="bg-surface-container-lowest border-b border-outline-variant px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div className="flex items-center gap-6">
-           <div>
-             <h1 className="text-lg font-black text-on-surface tracking-tight">{exam.title}</h1>
-             <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{exam.subject?.name}</p>
-           </div>
-        </div>
-
-        <div className="flex items-center gap-8">
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Sisa Waktu</span>
-            <div className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-mono text-xl font-black",
-              timeLeft < 300 ? "bg-error-container/20 text-error border-error/20 animate-pulse" : "bg-surface-container-high text-on-surface border-outline-variant"
-            )}>
-              <Clock className="w-5 h-5" />
-              {formatTime(timeLeft)}
-            </div>
+    <div className="min-h-screen bg-surface flex flex-col select-none">
+      {/* Warning Overlay */}
+      {showWarningOverlay && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-error/20 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-none">
+          <div className="bg-error text-on-error px-10 py-8 rounded-3xl shadow-2xl text-center max-w-md pointer-events-auto">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+            <p className="text-lg font-black">{warningMsg}</p>
+            <p className="text-sm font-bold mt-3 opacity-80">Jika mencapai {WARNING_LIMIT}x, ujian otomatis dikumpulkan!</p>
           </div>
-          
-          <button 
-            onClick={handleSubmitExam}
-            disabled={isSubmitting}
-            className="bg-primary text-on-primary px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:opacity-95 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
-          >
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Kumpulkan
+        </div>
+      )}
+
+      {/* Exam Header */}
+      <header className="bg-surface-container-lowest border-b border-outline-variant px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <div><h1 className="text-base font-black text-on-surface">{exam.title}</h1><p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{exam.subject?.name}</p></div>
+        </div>
+        <div className="flex items-center gap-4">
+          {/* Warning Badge */}
+          <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border",
+            warnings >= 2 ? "bg-error/10 text-error border-error/20 animate-pulse" : warnings >= 1 ? "bg-primary/10 text-primary border-primary/20" : "bg-surface-container-high text-on-surface-variant border-outline-variant"
+          )}>
+            <Shield className="w-3.5 h-3.5" />
+            <span>⚠️ {warnings}/{WARNING_LIMIT}</span>
+          </div>
+          {/* Timer */}
+          <div className={cn("flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-mono text-lg font-black",
+            timeLeft < 300 ? "bg-error-container/20 text-error border-error/20 animate-pulse" : "bg-surface-container-high text-on-surface border-outline-variant"
+          )}>
+            <Clock className="w-4 h-4" />{formatTime(timeLeft)}
+          </div>
+          <button onClick={handleSubmitExam} disabled={isSubmitting}
+            className="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest hover:opacity-95 shadow-lg shadow-primary/20 flex items-center gap-2">
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Kumpulkan
           </button>
         </div>
       </header>
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-8 grid grid-cols-12 gap-10">
-        {/* Left: Question Navigation */}
-        <aside className="col-span-12 lg:col-span-3 space-y-6">
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 shadow-sm">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-12 gap-8">
+        {/* Question Nav */}
+        <aside className="col-span-12 lg:col-span-3 space-y-4">
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm">
             <h3 className="text-[10px] font-black text-outline uppercase tracking-[0.2em] mb-4">Navigasi Soal</h3>
-            <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 lg:grid-cols-4 gap-2">
               {questions.map((q, idx) => (
-                <button
-                  key={q.id}
-                  onClick={() => setCurrentQuestionIdx(idx)}
-                  className={cn(
-                    "w-full aspect-square rounded-lg flex items-center justify-center text-xs font-black transition-all",
-                    currentQuestionIdx === idx ? "bg-primary text-on-primary ring-4 ring-primary/20 scale-110" :
+                <button key={q.id} onClick={() => setCurrentIdx(idx)}
+                  className={cn("w-full aspect-square rounded-lg flex items-center justify-center text-xs font-black transition-all",
+                    currentIdx === idx ? "bg-primary text-on-primary ring-4 ring-primary/20 scale-110" :
                     answers[q.id] ? "bg-secondary text-on-secondary" : "bg-surface-container-high text-on-surface-variant hover:bg-outline-variant/30"
-                  )}
-                >
-                  {idx + 1}
-                </button>
+                  )}>{idx + 1}</button>
               ))}
             </div>
           </div>
-          
-          <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/30">
-             <div className="flex justify-between items-center mb-2">
-               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Progres</span>
-               <span className="text-xs font-black text-primary">{Math.round((Object.keys(answers).length / questions.length) * 100)}%</span>
-             </div>
-             <div className="h-2 bg-surface rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary transition-all duration-500" 
-                  style={{ width: `${(Object.keys(answers).length / questions.length) * 100}%` }}
-                />
-             </div>
+          <div className="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/30">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Progres</span>
+              <span className="text-xs font-black text-primary">{questions.length > 0 ? Math.round((Object.keys(answers).length / questions.length) * 100) : 0}%</span>
+            </div>
+            <div className="h-2 bg-surface rounded-full overflow-hidden">
+              <div className="h-full bg-primary transition-all duration-500" style={{ width: `${questions.length > 0 ? (Object.keys(answers).length / questions.length) * 100 : 0}%` }} />
+            </div>
+            <p className="text-[10px] font-bold text-outline mt-2">{Object.keys(answers).length}/{questions.length} terjawab</p>
           </div>
         </aside>
 
-        {/* Center: Question Content */}
-        <section className="col-span-12 lg:col-span-9 space-y-8">
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 shadow-sm min-h-[400px] flex flex-col">
-            <div className="flex justify-between items-center mb-8">
-               <span className="px-4 py-1.5 rounded-full bg-surface-container-high text-[10px] font-black uppercase tracking-widest text-on-surface-variant border border-outline-variant/30">
-                 Pertanyaan {currentQuestionIdx + 1} dari {questions.length}
-               </span>
-               <span className="text-[10px] font-black uppercase tracking-widest text-outline">
-                 Kesulitan: {currentQuestion?.difficulty}
-               </span>
+        {/* Question Content */}
+        <section className="col-span-12 lg:col-span-9">
+          <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-8 shadow-sm min-h-[400px] flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <span className="px-4 py-1.5 rounded-full bg-surface-container-high text-[10px] font-black uppercase tracking-widest text-on-surface-variant border border-outline-variant/30">
+                Soal {currentIdx + 1} / {questions.length}
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-outline">{currentQ?.type === 'mcq' ? 'Pilihan Ganda' : 'Essay'}</span>
             </div>
 
-            <div className="flex-1 space-y-10">
-               <h2 className="text-xl font-bold text-on-surface leading-relaxed whitespace-pre-wrap">
-                 {currentQuestion?.question_text}
-               </h2>
+            <div className="flex-1 space-y-8">
+              <h2 className="text-lg font-bold text-on-surface leading-relaxed whitespace-pre-wrap">{currentQ?.question_text}</h2>
 
-               <div className="grid grid-cols-1 gap-3">
-                  {currentQuestion?.options?.map((opt: any, idx: number) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleSelectOption(currentQuestion.id, opt.option_text)}
-                      className={cn(
-                        "w-full flex items-center gap-4 p-5 rounded-2xl border-2 text-left transition-all group",
-                        answers[currentQuestion.id] === opt.option_text 
-                          ? "bg-primary/5 border-primary ring-2 ring-primary/10" 
-                          : "bg-surface border-outline-variant/50 hover:border-outline-variant hover:bg-surface-container-low"
-                      )}
-                    >
-                      <span className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black transition-all",
-                        answers[currentQuestion.id] === opt.option_text 
-                          ? "bg-primary text-on-primary shadow-lg shadow-primary/20" 
-                          : "bg-surface-container-high text-outline group-hover:text-on-surface-variant"
+              {currentQ?.type === 'mcq' ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {currentQ?.options?.map((opt: any, idx: number) => (
+                    <button key={opt.id} onClick={() => handleSelectOption(currentQ.id, opt.option_text)}
+                      className={cn("w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all group",
+                        answers[currentQ.id] === opt.option_text ? "bg-primary/5 border-primary ring-2 ring-primary/10" : "bg-surface border-outline-variant/50 hover:border-outline-variant hover:bg-surface-container-low"
                       )}>
-                        {String.fromCharCode(65 + idx)}
-                      </span>
-                      <span className={cn(
-                        "text-base font-semibold",
-                        answers[currentQuestion.id] === opt.option_text ? "text-primary" : "text-on-surface-variant group-hover:text-on-surface"
-                      )}>
-                        {opt.option_text}
-                      </span>
+                      <span className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black",
+                        answers[currentQ.id] === opt.option_text ? "bg-primary text-on-primary shadow-lg shadow-primary/20" : "bg-surface-container-high text-outline"
+                      )}>{String.fromCharCode(65 + idx)}</span>
+                      <span className={cn("text-sm font-semibold", answers[currentQ.id] === opt.option_text ? "text-primary" : "text-on-surface-variant")}>{opt.option_text}</span>
                     </button>
                   ))}
-               </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <textarea value={answers[currentQ?.id] || ''} onChange={e => handleEssayAnswer(currentQ.id, e.target.value)} onBlur={() => saveEssay(currentQ.id)}
+                    placeholder="Tulis jawaban essay Anda di sini..." rows={8}
+                    className="w-full px-5 py-4 bg-surface border-2 border-outline-variant rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none resize-none font-medium" />
+                  <p className="text-[10px] font-bold text-outline uppercase tracking-wider">Jawaban akan tersimpan otomatis saat Anda berpindah soal.</p>
+                </div>
+              )}
             </div>
 
-            <div className="flex justify-between items-center mt-12 pt-8 border-t border-outline-variant/30">
-               <button
-                 disabled={currentQuestionIdx === 0}
-                 onClick={() => setCurrentQuestionIdx(prev => prev - 1)}
-                 className="flex items-center gap-2 px-6 py-3 rounded-xl border border-outline-variant font-bold text-sm text-on-surface-variant hover:bg-surface-container transition-all disabled:opacity-30"
-               >
-                 <ArrowLeft className="w-4 h-4" />
-                 Sebelumnya
-               </button>
-               
-               {currentQuestionIdx < questions.length - 1 ? (
-                 <button
-                   onClick={() => setCurrentQuestionIdx(prev => prev + 1)}
-                   className="flex items-center gap-2 px-8 py-3 rounded-xl bg-surface-container-high font-bold text-sm text-on-surface hover:bg-outline-variant/30 transition-all shadow-sm"
-                 >
-                   Selanjutnya
-                   <ArrowRight className="w-4 h-4" />
-                 </button>
-               ) : (
-                 <button
-                   onClick={handleSubmitExam}
-                   className="flex items-center gap-2 px-8 py-3 rounded-xl bg-success text-on-success font-bold text-sm hover:opacity-95 transition-all shadow-lg shadow-success/20"
-                 >
-                   <Send className="w-4 h-4" />
-                   Selesai & Kumpulkan
-                 </button>
-               )}
+            {/* Navigation */}
+            <div className="flex justify-between items-center mt-10 pt-6 border-t border-outline-variant/30">
+              <button disabled={currentIdx === 0} onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id); setCurrentIdx(p => p - 1); }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant font-bold text-sm text-on-surface-variant hover:bg-surface-container disabled:opacity-30">
+                <ArrowLeft className="w-4 h-4" /> Sebelumnya
+              </button>
+              {currentIdx < questions.length - 1 ? (
+                <button onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id); setCurrentIdx(p => p + 1); }}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-surface-container-high font-bold text-sm text-on-surface hover:bg-outline-variant/30 shadow-sm">
+                  Selanjutnya <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button onClick={handleSubmitExam}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-secondary text-on-secondary font-bold text-sm hover:opacity-95 shadow-lg shadow-secondary/20">
+                  <Send className="w-4 h-4" /> Selesai & Kumpulkan
+                </button>
+              )}
             </div>
           </div>
         </section>

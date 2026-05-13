@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
@@ -39,6 +40,15 @@ export class SubjectsService {
     });
     if (!subject) throw new NotFoundException('Subject not found');
     return subject;
+  }
+
+  async update(id: string, data: UpdateSubjectDto) {
+    await this.findOne(id);
+    return this.prisma.subject.update({
+      where: { id },
+      data,
+      include: { major: true },
+    });
   }
 
   async remove(id: string) {

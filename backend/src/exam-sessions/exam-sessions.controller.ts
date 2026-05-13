@@ -1,7 +1,10 @@
-import { Controller, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { ExamSessionsService } from './exam-sessions.service';
 import { StartExamDto, SubmitAnswerDto, LogViolationDto } from './dto/exam-session.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../common/decorators/public.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('exams')
 @UseGuards(JwtAuthGuard)
@@ -10,21 +13,48 @@ export class ExamSessionsController {
 
   @Post(':id/start')
   startExam(@Param('id') id: string, @Body() data: StartExamDto, @Request() req) {
-    return this.examSessionsService.startExam(req.user.studentId, id, data);
+    return this.examSessionsService.startExam({ studentId: req.user.studentId, examId: id }, data);
+  }
+
+  @Post(':id/start-applicant')
+  @Public()
+  startExamApplicant(
+    @Param('id') id: string, 
+    @Body() data: StartExamDto & { applicantId: string }
+  ) {
+    return this.examSessionsService.startExam(
+      { applicantId: data.applicantId, examId: id }, 
+      data
+    );
+  }
+
+  @Get('sessions/:sessionId')
+  getSessionDetail(@Param('sessionId') sessionId: string) {
+    return this.examSessionsService.getSessionDetail(sessionId);
   }
 
   @Post('sessions/:sessionId/answers')
+  @Public() // Allow applicants to submit answers
   submitAnswer(@Param('sessionId') sessionId: string, @Body() data: SubmitAnswerDto) {
     return this.examSessionsService.submitAnswer(sessionId, data);
   }
 
   @Post('sessions/:sessionId/log')
+  @Public() // Allow applicants to log violations
   logViolation(@Param('sessionId') sessionId: string, @Body() data: LogViolationDto) {
     return this.examSessionsService.logViolation(sessionId, data);
   }
 
   @Post('sessions/:sessionId/submit')
+  @Public() // Allow applicants to finalize exam
   submitExam(@Param('sessionId') sessionId: string) {
     return this.examSessionsService.finalizeExam(sessionId);
+  }
+
+  @Post('sessions/:sessionId/force-submit')
+  @UseGuards(RolesGuard)
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran')
+  forceSubmitExam(@Param('sessionId') sessionId: string) {
+    return this.examSessionsService.forceSubmit(sessionId);
   }
 }

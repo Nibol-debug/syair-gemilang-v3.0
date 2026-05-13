@@ -243,12 +243,19 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
       const url = isCreate ? '/employees' : `/employees/${employee.id}`;
       const method = isCreate ? 'POST' : 'PATCH';
       
+      // Clean empty strings for UUID fields
+      const payload: any = {
+        full_name: formData.full_name,
+        education: formData.education,
+        position: formData.position,
+        join_date: new Date(formData.join_date).toISOString(),
+        status: formData.status,
+      };
+      if (formData.major_id) payload.major_id = formData.major_id;
+
       await apiRequest(url, {
         method,
-        body: JSON.stringify({
-          ...formData,
-          join_date: new Date(formData.join_date).toISOString()
-        })
+        body: JSON.stringify(payload)
       });
       onSuccess();
       onClose();

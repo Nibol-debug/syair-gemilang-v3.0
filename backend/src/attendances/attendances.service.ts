@@ -33,4 +33,46 @@ export class AttendancesService {
       },
     });
   }
+
+  async getSummary(class_id?: string, month?: string) {
+    const where: any = {};
+    if (class_id) {
+      where.schedule = { class_id };
+    }
+    if (month) {
+      const [year, m] = month.split('-').map(Number);
+      where.date = {
+        gte: new Date(year, m - 1, 1),
+        lt: new Date(year, m, 1),
+      };
+    }
+
+    const attendances = await this.prisma.attendance.findMany({
+      where,
+      select: { status: true },
+    });
+
+    const total = attendances.length;
+    const hadir = attendances.filter((a) => a.status === 'hadir').length;
+    const sakit = attendances.filter((a) => a.status === 'sakit').length;
+    const izin = attendances.filter((a) => a.status === 'izin').length;
+    const alfa = attendances.filter((a) => a.status === 'alfa').length;
+
+    return { total, hadir, sakit, izin, alfa };
+  }
+
+  async findBySchedule(scheduleId: string, date: Date) {
+    return this.prisma.attendance.findMany({
+      where: {
+        schedule_id: scheduleId,
+        date,
+      },
+      include: {
+        student: true,
+        schedule: {
+          include: { subject: true, class: true, teacher: true },
+        },
+      },
+    });
+  }
 }

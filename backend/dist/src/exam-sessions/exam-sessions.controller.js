@@ -17,13 +17,22 @@ const common_1 = require("@nestjs/common");
 const exam_sessions_service_1 = require("./exam-sessions.service");
 const exam_session_dto_1 = require("./dto/exam-session.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const public_decorator_1 = require("../common/decorators/public.decorator");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const roles_guard_1 = require("../auth/roles.guard");
 let ExamSessionsController = class ExamSessionsController {
     examSessionsService;
     constructor(examSessionsService) {
         this.examSessionsService = examSessionsService;
     }
     startExam(id, data, req) {
-        return this.examSessionsService.startExam(req.user.studentId, id, data);
+        return this.examSessionsService.startExam({ studentId: req.user.studentId, examId: id }, data);
+    }
+    startExamApplicant(id, data) {
+        return this.examSessionsService.startExam({ applicantId: data.applicantId, examId: id }, data);
+    }
+    getSessionDetail(sessionId) {
+        return this.examSessionsService.getSessionDetail(sessionId);
     }
     submitAnswer(sessionId, data) {
         return this.examSessionsService.submitAnswer(sessionId, data);
@@ -33,6 +42,9 @@ let ExamSessionsController = class ExamSessionsController {
     }
     submitExam(sessionId) {
         return this.examSessionsService.finalizeExam(sessionId);
+    }
+    forceSubmitExam(sessionId) {
+        return this.examSessionsService.forceSubmit(sessionId);
     }
 };
 exports.ExamSessionsController = ExamSessionsController;
@@ -46,7 +58,24 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ExamSessionsController.prototype, "startExam", null);
 __decorate([
+    (0, common_1.Post)(':id/start-applicant'),
+    (0, public_decorator_1.Public)(),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ExamSessionsController.prototype, "startExamApplicant", null);
+__decorate([
+    (0, common_1.Get)('sessions/:sessionId'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ExamSessionsController.prototype, "getSessionDetail", null);
+__decorate([
     (0, common_1.Post)('sessions/:sessionId/answers'),
+    (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('sessionId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -55,6 +84,7 @@ __decorate([
 ], ExamSessionsController.prototype, "submitAnswer", null);
 __decorate([
     (0, common_1.Post)('sessions/:sessionId/log'),
+    (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('sessionId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -63,11 +93,21 @@ __decorate([
 ], ExamSessionsController.prototype, "logViolation", null);
 __decorate([
     (0, common_1.Post)('sessions/:sessionId/submit'),
+    (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Param)('sessionId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ExamSessionsController.prototype, "submitExam", null);
+__decorate([
+    (0, common_1.Post)('sessions/:sessionId/force-submit'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ExamSessionsController.prototype, "forceSubmitExam", null);
 exports.ExamSessionsController = ExamSessionsController = __decorate([
     (0, common_1.Controller)('exams'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

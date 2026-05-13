@@ -73,21 +73,21 @@ export class CreateStudentDto {
   @Type(() => Number)
   longitude?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
-  branch_id: string;
+  branch_id?: string;
 
   @IsOptional()
   @IsUUID()
   class_id?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
-  major_id: string;
+  major_id?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
-  batch_id: string;
+  batch_id?: string;
 
   @IsOptional()
   @IsEnum(['active', 'alumni', 'moved'])

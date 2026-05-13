@@ -73,6 +73,7 @@ export declare class FinanceController {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;
@@ -114,6 +115,7 @@ export declare class FinanceController {
                 batch_id: string;
                 qr_code: string | null;
                 created_at: Date;
+                applicant_id: string | null;
             };
             fee: {
                 id: string;
@@ -161,6 +163,7 @@ export declare class FinanceController {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;
@@ -201,6 +204,7 @@ export declare class FinanceController {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;

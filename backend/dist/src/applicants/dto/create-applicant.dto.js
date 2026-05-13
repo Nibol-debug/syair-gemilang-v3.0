@@ -13,14 +13,26 @@ exports.CreateApplicantDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateApplicantDto {
     full_name;
+    nik;
     email;
     phone;
     gender;
     birth_place;
     birth_date;
     address;
+    latitude;
+    longitude;
+    marital_status;
+    education_level;
+    father_name;
+    mother_name;
     previous_school;
     document_url;
+    ktp_url;
+    kk_url;
+    sktm_url;
+    vaccine_url;
+    health_cert_url;
     major_id;
 }
 exports.CreateApplicantDto = CreateApplicantDto;
@@ -29,6 +41,11 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateApplicantDto.prototype, "full_name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "nik", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
@@ -60,6 +77,36 @@ __decorate([
     __metadata("design:type", String)
 ], CreateApplicantDto.prototype, "address", void 0);
 __decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateApplicantDto.prototype, "latitude", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateApplicantDto.prototype, "longitude", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "marital_status", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "education_level", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "father_name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "mother_name", void 0);
+__decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -69,6 +116,31 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateApplicantDto.prototype, "document_url", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "ktp_url", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "kk_url", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "sktm_url", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "vaccine_url", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateApplicantDto.prototype, "health_cert_url", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),

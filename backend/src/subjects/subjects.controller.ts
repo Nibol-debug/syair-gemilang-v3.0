@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -25,6 +26,12 @@ export class SubjectsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.subjectsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles('Administrator Utama')
+  update(@Param('id') id: string, @Body() updateSubjectDto: UpdateSubjectDto) {
+    return this.subjectsService.update(id, updateSubjectDto);
   }
 
   @Delete(':id')

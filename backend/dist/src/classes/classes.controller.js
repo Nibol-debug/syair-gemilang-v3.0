@@ -35,6 +35,9 @@ let ClassesController = class ClassesController {
     findOne(id) {
         return this.classesService.findOne(id);
     }
+    findStudents(id) {
+        return this.classesService.findStudents(id);
+    }
     update(id, updateClassDto) {
         return this.classesService.update(id, updateClassDto);
     }
@@ -65,6 +68,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ClassesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/students'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ClassesController.prototype, "findStudents", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),

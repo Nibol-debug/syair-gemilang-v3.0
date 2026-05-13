@@ -21,4 +21,16 @@ export class AttendancesController {
   findByClass(@Param('id') classId: string, @Query('date') date: string) {
     return this.attendancesService.findByClass(classId, new Date(date));
   }
+
+  @Get('summary')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Kepala Sekolah')
+  getSummary(@Query('class_id') class_id?: string, @Query('month') month?: string) {
+    return this.attendancesService.getSummary(class_id, month);
+  }
+
+  @Get('schedule/:id')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
+  findBySchedule(@Param('id') scheduleId: string, @Query('date') date: string) {
+    return this.attendancesService.findBySchedule(scheduleId, new Date(date));
+  }
 }

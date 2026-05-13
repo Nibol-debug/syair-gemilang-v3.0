@@ -44,6 +44,7 @@ export declare class StudentsController {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     findAll(query: StudentQueryDto): Promise<{
         data: ({
@@ -104,6 +105,7 @@ export declare class StudentsController {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         })[];
         meta: {
             total: number;
@@ -184,6 +186,7 @@ export declare class StudentsController {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
         branch: {
@@ -228,6 +231,7 @@ export declare class StudentsController {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -251,5 +255,6 @@ export declare class StudentsController {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
 }

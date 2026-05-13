@@ -23,7 +23,7 @@ export class CreateScheduleDto {
 
   @IsNotEmpty()
   @IsString()
-  @Matches(/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu)$/)
+  @Matches(/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$/)
   day: string;
 
   @IsNotEmpty()

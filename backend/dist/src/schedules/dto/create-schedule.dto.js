@@ -50,7 +50,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu)$/),
+    (0, class_validator_1.Matches)(/^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$/),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "day", void 0);
 __decorate([

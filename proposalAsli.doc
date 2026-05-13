@@ -1,0 +1,153 @@
+PROPOSAL PENGEMBANGAN SISTEM ERP SEKOLAH
+Syiar Gemilang (System Informasi Akademik Rumah Gemilang Indonesia)
+1. Pendahuluan
+Proposal ini menawarkan solusi transformasi digital untuk institusi pendidikan dengan membangun ekosistem Enterprise Resource Planning (ERP) yang terintegrasi. Fokus utama tahap awal adalah implementasi modul Ujian Online (CBT) yang aman, transparan, dan efisien.
+
+2. Keuntungan Utama bagi Sekolah
+Manfaat
+Deskripsi
+Efisiensi Biaya
+Menghilangkan biaya penggandaan kertas, tinta, dan logistik ujian secara permanen (Paperless).
+Integritas Tinggi
+Fitur Anti-Cheat menjamin keaslian hasil ujian dengan deteksi aktivitas mencurigakan secara real-time.
+Sentralisasi Data
+Data 1.300 siswa terkelola otomatis dari pendaftaran hingga rapor tanpa input manual berulang.
+Aksesibilitas
+Mendukung strategi BYOD (Bring Your Own Device) dengan kompatibilitas di semua sistem operasi.
+
+
+3. Cakupan Modul ERP (Scope of Work)
+Harga yang ditawarkan mencakup pengembangan dan integrasi modul-modul utama berikut:
+Modul
+Fitur Utama
+1. Modul Santri (Student Management)
+Modul ini berfungsi sebagai pusat data (Single Source of Truth) bagi seluruh informasi santri di RGI, yang dirancang untuk mengelola data 1.300 siswa secara sistematis dan terintegrasi. Fitur utamanya meliputi:
+Manajemen Profil Santri Digital: Pendataan lengkap biodata santri mencakup NIS, NIK, alamat (integrasi maps), riwayat kesehatan, dan foto profil yang terintegrasi dengan database pusat.
+Database Orang Tua & Wali: Penyimpanan data kontak dan informasi wali untuk mempermudah jalur komunikasi serta manajemen akses portal orang tua.
+Sistem Mutasi & Alumni: Pencatatan otomatis riwayat perpindahan santri (masuk, pindah sekolah, atau keluar) serta pengelolaan data alumni.
+Manajemen Jurusan & Rombel (Rombongan Belajar): Fitur penempatan siswa ke dalam kelas secara massal dan riwayat kenaikan kelas setiap tahun ajaran.
+Pencetakan Kartu Pelajar Otomatis: Sistem dapat menghasilkan desain kartu pelajar secara instan yang dilengkapi dengan QR Code untuk integrasi absensi dan peminjaman aset/buku.
+Import & Export Data Massal: Fitur unggah data dari file Excel untuk mempermudah migrasi data awal 1.300 siswa tanpa harus input manual satu per satu.
+Dashboard Statistik Siswa: Grafik visual yang menampilkan persebaran data siswa berdasarkan jenis kelamin, usia, wilayah tinggal, hingga status keaktifan secara real-time.
+2. Modul Manajemen Pengguna & Hak Akses (ACL - Access Control List)
+Modul ini adalah pusat kendali keamanan sistem menggunakan metode Role-Based Access Control (RBAC). Fitur utamanya meliputi:
+Manajemen Akun Terpusat: Pengelolaan username dan password untuk seluruh warga sekolah (1.300 siswa + puluhan guru & staf) dalam satu pintu.
+Role & Permission Mapping: Pengaturan hak akses yang sangat mendetail; misalnya, staf keuangan hanya bisa melihat modul SPP tanpa bisa melihat modul ujian.
+Log Aktivitas (Audit Trail): Mencatat setiap aktivitas penting, seperti siapa yang mengubah nilai atau siapa yang memvalidasi pembayaran SPP, untuk menghindari manipulasi data.
+Device Locking (Khusus Ujian): Mengunci akun agar hanya bisa digunakan pada satu perangkat saat ujian berlangsung guna mencegah kebocoran soal.
+3. Modul Kepegawaian (HRM -  Human Resource Management)
+Modul ini mengelola seluruh data personal dan profesional tenaga pendidik serta kependidikan secara digital. Fitur utamanya meliputi:
+Profil Profesional Guru: Pencatatan detail riwayat pendidikan (Lulusan mana, gelar, tahun lulus) dan spesialisasi mata pelajaran yang diampu.
+Manajemen Masa Kerja: Pendataan tanggal bergabung (masuk kapan), status kepegawaian (GTT/PTT/Tetap), dan riwayat kenaikan pangkat atau golongan.
+Dokumen Digital (E-Wallet Dokumen): Penyimpanan scan ijazah, sertifikat pendidik (Sertifikasi), SK pengangkatan, dan dokumen penting lainnya dalam satu tempat yang aman.
+Presensi & Kinerja Staf: Rekapitulasi kehadiran guru per bulan yang dapat dikaitkan dengan perhitungan honor atau tunjangan jika diperlukan di masa depan.
+Dashboard Personalia: Grafik statistik sebaran guru berdasarkan tingkat pendidikan (S1/S2) dan status sertifikasi untuk kebutuhan laporan ke dinas.
+Modul Akademik (Academic Management)
+Modul ini dirancang untuk mengotomatisasi tata kelola kurikulum dan penjadwalan agar proses KBM (Kegiatan Belajar Mengajar) berjalan lebih terstruktur dan transparan. Fitur utamanya meliputi:
+Manajemen Kurikulum & Mata Pelajaran: Pengaturan daftar mata pelajaran, alokasi jam per minggu, dan pemetaan standar kompetensi berdasarkan Kurikulum Nasional.
+Penjadwalan Pelajaran Otomatis: Fitur untuk menyusun jadwal mingguan per kelas guna menghindari terjadinya jadwal bentrok (collision) antara guru atau ruangan.
+Sistem Presensi (Absensi) Digital: Pencatatan kehadiran siswa secara real-time oleh guru mata pelajaran melalui gadget masing-masing, yang datanya langsung terhubung ke laporan wali kelas.
+Manajemen Rombongan Belajar (Rombel): Pengaturan wali kelas, ketua kelas, dan daftar anggota kelas untuk setiap tahun ajaran baru.
+Kalender Akademik Terintegrasi: Sinkronisasi jadwal ujian, libur sekolah, dan kegiatan khusus lainnya yang dapat dipantau oleh seluruh warga sekolah melalui dashboard.
+Jurnal Mengajar Guru: Ruang bagi guru untuk mencatat ringkasan materi yang disampaikan dan tugas yang diberikan dalam setiap sesi pertemuan.
+Modul PPDB Online
+Modul ini dirancang untuk menjaring calon siswa menjadi siswa.
+Landing Page Pendaftaran: Halaman publik yang berisi informasi persyaratan, jalur pendaftaran, dan formulir pendaftaran online.
+Sistem Verifikasi Berkas: Panel admin untuk memvalidasi dokumen yang diunggah calon siswa (Diterima, Ditolak, atau Perlu Perbaikan).
+Ujian Seleksi Masuk (Integrasi CBT): Calon siswa dapat mengikuti tes seleksi menggunakan mesin yang sama dengan Modul CBT, sehingga efisiensi sistem tetap terjaga.
+Pengumuman Hasil Seleksi: Notifikasi otomatis melalui portal kepada calon siswa mengenai status kelulusan mereka.
+Sistem Daftar Ulang: Integrasi dengan modul keuangan untuk memantau kelunasan biaya masuk sebelum siswa resmi mendapatkan NIS (Nomor Induk Siswa).
+4. Modul Ujian Online (CBT - Computer Based Test)
+Modul ini dirancang untuk menggantikan ujian berbasis kertas dengan sistem digital yang aman, efisien, dan otomatis. Fitur utamanya meliputi:
+Bank Soal Terintegrasi: Guru dapat mengelola ribuan soal berdasarkan mata pelajaran, tingkat kesulitan, dan kategori topik secara terpusat.
+Fleksibilitas Tipe Soal: Mendukung format pilihan ganda, pilihan ganda kompleks, menjodohkan, jawaban singkat, hingga esai yang dapat dinilai manual oleh guru.
+Fitur Anti-Contek (Anti-Cheat Engine):
+Focus Tracking: Sistem secara otomatis mendeteksi dan mencatat jika siswa membuka tab baru, aplikasi lain, atau meminimalkan jendela ujian.
+Auto-Submit & Warning: Memberikan peringatan bertahap dan dapat melakukan force submit (pengumpulan paksa) jika siswa melanggar batas toleransi kecurangan yang ditentukan.
+Fullscreen Mode: Memaksa browser masuk ke mode layar penuh untuk meminimalisir navigasi di luar halaman ujian.
+Pengacakan Soal & Jawaban (Shuffle): Setiap siswa akan mendapatkan urutan soal dan pilihan jawaban yang berbeda untuk mencegah kerja sama antar siswa.
+Manajemen Sesi & Token: Ujian hanya dapat diakses menggunakan token unik yang dihasilkan secara otomatis dan dapat diatur durasi aktifnya oleh pengawas.
+Monitoring Real-Time: Panel khusus bagi pengawas untuk melihat status pengerjaan siswa secara langsung (Hadir, Sedang Mengerjakan, Selesai, atau Terdeteksi Melanggar).
+Penilaian Otomatis & Analisis: Nilai untuk tipe soal objektif akan langsung muncul setelah ujian selesai, lengkap dengan analisis butir soal untuk membantu guru mengevaluasi tingkat kesulitan.
+Sinkronisasi Nilai ke ERP: Hasil ujian dapat langsung diimpor ke Modul Penilaian untuk menjadi nilai harian atau nilai rapor tanpa perlu input manual lagi
+5. Modul Penilaian
+Modul ini berfungsi untuk mengolah, menganalisis, dan menyajikan data nilai siswa secara akurat serta terintegrasi langsung dengan database ujian. Fitur utamanya meliputi:
+Integrasi Otomatis CBT: Nilai hasil ujian dari Modul CBT (objektif maupun esai yang telah diperiksa) akan langsung ditarik secara otomatis ke buku nilai guru tanpa perlu input manual.
+Pengolahan Nilai Akhir (Weighted Scoring): Sistem secara otomatis menghitung nilai akhir berdasarkan bobot yang ditentukan sekolah (misal: 30% Nilai Harian, 30% UTS, 40% UAS).
+Analisis Butir Soal & Daya Pembeda: Menyediakan data statistik bagi guru untuk melihat soal mana yang paling banyak dijawab salah, guna mengevaluasi efektivitas pengajaran di kelas.
+Logika KKM & Deskripsi Otomatis: Sistem memberikan indikator ketuntasan (Lulus/Remedial) dan menghasilkan teks deskripsi perkembangan kompetensi siswa berdasarkan nilai yang dicapai.
+Manajemen Remedial: Fitur khusus untuk mendata siswa yang belum tuntas dan melakukan pemutakhiran nilai setelah ujian remedial dilaksanakan di modul CBT.
+E-Rapor & Cetak PDF: Generasi rapor digital yang siap cetak (format resmi Dapodik/Kurikulum Merdeka) lengkap dengan tanda tangan digital dan QR Code keaslian.
+Portal Nilai Orang Tua: Orang tua dapat memantau grafik perkembangan nilai anak mereka secara real-time melalui dashboard masing-masing.
+6. Modul Keuangan (SPP & Administrasi)
+Modul ini dirancang untuk mengotomatisasi manajemen tagihan rutin dan pembangunan, memberikan kemudahan bagi bendahara dalam memantau status pembayaran secara real-time. Fitur utamanya meliputi:
+Manajemen Tagihan Massal (Invoicing): Sistem secara otomatis menghasilkan tagihan bulanan (SPP) untuk seluruh 1.300 siswa berdasarkan kategori kelas atau tingkat yang telah ditentukan.
+Pencatatan Transaksi Multi-Channel: Pendataan pembayaran baik secara tunai maupun transfer bank, lengkap dengan fitur unggah bukti bayar untuk validasi admin.
+Laporan Tunggakan & Piutang: Dashboard khusus yang menampilkan daftar siswa yang belum melunasi tagihan, sehingga sekolah dapat menarik data tunggakan secara instan per kelas atau per angkatan.
+Histori Pembayaran Siswa: Portal transparan bagi orang tua untuk melihat riwayat pembayaran yang sudah dilakukan dan sisa tagihan yang harus dibayar.
+Notifikasi Pengingat Otomatis: Integrasi untuk mengirimkan pengingat tagihan melalui dashboard atau email kepada orang tua siswa sebelum atau sesudah jatuh tempo.
+Rekapitulasi Keuangan & Laporan Kas: Laporan harian, bulanan, dan tahunan yang menyajikan total pemasukan sekolah untuk memudahkan pelaporan kepada pihak yayasan atau kepala sekolah.
+Cetak Kuitansi Digital: Pembuatan bukti bayar resmi dalam format PDF yang dilengkapi dengan QR Code keamanan untuk mencegah pemalsuan bukti bayar.
+7. Modul Manajemen Inventaris (Asset)
+Modul ini dirancang untuk melacak seluruh siklus hidup barang milik sekolah, mulai dari pengadaan hingga penghapusan aset. Fitur utamanya meliputi:
+Inventarisasi & Kategorisasi Aset: Pendataan barang berdasarkan kategori (seperti Eletronik, Mebeul, atau Buku) dan lokasi (seperti Ruang Lab, Perpustakaan, atau Kelas) guna memudahkan pencarian.
+Manajemen QR Code Otomatis: Sistem secara otomatis menghasilkan label QR Code unik untuk setiap aset yang dapat dicetak dan ditempelkan pada fisik barang untuk mempercepat proses identifikasi.
+Sistem Peminjaman & Pengembalian: Pencatatan digital untuk setiap peminjaman barang oleh guru atau siswa, lengkap dengan tanggal pinjam, estimasi kembali, dan identitas peminjam.
+Pengecekan Kondisi Aset (Stock Opname): Fitur bagi petugas sarana prasarana untuk memperbarui kondisi barang (Baik, Rusak Ringan, atau Rusak Berat) secara berkala menggunakan pemindai QR Code di smartphone.
+Pelaporan Penyusutan & Nilai Aset: Perhitungan estimasi nilai sisa aset setiap tahunnya untuk membantu sekolah dalam merencanakan peremajaan alat atau pengadaan baru.
+Log Perawatan (Maintenance): Rekam jejak servis atau perbaikan yang dilakukan pada aset tertentu, seperti jadwal servis proyektor atau AC ruang kelas.
+8. Dashboard Pengguna (Multi-User Role Portal)
+Modul ini menyediakan antarmuka yang dipersonalisasi berdasarkan hak akses masing-masing pengguna untuk memastikan keamanan dan relevansi informasi. Fitur utamanya meliputi:
+Portal Admin Utama: Kendali penuh atas seluruh modul, manajemen hak akses pengguna (User Role Management), serta pemantauan statistik sekolah secara menyeluruh.
+Portal Guru: Akses khusus untuk mengelola bank soal CBT, melakukan absensi kelas, menginput nilai harian, dan melihat jadwal mengajar pribadi.
+Portal Siswa: Antarmuka interaktif untuk mengikuti ujian CBT, melihat rekap kehadiran, memantau nilai rapor, serta mengecek status tagihan SPP.
+Portal Orang Tua: Akses monitoring untuk melihat perkembangan nilai anak, histori absensi, dan melakukan konfirmasi pembayaran biaya sekolah.
+Sistem Notifikasi Real-Time: Pemberitahuan otomatis mengenai jadwal ujian yang akan datang, pengumuman sekolah, serta pengingat jatuh tempo pembayaran.
+Statistik & Analitik Visual: Penyajian data dalam bentuk grafik dan diagram (misal: tren nilai kelas atau persentase kehadiran) untuk mempermudah pengambilan keputusan.
+Single Sign-On (SSO) & Keamanan: Sistem satu akun untuk semua layanan dengan fitur Device Locking untuk mencegah penyalahgunaan akun saat ujian
+
+
+Peran (Role)
+Hak Akses Utama
+Administrator Utama
+Akses penuh ke seluruh modul, pengaturan server, manajemen user, dan backup database.
+Kepala Sekolah
+Hak akses Read-Only (hanya baca) untuk seluruh laporan statistik akademik, keuangan, dan aset guna pengambilan keputusan.
+Guru Mata Pelajaran
+Manajemen bank soal, pelaksanaan ujian CBT, input nilai harian, dan absensi di kelas masing-masing.
+Wali Kelas
+Memantau rekap absensi, grafik perkembangan nilai, dan mencetak E-Rapor untuk siswa di kelas perwaliannya.
+Bendahara / Staf TU
+Manajemen tagihan SPP, validasi bukti bayar, dan laporan kas masuk sekolah.
+Staf Sarpras
+Manajemen inventaris barang, cetak QR Code aset, dan input jadwal pemeliharaan barang.
+Siswa
+Mengikuti ujian online, melihat jadwal pelajaran, cek histori absensi, dan melihat nilai hasil ujian.
+Orang Tua
+Memantau kehadiran anak, melihat grafik nilai, dan mengecek sisa tagihan sekolah
+
+
+4. Spesifikasi Teknis & Infrastruktur
+Server OS: Ubuntu 26.04 LTS (Keamanan jangka panjang).
+Framework: CodeIgniter 4 dengan PHP 8.4/8.5.
+Web Server: OpenLiteSpeed (Akselerasi kecepatan eksekusi PHP).
+Database: MariaDB 11.x (Optimasi indexing untuk data besar).
+Kapasitas Server: 4 vCPU, 8GB RAM, NVMe SSD (Sanggup menangani 500 koneksi ujian serentak).
+
+5. Fitur Keamanan Ujian (Anti-Cheat)
+Focus Tracking: Mencatat peringatan jika siswa membuka tab atau aplikasi lain.
+Auto-Submit: Diskualifikasi otomatis jika melanggar batas toleransi peringatan (misal: 3x pindah tab).
+Fullscreen Enforcement: Memaksa layar penuh untuk menutup akses navigasi OS.
+Device Locking: Mencegah login ganda dengan akun yang sama di perangkat berbeda.
+
+
+
+Urutan Pengerjaan yang Direvisi (Roadmap Baru)
+Mengingat Abang mengerjakan ini di hari Ahad, penambahan PPDB mengubah urutan prioritas sedikit:
+Modul Kesiswaan & Manajemen User (Induk Utama): Tetap nomor satu karena PPDB butuh tabel database kesiswaan sebagai tujuan akhir data.
+Modul Kepegawaian (Guru): Tetap nomor dua agar guru bisa dilibatkan sebagai panitia PPDB atau penginput soal tes.
+Modul PPDB Online: Masuk ke nomor tiga. Jika dikerjakan sekarang, modul ini bisa digunakan terlebih dahulu di musim pendaftaran sekolah tanpa harus menunggu seluruh ERP selesai.
+Modul Akademik & CBT: Setelah data siswa baru masuk dari PPDB, baru siapkan kelas dan ujiannya.
+Analisa Strategis untuk Hari Ahad:
+Membuat PPDB itu menantang karena butuh tampilan frontend yang sangat ramah bagi orang tua siswa. Dengan Alpine.js dan Tailwind CSS, Abang bisa membuat formulir pendaftaran bertahap (multi-step form) yang cantik tanpa perlu memuat ulang halaman setiap kali berpindah kolom.
+

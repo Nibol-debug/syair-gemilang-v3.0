@@ -61,6 +61,20 @@ let ClassesService = class ClassesService {
             throw new common_1.NotFoundException(`Class with ID ${id} not found`);
         return classData;
     }
+    async findStudents(id) {
+        await this.findOne(id);
+        return this.prisma.student.findMany({
+            where: { class_id: id, status: 'active' },
+            orderBy: { full_name: 'asc' },
+            select: {
+                id: true,
+                nis: true,
+                full_name: true,
+                gender: true,
+                profile_picture: true,
+            },
+        });
+    }
     async update(id, updateClassDto) {
         await this.findOne(id);
         return this.prisma.class.update({

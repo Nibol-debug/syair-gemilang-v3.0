@@ -62,6 +62,7 @@ export declare class UsersController {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         } | null;
         role: {
             id: string;

@@ -127,7 +127,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateStudentDto.prototype, "longitude", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "branch_id", void 0);
@@ -137,12 +137,12 @@ __decorate([
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "class_id", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "major_id", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateStudentDto.prototype, "batch_id", void 0);

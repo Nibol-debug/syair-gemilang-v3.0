@@ -38,6 +38,11 @@ export class ClassesController {
     return this.classesService.findOne(id);
   }
 
+  @Get(':id/students')
+  findStudents(@Param('id') id: string) {
+    return this.classesService.findStudents(id);
+  }
+
   @Patch(':id')
   @Roles('Administrator Utama', 'Kepala Sekolah')
   update(@Param('id') id: string, @Body() updateClassDto: UpdateClassDto) {

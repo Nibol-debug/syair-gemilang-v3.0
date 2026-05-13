@@ -21,6 +21,7 @@ const pagination_dto_1 = require("../common/dto/pagination.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const public_decorator_1 = require("../common/decorators/public.decorator");
 let MajorsController = class MajorsController {
     majorsService;
     constructor(majorsService) {
@@ -53,6 +54,7 @@ __decorate([
 ], MajorsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),

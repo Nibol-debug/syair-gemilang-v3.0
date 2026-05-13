@@ -16,6 +16,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('majors')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -29,6 +30,7 @@ export class MajorsController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.majorsService.findAll(paginationDto);
   }

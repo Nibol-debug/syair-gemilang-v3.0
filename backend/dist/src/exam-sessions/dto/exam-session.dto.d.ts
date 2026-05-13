@@ -8,4 +8,5 @@ export declare class SubmitAnswerDto {
 }
 export declare class LogViolationDto {
     type: string;
+    description?: string;
 }

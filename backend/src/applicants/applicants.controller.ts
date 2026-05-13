@@ -76,6 +76,13 @@ export class ApplicantsController {
     return this.applicantsService.verify(id, status);
   }
 
+  @Post(':id/accept')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Administrator Utama', 'Kepala Sekolah')
+  accept(@Param('id') id: string) {
+    return this.applicantsService.acceptApplicant(id);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('Administrator Utama')

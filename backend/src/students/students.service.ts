@@ -5,11 +5,75 @@ import { UpdateStudentDto } from './dto/update-student.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import * as QRCode from 'qrcode';
 import * as ExcelJS from 'exceljs';
+import * as bcrypt from 'bcrypt';
 import type { Response } from 'express';
 
 @Injectable()
 export class StudentsService {
   constructor(private prisma: PrismaService) {}
+
+  async finalizeRegistration(id: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { id },
+      include: { applicant: true, major: true, batch: true },
+    });
+
+    if (!student) throw new NotFoundException('Student not found');
+    if (student.status === 'active') return student;
+
+    // Generate real NIS: e.g., BatchYear + MajorCode + RandomSuffix
+    const year = student.batch.start_date.getFullYear().toString().substring(2);
+    const majorCode = student.major.code.replace(/[^A-Z]/g, '').substring(0, 3);
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString();
+    const finalNis = `${year}${majorCode}${randomSuffix}`;
+
+    // Create User account
+    const hashedPassword = await bcrypt.hash('rgi123', 10);
+    const studentRole = await this.prisma.role.findUnique({ where: { name: 'Siswa' } });
+    
+    if (studentRole) {
+      await this.prisma.user.upsert({
+        where: { username: finalNis },
+        update: {
+          student_id: student.id,
+          role_id: studentRole.id,
+        },
+        create: {
+          username: finalNis,
+          password_hash: hashedPassword,
+          role_id: studentRole.id,
+          student_id: student.id,
+        },
+      });
+    }
+
+    // Update Student
+    const updatedStudent = await this.prisma.student.update({
+      where: { id },
+      data: {
+        nis: finalNis,
+        status: 'active',
+        qr_code: await QRCode.toDataURL(finalNis),
+        histories: {
+          create: {
+            type: 'active',
+            description: 'Pendaftaran difinalisasi. NIS diterbitkan.',
+            date: new Date(),
+          }
+        }
+      },
+    });
+
+    // Update Applicant status
+    if (student.applicant_id) {
+      await this.prisma.applicant.update({
+        where: { id: student.applicant_id },
+        data: { status: 'registered' },
+      });
+    }
+
+    return updatedStudent;
+  }
 
   async create(createStudentDto: CreateStudentDto) {
     const { parents, ...studentData } = createStudentDto;
@@ -30,28 +94,80 @@ export class StudentsService {
       studentData.branch_id = selectedClass.major.branch_id;
     }
 
+    // If still missing required IDs, try to fill from first available
+    if (!studentData.branch_id || !studentData.major_id || !studentData.batch_id) {
+      // Try to get defaults from the first available class or major
+      const firstClass = await this.prisma.class.findFirst({ include: { major: true } });
+      if (firstClass) {
+        if (!studentData.branch_id) studentData.branch_id = firstClass.major.branch_id;
+        if (!studentData.major_id) studentData.major_id = firstClass.major_id;
+        if (!studentData.batch_id) studentData.batch_id = firstClass.batch_id;
+      } else {
+        // Fallback: get first branch, major, batch separately
+        if (!studentData.branch_id) {
+          const branch = await this.prisma.branch.findFirst();
+          if (branch) studentData.branch_id = branch.id;
+        }
+        if (!studentData.major_id) {
+          const major = await this.prisma.major.findFirst();
+          if (major) studentData.major_id = major.id;
+        }
+        if (!studentData.batch_id) {
+          const batch = await this.prisma.batch.findFirst();
+          if (batch) studentData.batch_id = batch.id;
+        }
+      }
+    }
+
     // Generate QR Code content (NIS)
     const qrCodeBase64 = await QRCode.toDataURL(studentData.nis);
 
-    return this.prisma.student.create({
-      data: {
-        ...studentData,
-        qr_code: qrCodeBase64,
-        parents: parents ? {
-          create: parents
-        } : undefined,
-        histories: {
-          create: {
-            type: 'masuk',
-            description: 'Siswa baru terdaftar',
-            date: new Date(),
+    return this.prisma.$transaction(async (tx) => {
+      const student = await tx.student.create({
+        data: {
+          ...studentData,
+          qr_code: qrCodeBase64,
+          parents: parents ? {
+            create: parents
+          } : undefined,
+          histories: {
+            create: {
+              type: 'masuk',
+              description: 'Siswa baru terdaftar',
+              date: new Date(),
+            }
           }
+        } as any,
+        include: {
+          parents: true,
+          histories: true,
         }
-      },
-      include: {
-        parents: true,
-        histories: true,
+      });
+
+      // Auto-create user account for student
+      try {
+        const studentRole = await tx.role.findUnique({ where: { name: 'Siswa' } });
+        if (studentRole) {
+          const hashedPassword = await bcrypt.hash('rgi123', 10);
+          await tx.user.upsert({
+            where: { username: studentData.nis },
+            update: {
+              student_id: student.id,
+              role_id: studentRole.id,
+            },
+            create: {
+              username: studentData.nis,
+              password_hash: hashedPassword,
+              role_id: studentRole.id,
+              student_id: student.id,
+            },
+          });
+        }
+      } catch (err) {
+        console.error('Auto-create user for student failed:', err);
       }
+
+      return student;
     });
   }
 

@@ -48,6 +48,9 @@ let ApplicantsController = class ApplicantsController {
     verify(id, status) {
         return this.applicantsService.verify(id, status);
     }
+    accept(id) {
+        return this.applicantsService.acceptApplicant(id);
+    }
     remove(id) {
         return this.applicantsService.remove(id);
     }
@@ -116,6 +119,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ApplicantsController.prototype, "verify", null);
+__decorate([
+    (0, common_1.Post)(':id/accept'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ApplicantsController.prototype, "accept", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

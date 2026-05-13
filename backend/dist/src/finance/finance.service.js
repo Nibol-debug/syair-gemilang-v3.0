@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FinanceService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const students_service_1 = require("../students/students.service");
 let FinanceService = class FinanceService {
     prisma;
-    constructor(prisma) {
+    studentsService;
+    constructor(prisma, studentsService) {
         this.prisma = prisma;
+        this.studentsService = studentsService;
     }
     async createFee(createFeeDto) {
         return this.prisma.fee.create({
@@ -140,7 +143,7 @@ let FinanceService = class FinanceService {
         if (updatePaymentDto.date) {
             data.date = new Date(updatePaymentDto.date);
         }
-        return this.prisma.payment.update({
+        const updatedPayment = await this.prisma.payment.update({
             where: { id },
             data,
             include: {
@@ -148,6 +151,10 @@ let FinanceService = class FinanceService {
                 fee: true,
             },
         });
+        if (updatedPayment.status === 'success' && updatedPayment.fee.name === 'Biaya Daftar Ulang') {
+            await this.studentsService.finalizeRegistration(updatedPayment.student_id);
+        }
+        return updatedPayment;
     }
     async removePayment(id) {
         return this.prisma.payment.delete({
@@ -158,6 +165,7 @@ let FinanceService = class FinanceService {
 exports.FinanceService = FinanceService;
 exports.FinanceService = FinanceService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        students_service_1.StudentsService])
 ], FinanceService);
 //# sourceMappingURL=finance.service.js.map

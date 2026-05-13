@@ -3,14 +3,58 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EmployeesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createEmployeeDto: CreateEmployeeDto) {
-    return this.prisma.employee.create({
-      data: createEmployeeDto,
+    return this.prisma.$transaction(async (tx) => {
+      const employee = await tx.employee.create({
+        data: createEmployeeDto,
+      });
+
+      // Auto-create user account for employee
+      try {
+        // Determine role based on position
+        let roleName = 'Guru Mata Pelajaran';
+        const posLower = createEmployeeDto.position?.toLowerCase() || '';
+        if (posLower.includes('bendahara') || posLower.includes('tu')) {
+          roleName = 'Bendahara';
+        } else if (posLower.includes('sarpras') || posLower.includes('inventaris')) {
+          roleName = 'Staf Sarpras';
+        } else if (posLower.includes('kepala')) {
+          roleName = 'Kepala Sekolah';
+        } else if (posLower.includes('wali')) {
+          roleName = 'Wali Kelas';
+        }
+
+        const role = await tx.role.findUnique({ where: { name: roleName } });
+        if (role) {
+          // Generate username from name: lowercase, no spaces, + random suffix
+          const baseName = createEmployeeDto.full_name
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '')
+            .substring(0, 15);
+          const suffix = Math.floor(10 + Math.random() * 90);
+          const username = `${baseName}${suffix}`;
+
+          const hashedPassword = await bcrypt.hash('rgi123', 10);
+          await tx.user.create({
+            data: {
+              username,
+              password_hash: hashedPassword,
+              role_id: role.id,
+              employee_id: employee.id,
+            },
+          });
+        }
+      } catch (err) {
+        console.error('Auto-create user for employee failed:', err);
+      }
+
+      return employee;
     });
   }
 

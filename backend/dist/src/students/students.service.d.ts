@@ -6,6 +6,30 @@ import type { Response } from 'express';
 export declare class StudentsService {
     private prisma;
     constructor(prisma: PrismaService);
+    finalizeRegistration(id: string): Promise<{
+        id: string;
+        full_name: string;
+        status: string;
+        major_id: string;
+        nis: string;
+        nik: string;
+        gender: string;
+        birth_place: string;
+        birth_date: Date;
+        address: string;
+        phone: string;
+        email: string;
+        health_history: string | null;
+        profile_picture: string | null;
+        latitude: import("@prisma/client/runtime/library").Decimal | null;
+        longitude: import("@prisma/client/runtime/library").Decimal | null;
+        branch_id: string;
+        class_id: string | null;
+        batch_id: string;
+        qr_code: string | null;
+        created_at: Date;
+        applicant_id: string | null;
+    }>;
     create(createStudentDto: CreateStudentDto): Promise<{
         parents: {
             id: string;
@@ -44,6 +68,7 @@ export declare class StudentsService {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     findAll(pagination: PaginationDto, filters: {
         class_id?: string;
@@ -110,6 +135,7 @@ export declare class StudentsService {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         })[];
         meta: {
             total: number;
@@ -183,6 +209,7 @@ export declare class StudentsService {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
         branch: {
@@ -227,6 +254,7 @@ export declare class StudentsService {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -250,6 +278,7 @@ export declare class StudentsService {
         batch_id: string;
         qr_code: string | null;
         created_at: Date;
+        applicant_id: string | null;
     }>;
     exportToExcel(res: Response): Promise<void>;
     importFromExcel(file: Express.Multer.File): Promise<{

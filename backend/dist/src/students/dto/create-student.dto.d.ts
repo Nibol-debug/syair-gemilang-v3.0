@@ -18,10 +18,10 @@ export declare class CreateStudentDto {
     profile_picture?: string;
     latitude?: number;
     longitude?: number;
-    branch_id: string;
+    branch_id?: string;
     class_id?: string;
-    major_id: string;
-    batch_id: string;
+    major_id?: string;
+    batch_id?: string;
     status?: string;
     parents?: CreateParentDto;
 }

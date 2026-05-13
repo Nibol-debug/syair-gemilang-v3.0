@@ -47,6 +47,14 @@ let SubjectsService = class SubjectsService {
             throw new common_1.NotFoundException('Subject not found');
         return subject;
     }
+    async update(id, data) {
+        await this.findOne(id);
+        return this.prisma.subject.update({
+            where: { id },
+            data,
+            include: { major: true },
+        });
+    }
     async remove(id) {
         return this.prisma.subject.delete({ where: { id } });
     }

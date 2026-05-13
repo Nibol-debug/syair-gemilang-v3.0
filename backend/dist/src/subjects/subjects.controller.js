@@ -16,6 +16,7 @@ exports.SubjectsController = void 0;
 const common_1 = require("@nestjs/common");
 const subjects_service_1 = require("./subjects.service");
 const create_subject_dto_1 = require("./dto/create-subject.dto");
+const update_subject_dto_1 = require("./dto/update-subject.dto");
 const pagination_dto_1 = require("../common/dto/pagination.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
@@ -33,6 +34,9 @@ let SubjectsController = class SubjectsController {
     }
     findOne(id) {
         return this.subjectsService.findOne(id);
+    }
+    update(id, updateSubjectDto) {
+        return this.subjectsService.update(id, updateSubjectDto);
     }
     remove(id) {
         return this.subjectsService.remove(id);
@@ -62,6 +66,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], SubjectsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_subject_dto_1.UpdateSubjectDto]),
+    __metadata("design:returntype", void 0)
+], SubjectsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)('Administrator Utama'),

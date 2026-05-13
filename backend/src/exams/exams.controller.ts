@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Patch, Delete } from '@nestjs/common';
 import { ExamsService } from './exams.service';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -11,6 +11,16 @@ import { Roles } from '../common/decorators/roles.decorator';
 export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
 
+  @Get('stats')
+  getStats() {
+    return this.examsService.getStats();
+  }
+
+  @Get('violations')
+  getRecentViolations(@Query('limit') limit?: string) {
+    return this.examsService.getRecentViolations(limit ? parseInt(limit) : 10);
+  }
+
   @Post()
   @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   create(@Body() createExamDto: CreateExamDto) {
@@ -22,13 +32,19 @@ export class ExamsController {
     @Query() pagination: PaginationDto,
     @Query('major_id') major_id?: string,
     @Query('subject_id') subject_id?: string,
+    @Query('search') search?: string,
   ) {
-    return this.examsService.findAll(pagination, { major_id, subject_id });
+    return this.examsService.findAll(pagination, { major_id, subject_id, search });
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.examsService.findOne(id);
+  }
+
+  @Get(':id/monitoring')
+  getMonitoring(@Param('id') id: string) {
+    return this.examsService.getMonitoring(id);
   }
 
   @Get(':id/questions')
@@ -39,6 +55,18 @@ export class ExamsController {
       ...q,
       options: q.options.map(o => ({ id: o.id, option_text: o.option_text }))
     }));
+  }
+
+  @Patch(':id')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
+  update(@Param('id') id: string, @Body() data: any) {
+    return this.examsService.update(id, data);
+  }
+
+  @Delete(':id')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran')
+  remove(@Param('id') id: string) {
+    return this.examsService.remove(id);
   }
 
   // Questions management

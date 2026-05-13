@@ -10,7 +10,8 @@ export declare class GradesService {
         major_id: string;
         batch_id: string;
         created_at: Date;
-        student_id: string;
+        applicant_id: string | null;
+        student_id: string | null;
         type: string;
         subject_id: string;
         exam_id: string | null;
@@ -39,7 +40,8 @@ export declare class GradesService {
             major_id: string;
             batch_id: string;
             created_at: Date;
-            student_id: string;
+            applicant_id: string | null;
+            student_id: string | null;
             type: string;
             subject_id: string;
             exam_id: string | null;

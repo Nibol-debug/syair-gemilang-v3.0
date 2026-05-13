@@ -91,6 +91,13 @@ export declare class ClassesService {
         grade_level: number;
         homeroom_teacher_id: string | null;
     }>;
+    findStudents(id: string): Promise<{
+        id: string;
+        full_name: string;
+        nis: string;
+        gender: string;
+        profile_picture: string | null;
+    }[]>;
     update(id: string, updateClassDto: UpdateClassDto): Promise<{
         id: string;
         major_id: string;

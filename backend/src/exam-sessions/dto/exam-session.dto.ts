@@ -23,5 +23,9 @@ export class SubmitAnswerDto {
 export class LogViolationDto {
   @IsNotEmpty()
   @IsString()
-  type: string; // tab_switch, warning, violation
+  type: string; // tab_switch, window_blur, exit_fullscreen, warning, violation
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

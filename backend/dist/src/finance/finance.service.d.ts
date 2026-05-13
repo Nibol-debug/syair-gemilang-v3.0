@@ -4,9 +4,11 @@ import { UpdateFeeDto } from './dto/update-fee.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { StudentsService } from '../students/students.service';
 export declare class FinanceService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private studentsService;
+    constructor(prisma: PrismaService, studentsService: StudentsService);
     createFee(createFeeDto: CreateFeeDto): Promise<{
         id: string;
         name: string;
@@ -76,6 +78,7 @@ export declare class FinanceService {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;
@@ -121,6 +124,7 @@ export declare class FinanceService {
                 batch_id: string;
                 qr_code: string | null;
                 created_at: Date;
+                applicant_id: string | null;
             };
             fee: {
                 id: string;
@@ -168,6 +172,7 @@ export declare class FinanceService {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;
@@ -208,6 +213,7 @@ export declare class FinanceService {
             batch_id: string;
             qr_code: string | null;
             created_at: Date;
+            applicant_id: string | null;
         };
         fee: {
             id: string;

@@ -5,10 +5,14 @@ import { UpdateFeeDto } from './dto/update-fee.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { StudentsService } from '../students/students.service';
 
 @Injectable()
 export class FinanceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private studentsService: StudentsService
+  ) {}
 
   // Fees
   async createFee(createFeeDto: CreateFeeDto) {
@@ -147,7 +151,8 @@ export class FinanceService {
     if (updatePaymentDto.date) {
       data.date = new Date(updatePaymentDto.date);
     }
-    return this.prisma.payment.update({
+    
+    const updatedPayment = await this.prisma.payment.update({
       where: { id },
       data,
       include: {
@@ -155,6 +160,13 @@ export class FinanceService {
         fee: true,
       },
     });
+
+    // PPDB Integration: If payment is success and it's for Enrollment Fee
+    if (updatedPayment.status === 'success' && updatedPayment.fee.name === 'Biaya Daftar Ulang') {
+      await this.studentsService.finalizeRegistration(updatedPayment.student_id);
+    }
+
+    return updatedPayment;
   }
 
   async removePayment(id: string) {

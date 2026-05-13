@@ -30,6 +30,12 @@ let AttendancesController = class AttendancesController {
     findByClass(classId, date) {
         return this.attendancesService.findByClass(classId, new Date(date));
     }
+    getSummary(class_id, month) {
+        return this.attendancesService.getSummary(class_id, month);
+    }
+    findBySchedule(scheduleId, date) {
+        return this.attendancesService.findBySchedule(scheduleId, new Date(date));
+    }
 };
 exports.AttendancesController = AttendancesController;
 __decorate([
@@ -49,6 +55,24 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AttendancesController.prototype, "findByClass", null);
+__decorate([
+    (0, common_1.Get)('summary'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Kepala Sekolah'),
+    __param(0, (0, common_1.Query)('class_id')),
+    __param(1, (0, common_1.Query)('month')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], AttendancesController.prototype, "getSummary", null);
+__decorate([
+    (0, common_1.Get)('schedule/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Query)('date')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], AttendancesController.prototype, "findBySchedule", null);
 exports.AttendancesController = AttendancesController = __decorate([
     (0, common_1.Controller)('attendance'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

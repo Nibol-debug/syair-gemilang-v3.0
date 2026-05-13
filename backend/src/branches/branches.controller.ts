@@ -3,6 +3,7 @@ import { BranchesService } from './branches.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { Public } from '../common/decorators/public.decorator';
 
 @Controller('branches')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -16,6 +17,7 @@ export class BranchesController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.branchesService.findAll();
   }

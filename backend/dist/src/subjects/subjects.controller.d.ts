@@ -1,5 +1,6 @@
 import { SubjectsService } from './subjects.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 export declare class SubjectsController {
     private readonly subjectsService;
@@ -31,6 +32,19 @@ export declare class SubjectsController {
         };
     }>;
     findOne(id: string): Promise<{
+        major: {
+            id: string;
+            name: string;
+            branch_id: string;
+            created_at: Date;
+            code: string;
+        } | null;
+    } & {
+        id: string;
+        major_id: string | null;
+        name: string;
+    }>;
+    update(id: string, updateSubjectDto: UpdateSubjectDto): Promise<{
         major: {
             id: string;
             name: string;

@@ -4,6 +4,46 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 export declare class ExamsController {
     private readonly examsService;
     constructor(examsService: ExamsService);
+    getStats(): Promise<{
+        totalExams: number;
+        activeExams: number;
+        ongoingSessions: number;
+        todayViolations: number;
+        totalQuestions: number;
+    }>;
+    getRecentViolations(limit?: string): Promise<({
+        session: {
+            student: {
+                full_name: string;
+                nis: string;
+                class: {
+                    name: string;
+                } | null;
+            } | null;
+            applicant: {
+                full_name: string;
+            } | null;
+            exam: {
+                title: string;
+            };
+        } & {
+            id: string;
+            status: string;
+            applicant_id: string | null;
+            student_id: string | null;
+            device_id: string | null;
+            start_time: Date;
+            end_time: Date | null;
+            exam_id: string;
+            warning_count: number;
+        };
+    } & {
+        id: string;
+        type: string;
+        description: string | null;
+        session_id: string;
+        timestamp: Date;
+    })[]>;
     create(createExamDto: CreateExamDto): Promise<{
         questions: ({
             options: {
@@ -29,7 +69,7 @@ export declare class ExamsController {
         duration: number;
         token: string;
     }>;
-    findAll(pagination: PaginationDto, major_id?: string, subject_id?: string): Promise<{
+    findAll(pagination: PaginationDto, major_id?: string, subject_id?: string, search?: string): Promise<{
         data: ({
             major: {
                 id: string;
@@ -39,6 +79,7 @@ export declare class ExamsController {
                 code: string;
             };
             _count: {
+                sessions: number;
                 questions: number;
             };
             subject: {
@@ -71,6 +112,9 @@ export declare class ExamsController {
             created_at: Date;
             code: string;
         };
+        _count: {
+            sessions: number;
+        };
         subject: {
             id: string;
             major_id: string | null;
@@ -100,6 +144,59 @@ export declare class ExamsController {
         duration: number;
         token: string;
     }>;
+    getMonitoring(id: string): Promise<{
+        exam: {
+            major: {
+                id: string;
+                name: string;
+                branch_id: string;
+                created_at: Date;
+                code: string;
+            };
+            subject: {
+                id: string;
+                major_id: string | null;
+                name: string;
+            };
+        } & {
+            id: string;
+            major_id: string;
+            subject_id: string;
+            start_time: Date;
+            end_time: Date;
+            title: string;
+            duration: number;
+            token: string;
+        };
+        sessions: ({
+            _count: {
+                answers: number;
+                logs: number;
+            };
+            student: {
+                id: string;
+                full_name: string;
+                nis: string;
+                class: {
+                    name: string;
+                } | null;
+            } | null;
+            applicant: {
+                id: string;
+                full_name: string;
+            } | null;
+        } & {
+            id: string;
+            status: string;
+            applicant_id: string | null;
+            student_id: string | null;
+            device_id: string | null;
+            start_time: Date;
+            end_time: Date | null;
+            exam_id: string;
+            warning_count: number;
+        })[];
+    }>;
     getQuestions(id: string): Promise<{
         options: {
             id: string;
@@ -111,6 +208,39 @@ export declare class ExamsController {
         difficulty: string;
         exam_id: string;
     }[]>;
+    update(id: string, data: any): Promise<{
+        major: {
+            id: string;
+            name: string;
+            branch_id: string;
+            created_at: Date;
+            code: string;
+        };
+        subject: {
+            id: string;
+            major_id: string | null;
+            name: string;
+        };
+    } & {
+        id: string;
+        major_id: string;
+        subject_id: string;
+        start_time: Date;
+        end_time: Date;
+        title: string;
+        duration: number;
+        token: string;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        major_id: string;
+        subject_id: string;
+        start_time: Date;
+        end_time: Date;
+        title: string;
+        duration: number;
+        token: string;
+    }>;
     addQuestion(id: string, data: any): Promise<{
         options: {
             id: string;

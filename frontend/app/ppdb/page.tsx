@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
+import { MapPicker } from '@/components/MapPicker';
 
 export default function PPDBRegistrationPage() {
   const [step, setStep] = useState(1);
@@ -23,17 +24,31 @@ export default function PPDBRegistrationPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [majors, setMajors] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState('');
   
   const [formData, setFormData] = useState({
     full_name: '',
+    nik: '',
     email: '',
     phone: '',
     gender: 'male',
+    marital_status: 'single',
+    education_level: 'SLTA',
+    father_name: '',
+    mother_name: '',
     birth_place: '',
     birth_date: '',
     address: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
     previous_school: '',
-    document_url: '',
+    document_url: '', // Ijazah
+    ktp_url: '',
+    kk_url: '',
+    sktm_url: '',
+    vaccine_url: '',
+    health_cert_url: '',
     major_id: ''
   });
 
@@ -49,11 +64,22 @@ export default function PPDBRegistrationPage() {
     }
   };
 
+  const fetchBranches = async () => {
+    try {
+      const response = await apiRequest('/branches');
+      // If response is an array, use it directly, otherwise use response.data
+      setBranches(Array.isArray(response) ? response : (response.data || []));
+    } catch (err) {
+      console.error('Failed to fetch branches', err);
+    }
+  };
+
   useEffect(() => {
     fetchMajors();
+    fetchBranches();
   }, []);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -66,7 +92,7 @@ export default function PPDBRegistrationPage() {
         method: 'POST',
         body
       });
-      setFormData(prev => ({ ...prev, document_url: response.url }));
+      setFormData(prev => ({ ...prev, [fieldName]: response.url }));
     } catch (err: any) {
       alert('Gagal mengupload file: ' + err.message);
     } finally {
@@ -76,14 +102,47 @@ export default function PPDBRegistrationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.document_url) {
-      alert('Harap upload ijazah / berkas terlebih dahulu');
-      return;
+    
+    // Mandatory documents validation
+    const mandatoryDocs = {
+      document_url: 'Ijazah',
+      ktp_url: 'KTP',
+      kk_url: 'Kartu Keluarga',
+      sktm_url: 'SKTM',
+      health_cert_url: 'Surat Keterangan Sehat'
+    };
+
+    for (const [field, label] of Object.entries(mandatoryDocs)) {
+      if (!formData[field as keyof typeof formData]) {
+        alert(`Harap upload berkas ${label} terlebih dahulu`);
+        return;
+      }
     }
+
     if (!formData.major_id) {
       alert('Harap pilih Jurusan & Cabang');
       return;
     }
+
+    // Age validation (17-30)
+    const birthDate = new Date(formData.birth_date);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    if (age < 17 || age > 30) {
+      alert('Kriteria usia penerima manfaat adalah 17 s/d 30 tahun');
+      return;
+    }
+
+    if (formData.marital_status !== 'single') {
+      alert('Kriteria penerima manfaat adalah Single / Belum Menikah');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await apiRequest('/applicants', {
@@ -131,6 +190,19 @@ export default function PPDBRegistrationPage() {
           </div>
         </div>
 
+        {/* Criteria Summary */}
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 space-y-3">
+          <h3 className="text-sm font-black text-primary uppercase tracking-widest">Kriteria Penerima Manfaat RGI:</h3>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-[11px] font-bold text-on-surface-variant">
+            <li className="flex items-center gap-2">• Usia Produktif (17 - 30 Tahun)</li>
+            <li className="flex items-center gap-2">• Dari Keluarga Tidak Mampu (Dhuafa)</li>
+            <li className="flex items-center gap-2">• Pendidikan Maksimal SLTA/Sederajat</li>
+            <li className="flex items-center gap-2">• Single / Belum Menikah</li>
+            <li className="flex items-center gap-2">• Bersedia Tinggal di Asrama</li>
+            <li className="flex items-center gap-2">• Sehat Jasmani & Rohani</li>
+          </ul>
+        </div>
+
         {/* Stepper */}
         <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-outline-variant">
           <StepItem num={1} label="Biodata" active={step >= 1} current={step === 1} />
@@ -153,6 +225,7 @@ export default function PPDBRegistrationPage() {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputGroup label="Nama Lengkap" value={formData.full_name} onChange={(v: string) => setFormData({...formData, full_name: v})} placeholder="Budi Santoso" />
+                  <InputGroup label="NIK (Nomor Induk Kependudukan)" value={formData.nik} onChange={(v: string) => setFormData({...formData, nik: v})} placeholder="3201..." />
                   <InputGroup label="Email Aktif" type="email" value={formData.email} onChange={(v: string) => setFormData({...formData, email: v})} placeholder="budi@example.com" />
                   <InputGroup label="No. WhatsApp" value={formData.phone} onChange={(v: string) => setFormData({...formData, phone: v})} placeholder="08123456789" />
                   <div className="flex flex-col gap-2">
@@ -170,6 +243,34 @@ export default function PPDBRegistrationPage() {
                   </div>
                   <InputGroup label="Tempat Lahir" value={formData.birth_place} onChange={(v: string) => setFormData({...formData, birth_place: v})} placeholder="Jakarta" />
                   <InputGroup label="Tanggal Lahir" type="date" value={formData.birth_date} onChange={(v: string) => setFormData({...formData, birth_date: v})} />
+                  
+                  <InputGroup label="Nama Ayah" value={formData.father_name} onChange={(v: string) => setFormData({...formData, father_name: v})} placeholder="Nama Ayah" />
+                  <InputGroup label="Nama Ibu" value={formData.mother_name} onChange={(v: string) => setFormData({...formData, mother_name: v})} placeholder="Nama Ibu" />
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Status Pernikahan</label>
+                    <select 
+                      value={formData.marital_status}
+                      onChange={e => setFormData({...formData, marital_status: e.target.value})}
+                      className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="single">Single / Belum Menikah</option>
+                      <option value="married">Menikah</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pendidikan Terakhir</label>
+                    <select 
+                      value={formData.education_level}
+                      onChange={e => setFormData({...formData, education_level: e.target.value})}
+                      className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="SLTA">SLTA / Sederajat (SMA/SMK/MA)</option>
+                      <option value="SLTP">SLTP / Sederajat (SMP/MTs)</option>
+                      <option value="Diploma">Diploma / Kuliah (Tidak sesuai kriteria)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
@@ -180,8 +281,24 @@ export default function PPDBRegistrationPage() {
                   <MapPin className="w-5 h-5 text-primary" />
                   Alamat Tempat Tinggal
                 </h2>
+                
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Cari Lokasi Rumah (Gunakan Peta)</label>
+                  <MapPicker 
+                    initialPos={formData.latitude ? { lat: formData.latitude, lng: formData.longitude } : { lat: -6.4025, lng: 106.7942 }} 
+                    onLocationSelect={(lat: number, lng: number, address: string) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitude: lat,
+                        longitude: lng,
+                        address: address || prev.address
+                      }));
+                    }}
+                  />
+                </div>
+
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Alamat Lengkap</label>
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Alamat Lengkap (Bisa disesuaikan manual)</label>
                   <textarea 
                     rows={4} 
                     value={formData.address} 
@@ -197,58 +314,93 @@ export default function PPDBRegistrationPage() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <h2 className="text-xl font-bold text-on-surface flex items-center gap-3">
                   <School className="w-5 h-5 text-primary" />
-                  Pilihan Jurusan & Cabang Kampus
+                  Pilihan Cabang & Jurusan Kampus
                 </h2>
                 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Jurusan & Lokasi Kampus</label>
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Cabang / Lokasi</label>
                     <select 
                       required
-                      value={formData.major_id}
-                      onChange={e => setFormData({...formData, major_id: e.target.value})}
+                      value={selectedBranchId}
+                      onChange={e => {
+                        setSelectedBranchId(e.target.value);
+                        setFormData({...formData, major_id: ''}); // Reset major if branch changes
+                      }}
                       className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                     >
-                      <option value="">-- Pilih Jurusan & Lokasi --</option>
-                      {majors.map(m => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
+                      <option value="">-- Pilih Cabang --</option>
+                      {branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
                       ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest px-1">Pilih Jurusan</label>
+                    <select 
+                      required
+                      disabled={!selectedBranchId}
+                      value={formData.major_id}
+                      onChange={e => setFormData({...formData, major_id: e.target.value})}
+                      className="w-full px-4 py-3 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer disabled:opacity-50"
+                    >
+                      <option value="">-- Pilih Jurusan --</option>
+                      {majors
+                        .filter(m => m.branch_id === selectedBranchId)
+                        .map(m => (
+                          <option key={m.id} value={m.id}>{m.name}</option>
+                        ))
+                      }
                     </select>
                   </div>
                 </div>
 
                 <InputGroup label="Nama Sekolah Asal" value={formData.previous_school} onChange={(v: string) => setFormData({...formData, previous_school: v})} placeholder="SMP Negeri 1 Jakarta" />
                 
-                <div className={cn(
-                  "p-8 border-2 border-dashed rounded-2xl flex flex-col items-center gap-3 transition-all",
-                  formData.document_url ? "border-success bg-success-container/10" : "border-outline-variant bg-surface-container-lowest"
-                )}>
-                  {isUploading ? (
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                  ) : formData.document_url ? (
-                    <CheckCircle2 className="w-8 h-8 text-success" />
-                  ) : (
-                    <Upload className="w-8 h-8 opacity-40" />
-                  )}
-                  
-                  <div className="text-center">
-                    <p className="text-sm font-bold">
-                      {isUploading ? "Sedang mengunggah..." : 
-                       formData.document_url ? "Ijazah Berhasil Diunggah" : 
-                       "Upload Ijazah / SKL (PDF/JPG)"}
-                    </p>
-                    <p className="text-[10px] text-on-surface-variant font-medium mt-1">Maksimal file 2MB</p>
-                  </div>
-
-                  <label className={cn(
-                    "px-4 py-2 text-xs font-bold rounded-lg cursor-pointer transition-all",
-                    formData.document_url 
-                      ? "bg-success text-on-success hover:opacity-90" 
-                      : "bg-primary text-on-primary hover:opacity-90"
-                  )}>
-                    {formData.document_url ? "Ganti File" : "Pilih File"}
-                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileUpload} />
-                  </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FileUploadGroup 
+                    label="Scan Ijazah / SKL" 
+                    fieldName="document_url" 
+                    value={formData.document_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
+                  <FileUploadGroup 
+                    label="Kartu Tanda Penduduk (KTP)" 
+                    fieldName="ktp_url" 
+                    value={formData.ktp_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
+                  <FileUploadGroup 
+                    label="Kartu Keluarga (KK)" 
+                    fieldName="kk_url" 
+                    value={formData.kk_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
+                  <FileUploadGroup 
+                    label="SKTM (Kelurahan/DKM)" 
+                    fieldName="sktm_url" 
+                    value={formData.sktm_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
+                  <FileUploadGroup 
+                    label="Surat Keterangan Sehat" 
+                    fieldName="health_cert_url" 
+                    value={formData.health_cert_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
+                  <FileUploadGroup 
+                    label="Sertifikat Vaksin (Opsional)" 
+                    fieldName="vaccine_url" 
+                    value={formData.vaccine_url} 
+                    onUpload={handleFileUpload} 
+                    isUploading={isUploading} 
+                  />
                 </div>
               </div>
             )}
@@ -261,9 +413,15 @@ export default function PPDBRegistrationPage() {
                 </h2>
                 <div className="bg-surface-container rounded-2xl p-6 space-y-4">
                   <ReviewItem label="Nama" value={formData.full_name} />
+                  <ReviewItem label="NIK" value={formData.nik} />
+                  <ReviewItem label="Status" value={formData.marital_status === 'single' ? 'Belum Menikah' : 'Menikah'} />
+                  <ReviewItem label="Pendidikan" value={formData.education_level} />
+                  <ReviewItem label="Nama Ayah" value={formData.father_name} />
+                  <ReviewItem label="Nama Ibu" value={formData.mother_name} />
                   <ReviewItem label="Email" value={formData.email} />
                   <ReviewItem label="Telepon" value={formData.phone} />
-                  <ReviewItem label="Jurusan & Cabang" value={majors.find(m => m.id === formData.major_id)?.name} />
+                  <ReviewItem label="Cabang" value={branches.find(b => b.id === selectedBranchId)?.name} />
+                  <ReviewItem label="Jurusan" value={majors.find(m => m.id === formData.major_id)?.name} />
                   <ReviewItem label="Asal Sekolah" value={formData.previous_school} />
                 </div>
                 <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20">
@@ -316,6 +474,37 @@ function StepItem({ num, label, active, current }: any) {
         {num}
       </div>
       <span className={cn("text-[10px] font-black uppercase tracking-widest", current ? "opacity-100" : "opacity-60")}>{label}</span>
+    </div>
+  );
+}
+
+function FileUploadGroup({ label, fieldName, value, onUpload, isUploading }: any) {
+  return (
+    <div className={cn(
+      "p-4 border-2 border-dashed rounded-2xl flex flex-col items-center gap-2 transition-all",
+      value ? "border-success bg-success-container/10" : "border-outline-variant bg-surface-container-lowest"
+    )}>
+      <div className="text-center">
+        <p className="text-[10px] font-black uppercase tracking-tighter text-on-surface-variant">{label}</p>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        {value ? (
+          <CheckCircle2 className="w-5 h-5 text-success" />
+        ) : (
+          <Upload className="w-5 h-5 opacity-40" />
+        )}
+        
+        <label className={cn(
+          "px-3 py-1.5 text-[10px] font-bold rounded-lg cursor-pointer transition-all",
+          value 
+            ? "bg-success text-on-success hover:opacity-90" 
+            : "bg-primary text-on-primary hover:opacity-90"
+        )}>
+          {value ? "Ganti" : "Pilih File"}
+          <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => onUpload(e, fieldName)} />
+        </label>
+      </div>
     </div>
   );
 }
