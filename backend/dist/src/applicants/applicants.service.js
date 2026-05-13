@@ -45,19 +45,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApplicantsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const QRCode = __importStar(require("qrcode"));
 let ApplicantsService = class ApplicantsService {
     prisma;
-    constructor(prisma) {
+    notificationsService;
+    constructor(prisma, notificationsService) {
         this.prisma = prisma;
+        this.notificationsService = notificationsService;
     }
     async create(data) {
-        return this.prisma.applicant.create({
+        const applicant = await this.prisma.applicant.create({
             data: {
                 ...data,
                 birth_date: new Date(data.birth_date),
             },
         });
+        const adminUsers = await this.prisma.user.findMany({
+            where: { role: { name: 'Administrator Utama' } },
+        });
+        await Promise.all(adminUsers.map((user) => this.notificationsService.createForUser(user.id, 'Pendaftar Baru', `${applicant.full_name} telah mendaftar sebagai siswa baru.`, 'ppdb', '/ppdb-admin')));
+        return applicant;
     }
     async findAll(query) {
         const { page = 1, limit = 10, search, status } = query;
@@ -203,6 +211,7 @@ let ApplicantsService = class ApplicantsService {
 exports.ApplicantsService = ApplicantsService;
 exports.ApplicantsService = ApplicantsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notifications_service_1.NotificationsService])
 ], ApplicantsService);
 //# sourceMappingURL=applicants.service.js.map

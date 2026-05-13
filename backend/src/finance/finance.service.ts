@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateFeeDto } from './dto/create-fee.dto';
 import { UpdateFeeDto } from './dto/update-fee.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -11,7 +12,8 @@ import { StudentsService } from '../students/students.service';
 export class FinanceService {
   constructor(
     private prisma: PrismaService,
-    private studentsService: StudentsService
+    private studentsService: StudentsService,
+    private notificationsService: NotificationsService
   ) {}
 
   // Fees
@@ -77,7 +79,7 @@ export class FinanceService {
 
   // Payments
   async createPayment(createPaymentDto: CreatePaymentDto) {
-    return this.prisma.payment.create({
+    const payment = await this.prisma.payment.create({
       data: {
         ...createPaymentDto,
         date: createPaymentDto.date ? new Date(createPaymentDto.date) : new Date(),
@@ -87,6 +89,17 @@ export class FinanceService {
         fee: true,
       },
     });
+
+    // Create notification for student
+    await this.notificationsService.createForUser(
+      payment.student_id,
+      'Pembayaran Baru',
+      `Pembayaran ${payment.fee.name} sebesar Rp ${payment.amount.toLocaleString()} telah dicatatkan.`,
+      'payment',
+      '/finance'
+    );
+
+    return payment;
   }
 
   async findAllPayments(pagination: PaginationDto, filters: { search?: string; status?: string; student_id?: string }) {
@@ -151,7 +164,14 @@ export class FinanceService {
     if (updatePaymentDto.date) {
       data.date = new Date(updatePaymentDto.date);
     }
-    
+
+    const currentPayment = await this.prisma.payment.findUnique({
+      where: { id },
+      include: { student: true, fee: true },
+    });
+
+    if (!currentPayment) throw new NotFoundException(`Payment with ID ${id} not found`);
+
     const updatedPayment = await this.prisma.payment.update({
       where: { id },
       data,
@@ -160,6 +180,17 @@ export class FinanceService {
         fee: true,
       },
     });
+
+    // Send notification if status changed to success
+    if (currentPayment.status !== 'success' && updatedPayment.status === 'success') {
+      await this.notificationsService.createForUser(
+        updatedPayment.student_id,
+        'Pembayaran Berhasil',
+        `Pembayaran ${updatedPayment.fee.name} sebesar Rp ${updatedPayment.amount.toLocaleString()} telah berhasil dikonfirmasi.`,
+        'payment',
+        '/finance'
+      );
+    }
 
     // PPDB Integration: If payment is success and it's for Enrollment Fee
     if (updatedPayment.status === 'success' && updatedPayment.fee.name === 'Biaya Daftar Ulang') {

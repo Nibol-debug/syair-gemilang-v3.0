@@ -1,22 +1,26 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiRequest } from '@/lib/api';
-import { 
-  Download, 
-  CheckCircle2, 
-  BarChart2, 
-  AlertCircle, 
-  Search, 
-  ChevronRight, 
-  ChevronLeft, 
-  Edit, 
+import {
+  Download,
+  CheckCircle2,
+  BarChart2,
+  AlertCircle,
+  Search,
+  ChevronRight,
+  ChevronLeft,
+  Edit,
   History,
   TrendingUp,
   RefreshCcw,
   Verified,
   X,
-  Loader2
+  Loader2,
+  BarChart3,
+  AlertTriangle,
+  FileText
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +32,7 @@ const stats = [
 ];
 
 export default function GradingPage() {
+  const router = useRouter();
   const [grades, setGrades] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
@@ -133,14 +138,35 @@ export default function GradingPage() {
           </p>
         </div>
         <div className="flex gap-4">
-          <button 
+          <button
+            onClick={() => router.push('/grading/report-cards')}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <FileText className="w-4.5 h-4.5" />
+            <span>E-Rapor</span>
+          </button>
+          <button
+            onClick={() => router.push('/grading/analysis')}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <BarChart3 className="w-4.5 h-4.5" />
+            <span>Analisis Butir Soal</span>
+          </button>
+          <button
+            onClick={() => router.push('/grading/remedial')}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <AlertTriangle className="w-4.5 h-4.5" />
+            <span>Remedial</span>
+          </button>
+          <button
             onClick={() => window.print()}
             className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
           >
             <Download className="w-4.5 h-4.5" />
             <span>Ekspor PDF</span>
           </button>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-95 transition-all active:scale-95 shadow-xl shadow-primary/20"
           >

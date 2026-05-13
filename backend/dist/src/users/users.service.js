@@ -51,6 +51,77 @@ let UsersService = class UsersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async getProfile(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                role: true,
+                student: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        email: true,
+                        phone: true,
+                        profile_picture: true,
+                        gender: true,
+                        birth_place: true,
+                        birth_date: true,
+                        address: true,
+                    },
+                },
+                employee: {
+                    select: {
+                        id: true,
+                        full_name: true,
+                        education: true,
+                        position: true,
+                        join_date: true,
+                        status: true,
+                    },
+                },
+            },
+        });
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        return user;
+    }
+    async updateProfile(userId, data) {
+        const updateData = {};
+        if (data.username) {
+            updateData.username = data.username;
+        }
+        if (data.student) {
+            await this.prisma.student.updateMany({
+                where: { user: { id: userId } },
+                data: data.student,
+            });
+        }
+        if (data.employee) {
+            await this.prisma.employee.updateMany({
+                where: { user: { id: userId } },
+                data: data.employee,
+            });
+        }
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+        });
+    }
+    async changePassword(userId, currentPassword, newPassword) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+        if (!isMatch)
+            throw new common_1.NotFoundException('Current password is incorrect');
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { password_hash: hashedPassword },
+        });
+    }
     async findAll(params) {
         const { page = 1, limit = 10, search, roleId } = params;
         const skip = (page - 1) * limit;

@@ -24,8 +24,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewEmployeeModal, EditEmployeeModal, DeleteEmployeeModal } from '@/components/EmployeeModals';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function EmployeesPage() {
+  const { canManageEmployees } = useUserRole();
   const [employees, setEmployees] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({ total: 0, teachers: 0, staff: 0 });
   const [isLoading, setIsLoading] = useState(true);
@@ -143,6 +145,7 @@ export default function EmployeesPage() {
             <Clock className="w-4 h-4 text-primary" />
             <span>Kelola Presensi</span>
           </Link>
+          {canManageEmployees && (
           <button 
             onClick={() => openModal('create')}
             className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
@@ -150,6 +153,7 @@ export default function EmployeesPage() {
             <Plus className="w-4 h-4" />
             <span>Tambah Pegawai</span>
           </button>
+          )}
         </div>
       </div>
 
@@ -265,8 +269,8 @@ export default function EmployeesPage() {
                     <td className="py-4 px-8 text-right">
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => openModal('view', emp)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>
-                        <button onClick={() => openModal('edit', emp)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => openModal('delete', emp)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                        {canManageEmployees && <><button onClick={() => openModal('edit', emp)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => openModal('delete', emp)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button></>}
                       </div>
                       <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>

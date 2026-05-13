@@ -2,6 +2,71 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
+    getProfile(userId: string): Promise<{
+        employee: {
+            id: string;
+            full_name: string;
+            education: string;
+            position: string;
+            join_date: Date;
+            status: string;
+        } | null;
+        student: {
+            id: string;
+            full_name: string;
+            gender: string;
+            birth_place: string;
+            birth_date: Date;
+            address: string;
+            phone: string;
+            email: string;
+            profile_picture: string | null;
+        } | null;
+        role: {
+            id: string;
+            name: string;
+        };
+    } & {
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
+    updateProfile(userId: string, data: {
+        username?: string;
+        email?: string;
+        phone?: string;
+        profile_picture?: string;
+        student?: {
+            full_name?: string;
+            gender?: string;
+            birth_place?: string;
+            birth_date?: string;
+            address?: string;
+        };
+        employee?: {
+            full_name?: string;
+            education?: string;
+            position?: string;
+        };
+    }): Promise<{
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
+    changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
     findAll(params: {
         page?: number;
         limit?: number;

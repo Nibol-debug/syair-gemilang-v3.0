@@ -29,6 +29,10 @@ import { FinanceModule } from './finance/finance.module';
 import { AssetsModule } from './assets/assets.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { BranchesModule } from './branches/branches.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { GradeAnalysisModule } from './grade-analysis/grade-analysis.module';
+import { RemedialModule } from './remedial/remedial.module';
+import { ReportCardsModule } from './report-cards/report-cards.module';
 
 @Module({
   imports: [
@@ -60,6 +64,10 @@ import { BranchesModule } from './branches/branches.module';
     AssetsModule,
     AuditLogsModule,
     BranchesModule,
+    NotificationsModule,
+    GradeAnalysisModule,
+    RemedialModule,
+    ReportCardsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -6,6 +6,103 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        role: true,
+        student: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+            phone: true,
+            profile_picture: true,
+            gender: true,
+            birth_place: true,
+            birth_date: true,
+            address: true,
+          },
+        },
+        employee: {
+          select: {
+            id: true,
+            full_name: true,
+            education: true,
+            position: true,
+            join_date: true,
+            status: true,
+          },
+        },
+      },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async updateProfile(userId: string, data: {
+    username?: string;
+    email?: string;
+    phone?: string;
+    profile_picture?: string;
+    student?: {
+      full_name?: string;
+      gender?: string;
+      birth_place?: string;
+      birth_date?: string;
+      address?: string;
+    };
+    employee?: {
+      full_name?: string;
+      education?: string;
+      position?: string;
+    };
+  }) {
+    const updateData: any = {};
+
+    if (data.username) {
+      updateData.username = data.username;
+    }
+
+    // Update student data if exists
+    if (data.student) {
+      await this.prisma.student.updateMany({
+        where: { user: { id: userId } },
+        data: data.student,
+      });
+    }
+
+    // Update employee data if exists
+    if (data.employee) {
+      await this.prisma.employee.updateMany({
+        where: { user: { id: userId } },
+        data: data.employee,
+      });
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) throw new NotFoundException('Current password is incorrect');
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { password_hash: hashedPassword },
+    });
+  }
+
   async findAll(params: {
     page?: number;
     limit?: number;

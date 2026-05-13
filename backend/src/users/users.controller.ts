@@ -1,14 +1,16 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
-  Query, 
-  UseGuards, 
-  UseInterceptors 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  Req,
+  BadRequestException
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -21,6 +23,34 @@ import { AuditInterceptor } from '../common/interceptors/audit.interceptor';
 @UseInterceptors(AuditInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('me')
+  getProfile(@Req() req: any) {
+    return this.usersService.getProfile(req.user.sub);
+  }
+
+  @Patch('me')
+  async updateProfile(@Req() req: any, @Body() data: any) {
+    return this.usersService.updateProfile(req.user.sub, data);
+  }
+
+  @Post('me/change-password')
+  async changePassword(@Req() req: any, @Body() body: { currentPassword: string; newPassword: string }) {
+    if (!body.currentPassword || !body.newPassword) {
+      throw new BadRequestException('Both current and new password are required');
+    }
+    return this.usersService.changePassword(req.user.sub, body.currentPassword, body.newPassword);
+  }
+
+  @Get('me/devices')
+  getMyDevices(@Req() req: any) {
+    return this.usersService.getDevices(req.user.sub);
+  }
+
+  @Delete('me/devices/:deviceId')
+  removeMyDevice(@Req() req: any, @Param('deviceId') deviceId: string) {
+    return this.usersService.toggleDeviceStatus(req.user.sub, deviceId, false);
+  }
 
   @Get()
   @Roles('Administrator Utama')

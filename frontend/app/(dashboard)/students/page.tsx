@@ -26,6 +26,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ViewStudentModal, EditStudentModal, DeleteStudentModal } from '@/components/StudentModals';
 import { MapPicker } from '@/components/MapPicker';
+import { useUserRole } from '@/lib/useUserRole';
 
 import { 
   BarChart, 
@@ -41,6 +42,7 @@ import {
 } from 'recharts';
 
 export default function StudentsPage() {
+  const { canManageStudents } = useUserRole();
   const [activeTab, setActiveTab] = useState<'list' | 'stats'>('list');
   const [students, setStudents] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({ 
@@ -288,6 +290,7 @@ export default function StudentsPage() {
           <h2 className="text-3xl font-bold text-on-surface tracking-tight">Manajemen Siswa</h2>
           <p className="text-on-surface-variant font-medium mt-1">Kelola data, status, dan informasi akademik siswa.</p>
         </div>
+        {canManageStudents && (
         <div className="flex flex-wrap gap-3">
           <label className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors active:scale-95 shadow-sm cursor-pointer">
             <Upload className="w-4 h-4" /><span>Import Excel</span>
@@ -300,6 +303,7 @@ export default function StudentsPage() {
             <Plus className="w-4 h-4" /><span>Tambah Siswa</span>
           </button>
         </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -364,7 +368,7 @@ export default function StudentsPage() {
                         <td className="py-4 px-8 text-on-surface font-medium">{student.major?.name || '-'}</td>
                         <td className="py-4 px-8 text-on-surface font-medium">{student.batch?.name || '-'}</td>
                         <td className="py-4 px-8 text-on-surface"><span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider", student.status === 'active' ? "bg-secondary-container/20 text-secondary" : "bg-outline-variant/20 text-on-surface-variant")}>{student.status === 'active' ? 'Aktif' : student.status}</span></td>
-                        <td className="py-4 px-8 text-right"><div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setSelectedStudent(student); setModalType('view'); }} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button><button onClick={() => { setSelectedStudent(student); setModalType('edit'); }} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button><button onClick={() => { setSelectedStudent(student); setModalType('delete'); }} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button></div><button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button></td>
+                        <td className="py-4 px-8 text-right"><div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => { setSelectedStudent(student); setModalType('view'); }} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="View"><Eye className="w-4 h-4" /></button>{canManageStudents && <><button onClick={() => { setSelectedStudent(student); setModalType('edit'); }} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button><button onClick={() => { setSelectedStudent(student); setModalType('delete'); }} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button></>}</div><button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button></td>
                       </tr>
                     ))
                   )}

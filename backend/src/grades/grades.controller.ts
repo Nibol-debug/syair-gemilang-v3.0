@@ -37,4 +37,14 @@ export class GradesController {
   findByClass(@Param('class_id') classId: string, @Query('subject_id') subjectId: string) {
     return this.gradesService.findByClass(classId, subjectId);
   }
+
+  /**
+   * GET /grades/parent/:student_id
+   * Portal orang tua untuk melihat nilai anak
+   */
+  @Get('parent/:student_id')
+  @Roles('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua')
+  getParentPortalData(@Param('student_id') studentId: string) {
+    return this.gradesService.getParentPortalData(studentId);
+  }
 }

@@ -23,8 +23,10 @@ import {
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 import { ViewUserModal, EditUserModal, DeleteUserModal } from '@/components/UserModals';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function UsersPage() {
+  const { canManageUsers } = useUserRole();
   const [data, setData] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,6 +119,7 @@ export default function UsersPage() {
             </div>
           </div>
         </div>
+        {canManageUsers && (
         <div className="flex flex-wrap gap-3">
           <button 
             onClick={() => openModal('edit', null, true)}
@@ -126,6 +129,7 @@ export default function UsersPage() {
             <span>Tambah Pengguna</span>
           </button>
         </div>
+        )}
       </div>
 
       {/* Stats Dashboard */}
@@ -236,6 +240,7 @@ export default function UsersPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        {canManageUsers && <>
                         <button 
                           onClick={() => openModal('edit', user)}
                           className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" 
@@ -250,6 +255,7 @@ export default function UsersPage() {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
+                        </>}
                       </div>
                       <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>

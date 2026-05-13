@@ -62,6 +62,7 @@ export declare class GradesController {
         description: string | null;
         subject_id: string;
         semester: number;
+        competencies_achieved: string | null;
         final_score: import("@prisma/client/runtime/library").Decimal;
         grade_letter: string;
         is_passed: boolean;
@@ -80,6 +81,7 @@ export declare class GradesController {
         description: string | null;
         subject_id: string;
         semester: number;
+        competencies_achieved: string | null;
         final_score: import("@prisma/client/runtime/library").Decimal;
         grade_letter: string;
         is_passed: boolean;
@@ -93,4 +95,39 @@ export declare class GradesController {
         final_score: import("@prisma/client/runtime/library").Decimal;
         status: string;
     }[]>;
+    getParentPortalData(studentId: string): Promise<{
+        student: {
+            id: string;
+            nis: string;
+            full_name: string;
+            class_name: string | undefined;
+            major_name: string;
+            batch_name: string;
+        };
+        summary: {
+            total_subjects: number;
+            passed_subjects: number;
+            average_score: number;
+            pass_percentage: number;
+        };
+        chart_data: {
+            semester: string;
+            average: number;
+            semester_num: number;
+        }[];
+        recent_grades: {
+            subject_name: string;
+            type: string;
+            score: number;
+            date: Date;
+        }[];
+        all_grades: {
+            subject_name: string;
+            final_score: number;
+            grade_letter: string;
+            is_passed: boolean;
+            semester: number;
+            description: string | null;
+        }[];
+    }>;
 }

@@ -9,8 +9,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function CBTPage() {
+  const { canManageExams } = useUserRole();
   const [exams, setExams] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [violations, setViolations] = useState<any[]>([]);
@@ -183,6 +185,7 @@ export default function CBTPage() {
           <h2 className="text-3xl font-bold text-on-surface tracking-tight">Modul Ujian Online (CBT)</h2>
           <p className="text-on-surface-variant font-medium mt-1">Kelola bank soal, jadwal ujian, dan pantau pelaksanaan secara real-time.</p>
         </div>
+        {canManageExams && (
         <div className="flex gap-3 flex-wrap">
           <button 
             onClick={() => {
@@ -195,6 +198,7 @@ export default function CBTPage() {
             <span>Buat Ujian Baru</span>
           </button>
         </div>
+        )}
       </div>
 
       {/* Stats Grid */}
@@ -290,9 +294,11 @@ export default function CBTPage() {
                                 <Play className="w-4 h-4" />
                               </Link>
                             )}
+                            {canManageExams && (
                             <button onClick={() => setDeleteTarget(exam)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Hapus">
                               <Trash2 className="w-4 h-4" />
                             </button>
+                            )}
                           </div>
                         </td>
                       </tr>

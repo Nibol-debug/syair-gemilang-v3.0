@@ -2,6 +2,69 @@ import { UsersService } from './users.service';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
+    getProfile(req: any): Promise<{
+        employee: {
+            id: string;
+            full_name: string;
+            education: string;
+            position: string;
+            join_date: Date;
+            status: string;
+        } | null;
+        student: {
+            id: string;
+            full_name: string;
+            gender: string;
+            birth_place: string;
+            birth_date: Date;
+            address: string;
+            phone: string;
+            email: string;
+            profile_picture: string | null;
+        } | null;
+        role: {
+            id: string;
+            name: string;
+        };
+    } & {
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
+    updateProfile(req: any, data: any): Promise<{
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
+    changePassword(req: any, body: {
+        currentPassword: string;
+        newPassword: string;
+    }): Promise<{
+        id: string;
+        username: string;
+        student_id: string | null;
+        employee_id: string | null;
+        password_hash: string;
+        role_id: string;
+    }>;
+    getMyDevices(req: any): Promise<{
+        id: string;
+        is_active: boolean;
+        user_id: string;
+        device_id: string;
+    }[]>;
+    removeMyDevice(req: any, deviceId: string): Promise<{
+        id: string;
+        is_active: boolean;
+        user_id: string;
+        device_id: string;
+    }>;
     findAll(page?: number, limit?: number, search?: string, roleId?: string): Promise<{
         items: ({
             employee: {

@@ -33,6 +33,7 @@ model User {
   
   audit_logs    AuditLog[]
   user_devices  UserDevice[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -134,7 +135,7 @@ model Student {
   
   applicant_id String? @unique
   applicant    Applicant? @relation(fields: [applicant_id], references: [id])
-  
+
   parents     Parent[]
   histories   StudentHistory[]
   user        User?
@@ -143,6 +144,7 @@ model Student {
   grades      Grade[]
   final_grades FinalGrade[]
   payments    Payment[]
+  remedials   Remedial[]
 
   @@map("students")
 }
@@ -261,6 +263,7 @@ model Subject {
   grades    Grade[]
   final_grades FinalGrade[]
   teaching_logs TeachingLog[]
+  remedials Remedial[]
 
   @@map("subjects")
 }
@@ -339,6 +342,7 @@ model Exam {
   questions   Question[]
   sessions    ExamSession[]
   grades      Grade[]
+  remedials   Remedial[]
 
   @@map("exams")
 }
@@ -448,6 +452,7 @@ model FinalGrade {
   grade_letter String
   is_passed   Boolean
   description String?  @db.Text
+  competencies_achieved String? @db.Text
   semester    Int
   batch_id    String
   batch       Batch    @relation(fields: [batch_id], references: [id])
@@ -455,6 +460,26 @@ model FinalGrade {
   major       Major    @relation(fields: [major_id], references: [id])
 
   @@map("final_grades")
+}
+
+model Remedial {
+  id          String   @id @default(uuid())
+  student_id  String
+  student     Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  subject_id  String
+  subject     Subject  @relation(fields: [subject_id], references: [id])
+  exam_id     String?
+  exam        Exam?    @relation(fields: [exam_id], references: [id])
+  status      String   @default("pending") // pending, scheduled, completed
+  score_before Decimal  @db.Decimal(5, 2)
+  score_after Decimal? @db.Decimal(5, 2)
+  scheduled_at DateTime?
+  completed_at DateTime?
+  notes       String?  @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("remedials")
 }
 
 model Applicant {
@@ -529,4 +554,18 @@ model Asset {
   created_at  DateTime @default(now())
 
   @@map("assets")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     String?
+  user        User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title       String
+  message     String   @db.Text
+  type        String   // payment, exam, announcement, attendance, ppdb
+  is_read     Boolean  @default(false)
+  link        String?  // Optional link terkait notifikasi
+  created_at  DateTime @default(now())
+
+  @@map("notifications")
 }

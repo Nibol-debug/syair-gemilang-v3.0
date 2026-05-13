@@ -8,6 +8,40 @@ import { Prisma } from '@prisma/client';
 export class GradesService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Generate deskripsi otomatis berdasarkan nilai dan grade letter
+   */
+  private generateDescription(gradeLetter: string, finalScore: number, subjectName: string): { description: string; competencies_achieved: string } {
+    const descriptions: Record<string, { description: string; competencies: string }> = {
+      'A': {
+        description: `Siswa menunjukkan pemahaman yang sangat baik dalam ${subjectName}. Menguasai seluruh kompetensi dasar dengan sangat baik.`,
+        competencies: 'Semua kompetensi dasar tercapai dengan sangat baik. Siswa mampu menganalisis, mengevaluasi, dan menciptakan solusi terkait materi pelajaran.'
+      },
+      'B': {
+        description: `Siswa menunjukkan pemahaman yang baik dalam ${subjectName}. Menguasai sebagian besar kompetensi dasar dengan baik.`,
+        competencies: 'Sebagian besar kompetensi dasar tercapai dengan baik. Siswa mampu memahami, menerapkan, dan menganalisis konsep-konsep dasar.'
+      },
+      'C': {
+        description: `Siswa menunjukkan pemahaman yang cukup dalam ${subjectName}. Perlu peningkatan dalam beberapa kompetensi dasar.`,
+        competencies: 'Kompetensi dasar tercapai pada level minimal. Siswa perlu lebih giat berlatih untuk meningkatkan pemahaman konseptual.'
+      },
+      'D': {
+        description: `Siswa menunjukkan pemahaman yang kurang dalam ${subjectName}. Perlu remedial pada beberapa kompetensi dasar.`,
+        competencies: 'Beberapa kompetensi dasar belum tercapai. Siswa memerlukan bimbingan khusus dan latihan tambahan.'
+      },
+      'E': {
+        description: `Siswa belum menunjukkan pemahaman yang memadai dalam ${subjectName}. Wajib mengikuti remedial menyeluruh.`,
+        competencies: 'Sebagian besar kompetensi dasar belum tercapai. Siswa memerlukan pendampingan intensif dan mengulang materi dasar.'
+      }
+    };
+
+    const desc = descriptions[gradeLetter] || descriptions['E'];
+    return {
+      description: desc.description,
+      competencies_achieved: desc.competencies
+    };
+  }
+
   async create(data: CreateGradeDto) {
     const student = await this.prisma.student.findUnique({
       where: { id: data.student_id }
@@ -87,6 +121,19 @@ export class GradesService {
     });
     if (!student) throw new NotFoundException('Student not found');
 
+    // Get subject name for description
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: data.subject_id }
+    });
+    if (!subject) throw new NotFoundException('Subject not found');
+
+    // Generate automatic description
+    const { description, competencies_achieved } = this.generateDescription(
+      gradeLetter,
+      finalScore,
+      subject.name
+    );
+
     const existingFinal = await this.prisma.finalGrade.findFirst({
       where: {
         student_id: data.student_id,
@@ -102,6 +149,8 @@ export class GradesService {
           final_score: new Prisma.Decimal(finalScore),
           grade_letter: gradeLetter,
           is_passed: isPassed,
+          description,
+          competencies_achieved,
         }
       });
     }
@@ -114,6 +163,8 @@ export class GradesService {
         final_score: new Prisma.Decimal(finalScore),
         grade_letter: gradeLetter,
         is_passed: isPassed,
+        description,
+        competencies_achieved,
         major_id: student.major_id,
         batch_id: student.batch_id,
       }
@@ -157,5 +208,89 @@ export class GradesService {
         status: finalGrade?.is_passed ? 'Lulus' : (finalGrade ? 'Remedial' : 'Pending'),
       };
     });
+  }
+
+  /**
+   * Get nilai siswa untuk portal orang tua
+   */
+  async getParentPortalData(studentId: string) {
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+      include: {
+        final_grades: {
+          include: { subject: true },
+          orderBy: [{ semester: 'asc' }, { subject: { name: 'asc' } }]
+        },
+        grades: {
+          include: { subject: true, exam: true },
+          orderBy: { created_at: 'desc' }
+        },
+        class: true,
+        major: true,
+        batch: true
+      }
+    });
+
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    }
+
+    // Group grades by semester for chart data
+    const gradesBySemester: Record<number, number[]> = {};
+    student.final_grades.forEach(grade => {
+      if (!gradesBySemester[grade.semester]) {
+        gradesBySemester[grade.semester] = [];
+      }
+      gradesBySemester[grade.semester].push(Number(grade.final_score));
+    });
+
+    // Calculate average per semester
+    const chartData = Object.entries(gradesBySemester).map(([semester, scores]) => ({
+      semester: `Semester ${semester}`,
+      average: scores.reduce((a, b) => a + b, 0) / scores.length,
+      semester_num: parseInt(semester)
+    })).sort((a, b) => a.semester_num - b.semester_num);
+
+    // Recent grades
+    const recentGrades = student.grades.slice(0, 5).map(g => ({
+      subject_name: g.subject.name,
+      type: g.type,
+      score: Number(g.score),
+      date: g.created_at,
+    }));
+
+    // Summary
+    const totalSubjects = student.final_grades.length;
+    const passedSubjects = student.final_grades.filter(g => g.is_passed).length;
+    const averageScore = student.final_grades.length > 0
+      ? student.final_grades.reduce((acc, g) => acc + Number(g.final_score), 0) / student.final_grades.length
+      : 0;
+
+    return {
+      student: {
+        id: student.id,
+        nis: student.nis,
+        full_name: student.full_name,
+        class_name: student.class?.name,
+        major_name: student.major.name,
+        batch_name: student.batch.name,
+      },
+      summary: {
+        total_subjects: totalSubjects,
+        passed_subjects: passedSubjects,
+        average_score: Math.round(averageScore * 100) / 100,
+        pass_percentage: totalSubjects > 0 ? Math.round((passedSubjects / totalSubjects) * 100) : 0,
+      },
+      chart_data: chartData,
+      recent_grades: recentGrades,
+      all_grades: student.final_grades.map(g => ({
+        subject_name: g.subject.name,
+        final_score: Number(g.final_score),
+        grade_letter: g.grade_letter,
+        is_passed: g.is_passed,
+        semester: g.semester,
+        description: g.description,
+      })),
+    };
   }
 }

@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateApplicantDto } from './dto/create-applicant.dto';
 export declare class ApplicantsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notificationsService;
+    constructor(prisma: PrismaService, notificationsService: NotificationsService);
     create(data: CreateApplicantDto): Promise<{
         id: string;
         full_name: string;

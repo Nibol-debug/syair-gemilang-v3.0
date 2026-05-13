@@ -24,6 +24,24 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
+    getProfile(req) {
+        return this.usersService.getProfile(req.user.sub);
+    }
+    async updateProfile(req, data) {
+        return this.usersService.updateProfile(req.user.sub, data);
+    }
+    async changePassword(req, body) {
+        if (!body.currentPassword || !body.newPassword) {
+            throw new common_1.BadRequestException('Both current and new password are required');
+        }
+        return this.usersService.changePassword(req.user.sub, body.currentPassword, body.newPassword);
+    }
+    getMyDevices(req) {
+        return this.usersService.getDevices(req.user.sub);
+    }
+    removeMyDevice(req, deviceId) {
+        return this.usersService.toggleDeviceStatus(req.user.sub, deviceId, false);
+    }
     findAll(page, limit, search, roleId) {
         return this.usersService.findAll({ page, limit, search, roleId });
     }
@@ -47,6 +65,44 @@ let UsersController = class UsersController {
     }
 };
 exports.UsersController = UsersController;
+__decorate([
+    (0, common_1.Get)('me'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Patch)('me'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Post)('me/change-password'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "changePassword", null);
+__decorate([
+    (0, common_1.Get)('me/devices'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "getMyDevices", null);
+__decorate([
+    (0, common_1.Delete)('me/devices/:deviceId'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('deviceId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], UsersController.prototype, "removeMyDevice", null);
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('Administrator Utama'),

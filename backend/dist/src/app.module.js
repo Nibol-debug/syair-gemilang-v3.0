@@ -38,6 +38,10 @@ const finance_module_1 = require("./finance/finance.module");
 const assets_module_1 = require("./assets/assets.module");
 const audit_logs_module_1 = require("./audit-logs/audit-logs.module");
 const branches_module_1 = require("./branches/branches.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const grade_analysis_module_1 = require("./grade-analysis/grade-analysis.module");
+const remedial_module_1 = require("./remedial/remedial.module");
+const report_cards_module_1 = require("./report-cards/report-cards.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -72,6 +76,10 @@ exports.AppModule = AppModule = __decorate([
             assets_module_1.AssetsModule,
             audit_logs_module_1.AuditLogsModule,
             branches_module_1.BranchesModule,
+            notifications_module_1.NotificationsModule,
+            grade_analysis_module_1.GradeAnalysisModule,
+            remedial_module_1.RemedialModule,
+            report_cards_module_1.ReportCardsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

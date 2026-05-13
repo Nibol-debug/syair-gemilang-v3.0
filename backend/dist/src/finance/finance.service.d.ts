@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateFeeDto } from './dto/create-fee.dto';
 import { UpdateFeeDto } from './dto/update-fee.dto';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -8,7 +9,8 @@ import { StudentsService } from '../students/students.service';
 export declare class FinanceService {
     private prisma;
     private studentsService;
-    constructor(prisma: PrismaService, studentsService: StudentsService);
+    private notificationsService;
+    constructor(prisma: PrismaService, studentsService: StudentsService, notificationsService: NotificationsService);
     createFee(createFeeDto: CreateFeeDto): Promise<{
         id: string;
         name: string;

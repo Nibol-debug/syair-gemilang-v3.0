@@ -1,19 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateApplicantDto } from './dto/create-applicant.dto';
 import * as QRCode from 'qrcode';
 
 @Injectable()
 export class ApplicantsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService
+  ) {}
 
   async create(data: CreateApplicantDto) {
-    return this.prisma.applicant.create({
+    const applicant = await this.prisma.applicant.create({
       data: {
         ...data,
         birth_date: new Date(data.birth_date),
       },
     });
+
+    // Send notification to admin users about new applicant
+    const adminUsers = await this.prisma.user.findMany({
+      where: { role: { name: 'Administrator Utama' } },
+    });
+
+    await Promise.all(
+      adminUsers.map((user) =>
+        this.notificationsService.createForUser(
+          user.id,
+          'Pendaftar Baru',
+          `${applicant.full_name} telah mendaftar sebagai siswa baru.`,
+          'ppdb',
+          '/ppdb-admin'
+        )
+      )
+    );
+
+    return applicant;
   }
 
   async findAll(query: any) {

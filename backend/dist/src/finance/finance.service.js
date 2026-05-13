@@ -12,13 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FinanceService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const students_service_1 = require("../students/students.service");
 let FinanceService = class FinanceService {
     prisma;
     studentsService;
-    constructor(prisma, studentsService) {
+    notificationsService;
+    constructor(prisma, studentsService, notificationsService) {
         this.prisma = prisma;
         this.studentsService = studentsService;
+        this.notificationsService = notificationsService;
     }
     async createFee(createFeeDto) {
         return this.prisma.fee.create({
@@ -74,7 +77,7 @@ let FinanceService = class FinanceService {
         });
     }
     async createPayment(createPaymentDto) {
-        return this.prisma.payment.create({
+        const payment = await this.prisma.payment.create({
             data: {
                 ...createPaymentDto,
                 date: createPaymentDto.date ? new Date(createPaymentDto.date) : new Date(),
@@ -84,6 +87,8 @@ let FinanceService = class FinanceService {
                 fee: true,
             },
         });
+        await this.notificationsService.createForUser(payment.student_id, 'Pembayaran Baru', `Pembayaran ${payment.fee.name} sebesar Rp ${payment.amount.toLocaleString()} telah dicatatkan.`, 'payment', '/finance');
+        return payment;
     }
     async findAllPayments(pagination, filters) {
         const page = pagination.page || 1;
@@ -143,6 +148,12 @@ let FinanceService = class FinanceService {
         if (updatePaymentDto.date) {
             data.date = new Date(updatePaymentDto.date);
         }
+        const currentPayment = await this.prisma.payment.findUnique({
+            where: { id },
+            include: { student: true, fee: true },
+        });
+        if (!currentPayment)
+            throw new common_1.NotFoundException(`Payment with ID ${id} not found`);
         const updatedPayment = await this.prisma.payment.update({
             where: { id },
             data,
@@ -151,6 +162,9 @@ let FinanceService = class FinanceService {
                 fee: true,
             },
         });
+        if (currentPayment.status !== 'success' && updatedPayment.status === 'success') {
+            await this.notificationsService.createForUser(updatedPayment.student_id, 'Pembayaran Berhasil', `Pembayaran ${updatedPayment.fee.name} sebesar Rp ${updatedPayment.amount.toLocaleString()} telah berhasil dikonfirmasi.`, 'payment', '/finance');
+        }
         if (updatedPayment.status === 'success' && updatedPayment.fee.name === 'Biaya Daftar Ulang') {
             await this.studentsService.finalizeRegistration(updatedPayment.student_id);
         }
@@ -166,6 +180,7 @@ exports.FinanceService = FinanceService;
 exports.FinanceService = FinanceService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        students_service_1.StudentsService])
+        students_service_1.StudentsService,
+        notifications_service_1.NotificationsService])
 ], FinanceService);
 //# sourceMappingURL=finance.service.js.map

@@ -40,6 +40,9 @@ let GradesController = class GradesController {
     findByClass(classId, subjectId) {
         return this.gradesService.findByClass(classId, subjectId);
     }
+    getParentPortalData(studentId) {
+        return this.gradesService.getParentPortalData(studentId);
+    }
 };
 exports.GradesController = GradesController;
 __decorate([
@@ -81,6 +84,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], GradesController.prototype, "findByClass", null);
+__decorate([
+    (0, common_1.Get)('parent/:student_id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'),
+    __param(0, (0, common_1.Param)('student_id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], GradesController.prototype, "getParentPortalData", null);
 exports.GradesController = GradesController = __decorate([
     (0, common_1.Controller)('grades'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
