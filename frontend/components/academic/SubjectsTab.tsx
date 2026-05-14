@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Edit2, Trash2, X, Loader2, Save, Book } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function SubjectsTab() {
+  const { canManageAcademic } = useUserRole();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [majors, setMajors] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,10 +42,15 @@ export default function SubjectsTab() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const payload = {
+        ...formData,
+        major_id: formData.major_id || null
+      };
+
       if (editingSubject) {
-        await apiRequest(`/subjects/${editingSubject.id}`, { method: 'PATCH', body: JSON.stringify(formData) });
+        await apiRequest(`/subjects/${editingSubject.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
       } else {
-        await apiRequest('/subjects', { method: 'POST', body: JSON.stringify(formData) });
+        await apiRequest('/subjects', { method: 'POST', body: JSON.stringify(payload) });
       }
       setModalOpen(false);
       setEditingSubject(null);
@@ -83,9 +90,11 @@ export default function SubjectsTab() {
           <h3 className="text-xl font-bold text-on-surface">Daftar Mata Pelajaran</h3>
           <p className="text-sm text-on-surface-variant mt-1">Kelola kurikulum dan mata pelajaran per jurusan.</p>
         </div>
-        <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">
-          <Plus className="w-4 h-4" /> Tambah Mapel
-        </button>
+        {canManageAcademic && (
+          <button onClick={openAdd} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">
+            <Plus className="w-4 h-4" /> Tambah Mapel
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -139,8 +148,12 @@ export default function SubjectsTab() {
                 </td>
                 <td className="py-4 px-6 text-right">
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEdit(subject)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(subject.id)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    {canManageAcademic && (
+                      <>
+                        <button onClick={() => openEdit(subject)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(subject.id)} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -155,7 +168,7 @@ export default function SubjectsTab() {
       {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-3xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 text-primary rounded-xl"><Book className="w-6 h-6" /></div>

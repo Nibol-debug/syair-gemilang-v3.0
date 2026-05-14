@@ -25,6 +25,12 @@ let GradesController = class GradesController {
     constructor(gradesService) {
         this.gradesService = gradesService;
     }
+    getGradeComponents() {
+        return this.gradesService.getGradeComponents();
+    }
+    updateGradeComponent(updateGradeComponentDto) {
+        return this.gradesService.updateGradeComponent(updateGradeComponentDto);
+    }
     create(createGradeDto) {
         return this.gradesService.create(createGradeDto);
     }
@@ -33,6 +39,9 @@ let GradesController = class GradesController {
     }
     finalize(finalizeGradeDto) {
         return this.gradesService.finalizeGrade(finalizeGradeDto);
+    }
+    finalizeClass(finalizeClassGradeDto) {
+        return this.gradesService.finalizeClassGrades(finalizeClassGradeDto);
     }
     getFinalReport(studentId) {
         return this.gradesService.getFinalReport(studentId);
@@ -45,6 +54,21 @@ let GradesController = class GradesController {
     }
 };
 exports.GradesController = GradesController;
+__decorate([
+    (0, common_1.Get)('components'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], GradesController.prototype, "getGradeComponents", null);
+__decorate([
+    (0, common_1.Put)('components'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [grade_dto_1.UpdateGradeComponentDto]),
+    __metadata("design:returntype", void 0)
+], GradesController.prototype, "updateGradeComponent", null);
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
@@ -69,6 +93,14 @@ __decorate([
     __metadata("design:paramtypes", [grade_dto_1.FinalizeGradeDto]),
     __metadata("design:returntype", void 0)
 ], GradesController.prototype, "finalize", null);
+__decorate([
+    (0, common_1.Post)('finalize-class'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [grade_dto_1.FinalizeClassGradeDto]),
+    __metadata("design:returntype", void 0)
+], GradesController.prototype, "finalizeClass", null);
 __decorate([
     (0, common_1.Get)('final/:student_id'),
     __param(0, (0, common_1.Param)('student_id')),

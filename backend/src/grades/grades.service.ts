@@ -1,12 +1,25 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateGradeDto, FinalizeGradeDto } from './dto/grade.dto';
+import { CreateGradeDto, FinalizeGradeDto, UpdateGradeComponentDto } from './dto/grade.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class GradesService {
   constructor(private prisma: PrismaService) {}
+
+  async getGradeComponents() {
+    return this.prisma.gradeComponent.findMany();
+  }
+
+  async updateGradeComponent(data: UpdateGradeComponentDto) {
+    return this.prisma.gradeComponent.update({
+      where: { id: data.id },
+      data: {
+        weight_percentage: new Prisma.Decimal(data.weight_percentage)
+      }
+    });
+  }
 
   /**
    * Generate deskripsi otomatis berdasarkan nilai dan grade letter
@@ -96,17 +109,35 @@ export class GradesService {
       throw new BadRequestException('No grades found for this subject/student');
     }
 
-    let totalScore = 0;
-    let totalWeight = 0;
-
-    grades.forEach(g => {
-      const score = Number(g.score);
-      const weight = Number(g.weight);
-      totalScore += score * weight;
-      totalWeight += weight;
+    // Fetch weights from GradeComponent
+    const components = await this.prisma.gradeComponent.findMany();
+    const weights: Record<string, number> = {};
+    components.forEach(c => {
+      weights[c.name.toLowerCase()] = Number(c.weight_percentage) / 100;
     });
 
-    const finalScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+    // Group grades by type
+    const gradesByType: Record<string, number[]> = {};
+    grades.forEach(g => {
+      const type = g.type.toLowerCase();
+      if (!gradesByType[type]) gradesByType[type] = [];
+      gradesByType[type].push(Number(g.score));
+    });
+
+    let finalScore = 0;
+
+    // Calculate weighted average
+    Object.keys(gradesByType).forEach(type => {
+      const avg = gradesByType[type].reduce((a, b) => a + b, 0) / gradesByType[type].length;
+      const weight = weights[type] || 0;
+      finalScore += avg * weight;
+    });
+
+    // Get subject for KKM and description
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: data.subject_id }
+    });
+    if (!subject) throw new NotFoundException('Subject not found');
 
     let gradeLetter = 'E';
     if (finalScore >= 85) gradeLetter = 'A';
@@ -114,18 +145,12 @@ export class GradesService {
     else if (finalScore >= 65) gradeLetter = 'C';
     else if (finalScore >= 50) gradeLetter = 'D';
 
-    const isPassed = finalScore >= 75;
+    const isPassed = finalScore >= Number(subject.passing_grade);
 
     const student = await this.prisma.student.findUnique({
       where: { id: data.student_id }
     });
     if (!student) throw new NotFoundException('Student not found');
-
-    // Get subject name for description
-    const subject = await this.prisma.subject.findUnique({
-      where: { id: data.subject_id }
-    });
-    if (!subject) throw new NotFoundException('Subject not found');
 
     // Generate automatic description
     const { description, competencies_achieved } = this.generateDescription(
@@ -169,6 +194,36 @@ export class GradesService {
         batch_id: student.batch_id,
       }
     });
+  }
+
+  async finalizeClassGrades(data: { class_id: string, subject_id: string, semester: number }) {
+    const students = await this.prisma.student.findMany({
+      where: { class_id: data.class_id }
+    });
+
+    if (students.length === 0) {
+      throw new NotFoundException('No students found in this class');
+    }
+
+    const results: any[] = [];
+    for (const student of students) {
+      try {
+        const result = await this.finalizeGrade({
+          student_id: student.id,
+          subject_id: data.subject_id,
+          semester: data.semester
+        });
+        results.push(result);
+      } catch (err) {
+        // Skip students with no grades
+        continue;
+      }
+    }
+
+    return {
+      message: `Successfully finalized ${results.length} students out of ${students.length}`,
+      finalized_count: results.length
+    };
   }
 
   async getFinalReport(studentId: string) {

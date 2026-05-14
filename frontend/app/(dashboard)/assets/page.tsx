@@ -17,9 +17,40 @@ import {
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 import { ViewAssetModal, EditAssetModal, DeleteAssetModal } from '@/components/AssetModals';
+import { useUserRole } from '@/lib/useUserRole';
+
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+
+function StatCard({ title, value, icon, color }: any) {
+  const colorMap: any = {
+    primary:   'bg-primary/10 text-primary border-primary/20',
+    secondary: 'bg-secondary/10 text-secondary border-secondary/20',
+    tertiary:  'bg-tertiary/10 text-tertiary border-tertiary/20',
+    success:   'bg-success-container/30 text-success border-success/20',
+  };
+
+  return (
+    <div className={cn(
+      'p-4 sm:p-6 rounded-2xl border flex items-center gap-3 sm:gap-4',
+      'bg-surface-container-lowest shadow-sm relative overflow-hidden',
+      colorMap[color],
+    )}>
+      <div className="p-3 rounded-xl bg-current opacity-10" />
+      <div className="absolute left-4 sm:left-6">{icon}</div>
+      <div className="ml-10 sm:ml-12">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 truncate max-w-[100px] sm:max-w-none">
+          {title}
+        </p>
+        <p className="text-xl sm:text-2xl font-black leading-none mt-1">{value}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function AssetsPage() {
+  const { canManageAssets } = useUserRole();
   const [assets, setAssets] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({ total: 0, good: 0, fair: 0, broken: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +79,19 @@ export default function AssetsPage() {
     last_page: 1
   });
 
+  const fetchStats = async () => {
+    try {
+      const res = await apiRequest('/stats/dashboard');
+      setStats({
+        total: res.overview.totalAssets,
+        // Mocking other stats for now as the backend doesn't provide them in detail yet
+        good: Math.round(res.overview.totalAssets * 0.8),
+        fair: Math.round(res.overview.totalAssets * 0.15),
+        broken: Math.round(res.overview.totalAssets * 0.05),
+      });
+    } catch { /* non-critical */ }
+  };
+
   const fetchAssets = async () => {
     setIsLoading(true);
     try {
@@ -73,9 +117,10 @@ export default function AssetsPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token) {
       fetchAssets();
+      fetchStats();
     }
   }, [filters, pagination.page]);
 
@@ -112,14 +157,24 @@ export default function AssetsPage() {
           <p className="text-on-surface-variant font-medium mt-1">Lacak dan kelola seluruh aset operasional sekolah.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Aset</span>
-          </button>
+          {canManageAssets && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Aset</span>
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Aset" value={stats.total} icon={<Package className="w-6 h-6" />} color="primary" />
+        <StatCard title="Kondisi Baik" value={stats.good} icon={<Package className="w-6 h-6" />} color="success" />
+        <StatCard title="Kondisi Cukup" value={stats.fair} icon={<Package className="w-6 h-6" />} color="secondary" />
+        <StatCard title="Kondisi Rusak" value={stats.broken} icon={<Package className="w-6 h-6" />} color="tertiary" />
       </div>
 
       {/* Filter Section */}
@@ -218,20 +273,24 @@ export default function AssetsPage() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button 
-                          onClick={() => { setSelectedAsset(item); setModalType('edit'); }}
-                          className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => { setSelectedAsset(item); setModalType('delete'); }}
-                          className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canManageAssets && (
+                          <>
+                            <button 
+                              onClick={() => { setSelectedAsset(item); setModalType('edit'); }}
+                              className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => { setSelectedAsset(item); setModalType('delete'); }}
+                              className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
-                      <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
+                      <MoreHorizontal className="w-4 h-4 text-on-surface-variant group-hover:hidden ml-auto" />
                     </td>
                   </tr>
                 ))

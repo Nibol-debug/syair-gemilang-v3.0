@@ -97,6 +97,7 @@ export declare class StudentsService {
                 batch_id: string;
                 grade_level: number;
                 homeroom_teacher_id: string | null;
+                class_president_id: string | null;
             } | null;
             batch: {
                 id: string;
@@ -164,6 +165,7 @@ export declare class StudentsService {
             batch_id: string;
             grade_level: number;
             homeroom_teacher_id: string | null;
+            class_president_id: string | null;
         } | null;
         batch: {
             id: string;

@@ -15,6 +15,7 @@ export default function ProfileDropdown({ user }: ProfileDropdownProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     router.push('/login');
   };
 

@@ -11,9 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateSubjectDto = void 0;
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 class CreateSubjectDto {
     name;
     major_id;
+    passing_grade;
 }
 exports.CreateSubjectDto = CreateSubjectDto;
 __decorate([
@@ -24,6 +26,14 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? null : value)),
     __metadata("design:type", String)
 ], CreateSubjectDto.prototype, "major_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.Max)(100),
+    __metadata("design:type", Number)
+], CreateSubjectDto.prototype, "passing_grade", void 0);
 //# sourceMappingURL=create-subject.dto.js.map

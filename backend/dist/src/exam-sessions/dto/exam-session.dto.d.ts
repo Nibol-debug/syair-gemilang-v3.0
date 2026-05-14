@@ -10,3 +10,6 @@ export declare class LogViolationDto {
     type: string;
     description?: string;
 }
+export declare class GradeEssayDto {
+    score: number;
+}

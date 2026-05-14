@@ -92,8 +92,8 @@ export const CreateScheduleModal = ({ isOpen, onClose, onUpdate }: any) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 md:p-8 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <SelectGroup 
               label="Hari" 
               icon={<Calendar size={16} />}
@@ -109,7 +109,7 @@ export const CreateScheduleModal = ({ isOpen, onClose, onUpdate }: any) => {
                 { value: 'Sunday', label: 'Minggu' }
               ]}
             />
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <InputGroup label="Mulai" type="time" value={formData.start_time} onChange={(v: string) => setFormData({...formData, start_time: v})} />
               <InputGroup label="Selesai" type="time" value={formData.end_time} onChange={(v: string) => setFormData({...formData, end_time: v})} />
             </div>
@@ -142,7 +142,7 @@ export const CreateScheduleModal = ({ isOpen, onClose, onUpdate }: any) => {
             placeholder="Pilih Guru"
           />
 
-          <div className="pt-4 flex gap-4">
+          <div className="pt-4 flex flex-col sm:flex-row gap-4">
              <button 
                type="button"
                onClick={onClose}
@@ -192,7 +192,7 @@ export const CreateSubjectModal = ({ isOpen, onClose, onUpdate }: any) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-       <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+       <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-secondary/10 text-secondary rounded-xl">
@@ -205,7 +205,7 @@ export const CreateSubjectModal = ({ isOpen, onClose, onUpdate }: any) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 md:p-8 space-y-6">
            <InputGroup 
              label="Nama Mata Pelajaran" 
              value={formData.name} 

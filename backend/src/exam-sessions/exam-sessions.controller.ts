@@ -1,6 +1,6 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request, Patch } from '@nestjs/common';
 import { ExamSessionsService } from './exam-sessions.service';
-import { StartExamDto, SubmitAnswerDto, LogViolationDto } from './dto/exam-session.dto';
+import { StartExamDto, SubmitAnswerDto, LogViolationDto, GradeEssayDto } from './dto/exam-session.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';

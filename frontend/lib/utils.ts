@@ -29,7 +29,9 @@ export function formatDateTime(date: string | Date) {
 
 export function getUserFromToken() {
   if (typeof window === 'undefined') return null;
-  const token = localStorage.getItem('token');
+  // Fallback to avoid circular dependency if possible, but let's try to just use localStorage/sessionStorage directly here if needed, 
+  // or just import getToken since it's just a constant/function.
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (!token) return null;
 
   try {

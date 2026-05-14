@@ -160,7 +160,7 @@ export default function PPDBRegistrationPage() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-surface-container-lowest flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 text-center space-y-6">
+        <div className="max-w-[28rem] w-full bg-white rounded-3xl shadow-xl p-10 text-center space-y-6">
           <div className="w-20 h-20 bg-success-container/30 text-success rounded-full flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-12 h-12" />
           </div>

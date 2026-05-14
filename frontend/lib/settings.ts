@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { apiRequest } from './api';
 
 export interface UserProfile {
   id: string;
@@ -36,64 +36,29 @@ export interface Device {
 }
 
 export async function getProfile(): Promise<UserProfile> {
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_BASE_URL}/users/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) throw new Error('Failed to fetch profile');
-  return res.json();
+  return apiRequest('/users/me');
 }
 
 export async function updateProfile(data: any): Promise<UserProfile> {
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_BASE_URL}/users/me`, {
+  return apiRequest('/users/me', {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Failed to update profile');
-  return res.json();
 }
 
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_BASE_URL}/users/me/change-password`, {
+  return apiRequest('/users/me/change-password', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify({ currentPassword, newPassword }),
   });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to change password');
-  }
 }
 
 export async function getDevices(): Promise<Device[]> {
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_BASE_URL}/users/me/devices`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) throw new Error('Failed to fetch devices');
-  return res.json();
+  return apiRequest('/users/me/devices');
 }
 
 export async function removeDevice(deviceId: string): Promise<void> {
-  const token = localStorage.getItem('token');
-  const res = await fetch(`${API_BASE_URL}/users/me/devices/${deviceId}`, {
+  return apiRequest(`/users/me/devices/${deviceId}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
-  if (!res.ok) throw new Error('Failed to remove device');
 }

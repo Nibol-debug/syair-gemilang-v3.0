@@ -19,8 +19,10 @@ import {
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function FinancePage() {
+  const { canManageFinance } = useUserRole();
   const [payments, setPayments] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [fees, setFees] = useState<any[]>([]);
@@ -87,7 +89,7 @@ export default function FinancePage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token) {
       fetchPayments();
       if (isModalOpen) {
@@ -193,13 +195,15 @@ export default function FinancePage() {
           <p className="text-on-surface-variant font-medium mt-1">Pencatatan pembayaran SPP dan biaya pendidikan lainnya.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Pembayaran</span>
-          </button>
+          {canManageFinance && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Pembayaran</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -311,12 +315,16 @@ export default function FinancePage() {
                         >
                           <Printer className="w-4 h-4" />
                         </button>
-                        <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit">
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canManageFinance && (
+                          <>
+                            <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Delete">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                       <button className="p-2 text-on-surface-variant group-hover:hidden transition-all"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>

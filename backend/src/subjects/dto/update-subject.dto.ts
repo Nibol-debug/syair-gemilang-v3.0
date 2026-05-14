@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID, IsInt, Min, Max } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateSubjectDto {
   @IsOptional()
@@ -7,5 +8,12 @@ export class UpdateSubjectDto {
 
   @IsOptional()
   @IsUUID()
+  @Transform(({ value }) => (value === '' ? null : value))
   major_id?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  passing_grade?: number;
 }

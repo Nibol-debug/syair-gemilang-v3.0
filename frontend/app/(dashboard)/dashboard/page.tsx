@@ -45,8 +45,11 @@ export default function DashboardPage() {
   const fetchData = React.useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await apiRequest('/stats/dashboard');
-      setData(res);
+      const [res, logsRes] = await Promise.all([
+        apiRequest('/stats/dashboard'),
+        apiRequest('/audit-logs?limit=5').catch(() => ({ items: [] }))
+      ]);
+      setData({ ...res, auditLogs: logsRes.items || [] });
     } catch (err) {
       console.error('Gagal mengambil data dashboard:', err);
     } finally {
@@ -133,7 +136,7 @@ function AdminDashboard({ data, user }: any) {
               { label: 'Kelola Kelas', icon: Layers, path: '/classes' },
               { label: 'Verifikasi PPDB', icon: CheckSquare, path: '/ppdb-admin' },
            ]} />
-           <RecentActivity />
+           <RecentActivity logs={data?.auditLogs} />
         </div>
       </div>
     </div>
@@ -178,6 +181,7 @@ function GuruDashboard({ data, user }: any) {
               { label: 'Input Nilai', icon: CheckSquare, path: '/grading' },
               { label: 'Presensi Siswa', icon: Users, path: '/academic' },
             ]} />
+            <RecentActivity logs={data?.auditLogs} />
          </div>
       </div>
     </div>
@@ -284,7 +288,7 @@ function QuickActions({ items }: { items: any[] }) {
   );
 }
 
-function RecentActivity() {
+function RecentActivity({ logs }: { logs?: any[] }) {
   return (
     <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm flex-1">
       <div className="flex justify-between items-center mb-6">
@@ -292,17 +296,19 @@ function RecentActivity() {
         <a href="#" className="text-xs font-bold text-primary hover:underline">Lihat Semua</a>
       </div>
       <div className="relative pl-6 space-y-8 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30">
-        {activities.map((log, i) => (
+        {logs && logs.length > 0 ? logs.map((log, i) => (
           <div key={i} className="relative">
             <div className={`absolute -left-[23px] w-5 h-5 bg-surface-container-lowest border-2 ${i === 0 ? 'border-primary' : 'border-outline-variant'} rounded-full flex items-center justify-center`}>
               {i === 0 && <div className="w-2 h-2 bg-primary rounded-full"></div>}
             </div>
             <p className="text-sm text-on-surface leading-snug">
-              <span className="font-bold">{log.user}</span> {log.action}.
+              <span className="font-bold">{log.user?.username || 'Sistem'}</span> {log.action} pada modul {log.module}.
             </p>
-            <p className="text-xs font-medium text-outline mt-1.5">{log.time}</p>
+            <p className="text-xs font-medium text-outline mt-1.5">{new Date(log.created_at).toLocaleString('id-ID')}</p>
           </div>
-        ))}
+        )) : (
+          <p className="text-sm text-on-surface-variant italic">Belum ada aktivitas tercatat.</p>
+        )}
       </div>
     </div>
   );
@@ -312,10 +318,4 @@ const CHART_DATA_DEFAULT = [
   { name: 'TKJ', value: 510, color: '#1e40af' },
   { name: 'DBS', value: 360, color: '#173bab' },
   { name: 'DG', value: 430, color: '#3755c3' },
-];
-
-const activities = [
-  { user: 'Budi Santoso', action: 'mengunggah soal ujian "Matematika Dasar"', time: '10 menit yang lalu' },
-  { user: 'Admin Pusat', action: 'mengubah status 45 siswa menjadi Aktif', time: '1 jam yang lalu' },
-  { user: 'Sistem', action: 'menyelesaikan sinkronisasi absensi biometrik', time: 'Hari ini, 07:00' },
 ];

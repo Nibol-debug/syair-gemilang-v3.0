@@ -18,6 +18,7 @@ import {
   Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/lib/useUserRole';
 import {
   BarChart,
   Bar,
@@ -73,8 +74,10 @@ export default function GradeAnalysisPage() {
   const [examStats, setExamStats] = useState<ExamStatistics | null>(null);
   const [classStats, setClassStats] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { canManageGrades } = useUserRole();
 
   const fetchExams = async () => {
+    if (canManageGrades === false) return;
     try {
       const res = await apiRequest('/exams?page=1&limit=100');
       setExams(res.data || []);
@@ -85,6 +88,7 @@ export default function GradeAnalysisPage() {
   };
 
   const fetchClassesAndSubjects = async () => {
+    if (canManageGrades === false) return;
     try {
       const [classesRes, subjectsRes] = await Promise.all([
         apiRequest('/classes'),
@@ -167,6 +171,18 @@ export default function GradeAnalysisPage() {
     const tooHard = q.correct_percentage < 20;
     return poorDiscrimination || tooEasy || tooHard;
   };
+
+  if (canManageGrades === false) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertTriangle className="w-16 h-16 text-error mb-4" />
+        <h3 className="text-2xl font-bold text-on-surface mb-2">Akses Ditolak</h3>
+        <p className="text-on-surface-variant max-w-[28rem]">
+          Anda tidak memiliki izin untuk mengakses halaman analisis penilaian.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -363,7 +379,7 @@ export default function GradeAnalysisPage() {
                     return (
                       <tr key={q.id} className={cn("group hover:bg-surface-container-low/20 transition-all", review && "bg-error/5")}>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-on-surface max-w-md truncate">
+                          <p className="text-sm font-medium text-on-surface max-w-[28rem] truncate">
                             {q.question_text}
                           </p>
                           <p className="text-[10px] text-outline mt-1">

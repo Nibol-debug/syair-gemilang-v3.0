@@ -2,7 +2,7 @@ import { AuditLogsService } from './audit-logs.service';
 export declare class AuditLogsController {
     private readonly auditLogsService;
     constructor(auditLogsService: AuditLogsService);
-    findAll(page?: number, limit?: number, module?: string, action?: string): Promise<{
+    findAll(req: any, page?: number, limit?: number, module?: string, action?: string): Promise<{
         items: ({
             user: {
                 username: string;

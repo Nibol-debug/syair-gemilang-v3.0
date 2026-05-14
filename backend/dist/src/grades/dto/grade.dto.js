@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FinalizeGradeDto = exports.CreateGradeDto = void 0;
+exports.UpdateGradeComponentDto = exports.FinalizeClassGradeDto = exports.FinalizeGradeDto = exports.CreateGradeDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateGradeDto {
     student_id;
@@ -72,4 +72,40 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], FinalizeGradeDto.prototype, "semester", void 0);
+class FinalizeClassGradeDto {
+    class_id;
+    subject_id;
+    semester;
+}
+exports.FinalizeClassGradeDto = FinalizeClassGradeDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], FinalizeClassGradeDto.prototype, "class_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], FinalizeClassGradeDto.prototype, "subject_id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], FinalizeClassGradeDto.prototype, "semester", void 0);
+class UpdateGradeComponentDto {
+    id;
+    weight_percentage;
+}
+exports.UpdateGradeComponentDto = UpdateGradeComponentDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], UpdateGradeComponentDto.prototype, "id", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.Max)(100),
+    __metadata("design:type", Number)
+], UpdateGradeComponentDto.prototype, "weight_percentage", void 0);
 //# sourceMappingURL=grade.dto.js.map

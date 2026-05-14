@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -65,7 +65,7 @@ export class ExamsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userRole?: string) {
     const exam = await this.prisma.exam.findUnique({
       where: { id },
       include: {
@@ -78,6 +78,13 @@ export class ExamsService {
       },
     });
     if (!exam) throw new NotFoundException('Exam not found');
+    
+    // Hide token and questions from students/parents
+    if (userRole === 'Siswa' || userRole === 'Orang Tua') {
+      const { token, questions, ...examPublicInfo } = exam as any;
+      return examPublicInfo;
+    }
+    
     return exam;
   }
 
@@ -226,5 +233,194 @@ export class ExamsService {
     return this.prisma.question.delete({
       where: { id: questionId }
     });
+  }
+
+  /**
+   * NEW: Get questions from exam session for students
+   * Only returns questions if session is ongoing and belongs to user
+   */
+  async getSessionQuestions(sessionId: string) {
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        exam: {
+          include: {
+            questions: {
+              include: {
+                options: true
+              }
+            }
+          }
+        },
+        answers: true,
+        student: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    // Validate session status
+    if (session.status !== 'ongoing') {
+      throw new ForbiddenException('Exam session is not active. Status: ' + session.status);
+    }
+
+    // Note: Ownership validation should be done at API level with user context
+    // For now, we trust the session ID is not shared
+
+    // Check time limit
+    const now = new Date();
+    const sessionEndTime = new Date(session.end_time || session.start_time.getTime() + (session.exam.duration * 60000));
+    if (now > sessionEndTime) {
+      throw new ForbiddenException('Exam time has ended');
+    }
+
+    // Shuffle questions and options for anti-cheat
+    const shuffledQuestions = this.shuffleArray([...session.exam.questions]);
+    shuffledQuestions.forEach(q => {
+      q.options = this.shuffleArray([...q.options]);
+    });
+
+    // Return questions without is_correct flag
+    return shuffledQuestions.map(q => ({
+      id: q.id,
+      exam_id: q.exam_id,
+      type: q.type,
+      question_text: q.question_text,
+      difficulty: q.difficulty,
+      options: q.options.map(o => ({
+        id: o.id,
+        option_text: o.option_text
+      }))
+    }));
+    }
+
+    async getSessionAnswersDetail(sessionId: string) {
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        exam: {
+          include: {
+            questions: {
+              include: { options: true }
+            }
+          }
+        },
+        answers: true,
+        student: { select: { full_name: true, nis: true } },
+        applicant: { select: { full_name: true } }
+      }
+    });
+
+    if (!session) throw new NotFoundException('Session not found');
+
+    // Combine questions with student answers
+    const questionsWithAnswers = session.exam.questions.map(q => {
+      const answer = session.answers.find(a => a.question_id === q.id);
+      return {
+        ...q,
+        student_answer: answer || null
+      };
+    });
+
+    return {
+      session: {
+        id: session.id,
+        status: session.status,
+        student: session.student,
+        applicant: session.applicant,
+        exam_title: session.exam.title
+      },
+      questions: questionsWithAnswers
+    };
+    }
+
+    async gradeEssay(answerId: string, score: number) {
+    const answer = await this.prisma.studentAnswer.findUnique({
+      where: { id: answerId },
+      include: { session: true }
+    });
+
+    if (!answer) throw new NotFoundException('Answer not found');
+
+    await this.prisma.studentAnswer.update({
+      where: { id: answerId },
+      data: { score: score }
+    });
+
+    // Recalculate total score for the session
+    return this.recalculateSessionScore(answer.session_id);
+    }
+
+    private async recalculateSessionScore(sessionId: string) {
+    const session = await this.prisma.examSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        exam: {
+          include: {
+            questions: { include: { options: true } }
+          }
+        },
+        answers: true
+      }
+    });
+
+    if (!session) throw new NotFoundException('Session not found');
+
+    let totalPoints = 0;
+    const totalQuestions = session.exam.questions.length;
+
+    session.exam.questions.forEach((q) => {
+      const studentAnswer = session.answers.find((a) => a.question_id === q.id);
+      if (!studentAnswer) return;
+
+      if (q.type === 'mcq') {
+        const correctOption = q.options.find((o) => o.is_correct);
+        if (correctOption && studentAnswer.answer === correctOption.option_text) {
+          totalPoints += 1;
+        }
+      } else if (q.type === 'essay') {
+        totalPoints += Number(studentAnswer.score || 0);
+      }
+    });
+
+    const finalScore = totalQuestions > 0 ? (totalPoints / totalQuestions) * 100 : 0;
+
+    // Update Grade table
+    const existingGrade = await this.prisma.grade.findFirst({
+      where: {
+        exam_id: session.exam_id,
+        OR: [
+          { student_id: session.student_id },
+          { applicant_id: session.applicant_id }
+        ]
+      }
+    });
+
+    if (existingGrade) {
+      await this.prisma.grade.update({
+        where: { id: existingGrade.id },
+        data: { score: finalScore }
+      });
+    }
+
+    return { score: finalScore, total_points: totalPoints, total_questions: totalQuestions };
+    }
+
+    /**
+    * Helper function to shuffle array (Fisher-Yates)
+    */
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 }

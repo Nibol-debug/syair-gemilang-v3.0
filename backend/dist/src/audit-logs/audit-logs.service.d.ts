@@ -7,6 +7,7 @@ export declare class AuditLogsService {
         limit?: number;
         module?: string;
         action?: string;
+        user?: any;
     }): Promise<{
         items: ({
             user: {

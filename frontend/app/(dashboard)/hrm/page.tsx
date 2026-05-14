@@ -20,7 +20,8 @@ import {
   Users,
   Award,
   ShieldCheck,
-  Clock
+  Clock,
+  CheckCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewEmployeeModal, EditEmployeeModal, DeleteEmployeeModal } from '@/components/EmployeeModals';
@@ -29,7 +30,7 @@ import { useUserRole } from '@/lib/useUserRole';
 export default function EmployeesPage() {
   const { canManageEmployees } = useUserRole();
   const [employees, setEmployees] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({ total: 0, teachers: 0, staff: 0 });
+  const [stats, setStats] = useState<any>({ total: 0, teachers: 0, staff: 0, certifiedCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
   
   // Master Data
@@ -101,7 +102,7 @@ export default function EmployeesPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       fetchMasterData();
       fetchStats();
@@ -113,7 +114,7 @@ export default function EmployeesPage() {
   }, [filters.major_id, filters.search]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       const timer = setTimeout(() => {
         fetchEmployees();
@@ -138,30 +139,33 @@ export default function EmployeesPage() {
           <p className="text-on-surface-variant font-medium mt-1">Kelola data Guru, Staf, dan dokumen kepegawaian.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link 
-            href="/hrm/attendance"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-all active:scale-95 shadow-sm"
-          >
-            <Clock className="w-4 h-4 text-primary" />
-            <span>Kelola Presensi</span>
-          </Link>
           {canManageEmployees && (
-          <button 
-            onClick={() => openModal('create')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Pegawai</span>
-          </button>
+            <>
+              <Link 
+                href="/hrm/attendance"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-bold hover:bg-surface-container transition-all active:scale-95 shadow-sm"
+              >
+                <Clock className="w-4 h-4 text-primary" />
+                <span>Kelola Presensi</span>
+              </Link>
+              <button 
+                onClick={() => openModal('create')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Tambah Pegawai</span>
+              </button>
+            </>
           )}
         </div>
       </div>
 
       {/* Stats Dashboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Pegawai" value={stats.total} icon={<Users className="w-6 h-6" />} color="primary" />
         <StatCard title="Guru / Pengajar" value={stats.teachers} icon={<Award className="w-6 h-6" />} color="secondary" />
         <StatCard title="Staf Administrasi" value={stats.staff} icon={<ShieldCheck className="w-6 h-6" />} color="tertiary" />
+        <StatCard title="Tersertifikasi" value={stats.certifiedCount} icon={<CheckCircle2 className="w-4 h-4 text-white" />} color="success" />
       </div>
 
       {/* Filter Section */}
@@ -335,15 +339,16 @@ function StatCard({ title, value, icon, color }: any) {
     primary: "bg-primary/10 text-primary border-primary/20",
     secondary: "bg-secondary/10 text-secondary border-secondary/20",
     tertiary: "bg-tertiary/10 text-tertiary border-tertiary/20",
+    success: "bg-success-container/30 text-success border-success/20",
   };
 
   return (
-    <div className={cn("p-6 rounded-2xl border flex items-center gap-4 bg-surface-container-lowest shadow-sm relative overflow-hidden", colorClasses[color])}>
+    <div className={cn("p-4 sm:p-6 rounded-2xl border flex items-center gap-3 sm:gap-4 bg-surface-container-lowest shadow-sm relative overflow-hidden", colorClasses[color])}>
       <div className="p-3 rounded-xl bg-current opacity-10" />
-      <div className="absolute p-3">{icon}</div>
-      <div className="ml-12">
-        <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">{title}</p>
-        <p className="text-2xl font-black">{value}</p>
+      <div className="absolute left-4 sm:left-6">{icon}</div>
+      <div className="ml-10 sm:ml-12">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 truncate max-w-[100px] sm:max-w-none">{title}</p>
+        <p className="text-xl sm:text-2xl font-black leading-none mt-1">{value}</p>
       </div>
     </div>
   );

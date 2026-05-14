@@ -86,6 +86,9 @@ export declare class ExamsController {
                 id: string;
                 major_id: string | null;
                 name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
             };
         } & {
             id: string;
@@ -104,46 +107,7 @@ export declare class ExamsController {
             last_page: number;
         };
     }>;
-    findOne(id: string): Promise<{
-        major: {
-            id: string;
-            name: string;
-            branch_id: string;
-            created_at: Date;
-            code: string;
-        };
-        _count: {
-            sessions: number;
-        };
-        subject: {
-            id: string;
-            major_id: string | null;
-            name: string;
-        };
-        questions: ({
-            options: {
-                id: string;
-                option_text: string;
-                is_correct: boolean;
-                question_id: string;
-            }[];
-        } & {
-            id: string;
-            type: string;
-            question_text: string;
-            difficulty: string;
-            exam_id: string;
-        })[];
-    } & {
-        id: string;
-        major_id: string;
-        subject_id: string;
-        start_time: Date;
-        end_time: Date;
-        title: string;
-        duration: number;
-        token: string;
-    }>;
+    findOne(id: string, req: any): Promise<any>;
     getMonitoring(id: string): Promise<{
         exam: {
             major: {
@@ -157,6 +121,9 @@ export declare class ExamsController {
                 id: string;
                 major_id: string | null;
                 name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
             };
         } & {
             id: string;
@@ -197,17 +164,7 @@ export declare class ExamsController {
             warning_count: number;
         })[];
     }>;
-    getQuestions(id: string): Promise<{
-        options: {
-            id: string;
-            option_text: string;
-        }[];
-        id: string;
-        type: string;
-        question_text: string;
-        difficulty: string;
-        exam_id: string;
-    }[]>;
+    getQuestions(id: string): Promise<any>;
     update(id: string, data: any): Promise<{
         major: {
             id: string;
@@ -220,6 +177,9 @@ export declare class ExamsController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
     } & {
         id: string;
@@ -275,5 +235,55 @@ export declare class ExamsController {
         question_text: string;
         difficulty: string;
         exam_id: string;
+    }>;
+    getSessionQuestions(sessionId: string): Promise<{
+        id: string;
+        exam_id: string;
+        type: string;
+        question_text: string;
+        difficulty: string;
+        options: {
+            id: string;
+            option_text: string;
+        }[];
+    }[]>;
+    getSessionAnswersDetail(sessionId: string): Promise<{
+        session: {
+            id: string;
+            status: string;
+            student: {
+                full_name: string;
+                nis: string;
+            } | null;
+            applicant: {
+                full_name: string;
+            } | null;
+            exam_title: string;
+        };
+        questions: {
+            student_answer: {
+                id: string;
+                question_id: string;
+                answer: string;
+                score: import("@prisma/client/runtime/library").Decimal | null;
+                session_id: string;
+            } | null;
+            options: {
+                id: string;
+                option_text: string;
+                is_correct: boolean;
+                question_id: string;
+            }[];
+            id: string;
+            type: string;
+            question_text: string;
+            difficulty: string;
+            exam_id: string;
+        }[];
+    }>;
+    gradeEssay(id: string, data: any): Promise<{
+        score: number;
+        total_points: number;
+        total_questions: number;
     }>;
 }

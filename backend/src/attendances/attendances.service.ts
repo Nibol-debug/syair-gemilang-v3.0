@@ -7,6 +7,13 @@ export class AttendancesService {
   constructor(private prisma: PrismaService) {}
 
   async bulkCreate(data: BulkCreateAttendanceDto) {
+    await this.prisma.attendance.deleteMany({
+      where: {
+        schedule_id: data.schedule_id,
+        date: data.date,
+      },
+    });
+
     const records = data.attendances.map((a) => ({
       schedule_id: data.schedule_id,
       date: data.date,

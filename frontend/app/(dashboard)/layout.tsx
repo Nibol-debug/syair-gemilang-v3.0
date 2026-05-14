@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
+import { getToken } from "@/lib/api";
 
 export default function DashboardLayout({
   children,
@@ -12,9 +13,10 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (!token || token === 'undefined' || token === 'null') {
       router.push('/login');
     } else {
@@ -27,11 +29,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-surface text-on-surface">
-      <Sidebar />
-      <div className="flex-1 flex flex-col md:pl-[240px]">
-        <Navbar />
-        <main className="p-8">
+    <div className="flex h-[100dvh] bg-surface text-on-surface overflow-hidden">
+      <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <div className="flex-1 flex flex-col md:pl-[240px] h-full overflow-hidden">
+        <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
           {children}
         </main>
       </div>

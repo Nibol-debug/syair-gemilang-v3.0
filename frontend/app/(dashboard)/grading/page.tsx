@@ -20,9 +20,13 @@ import {
   Loader2,
   BarChart3,
   AlertTriangle,
-  FileText
+  FileText,
+  Save,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/lib/useUserRole';
+import { StudentGradingView } from '@/components/grading/StudentGradingView';
 
 const stats = [
   { label: 'Total Nilai Diproses', value: '1,248', trend: '+12%', icon: BarChart2, color: 'primary' },
@@ -31,14 +35,16 @@ const stats = [
   { label: 'Perlu Remedial', value: '96', trend: 'Tindakan Dibutuhkan', icon: AlertCircle, color: 'error' },
 ];
 
-export default function GradingPage() {
+function TeacherGradingView() {
   const router = useRouter();
   const [grades, setGrades] = useState<any[]>([]);
+  const [gradingStats, setGradingStats] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [selectedClass, setSelectedClass] = useState('');
@@ -50,6 +56,48 @@ export default function GradingPage() {
     subject_id: '',
     semester: 1
   });
+
+  const [inputData, setInputData] = useState({
+    student_id: '',
+    type: 'assignment',
+    score: '',
+    weight: '1.0'
+  });
+
+  const fetchGradingStats = async () => {
+    try {
+      const res = await apiRequest('/stats/grading');
+      setGradingStats(res);
+    } catch (err) {
+      console.error('Gagal mengambil statistik nilai:', err);
+    }
+  };
+
+  const handleInputGrade = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await apiRequest('/grades', {
+        method: 'POST',
+        body: JSON.stringify({
+          student_id: inputData.student_id,
+          subject_id: selectedSubject,
+          type: inputData.type,
+          score: Number(inputData.score),
+          weight: Number(inputData.weight)
+        })
+      });
+      alert('Input nilai berhasil!');
+      setIsInputModalOpen(false);
+      setInputData({ ...inputData, score: '' });
+      fetchGrades();
+      fetchGradingStats();
+    } catch (err: any) {
+      alert('Gagal input nilai: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const fetchInitialData = async () => {
     try {
@@ -65,6 +113,7 @@ export default function GradingPage() {
         setSelectedSubject(subjectsRes.data[0].id);
         setFormData(prev => ({ ...prev, subject_id: subjectsRes.data[0].id }));
       }
+      fetchGradingStats();
     } catch (err) {
       console.error('Gagal mengambil data awal:', err);
     }
@@ -88,14 +137,14 @@ export default function GradingPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       fetchInitialData();
     }
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token && selectedClass && selectedSubject) {
       fetchGrades();
     }
@@ -105,23 +154,31 @@ export default function GradingPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await apiRequest('/grades/finalize', {
+      const response = await apiRequest('/grades/finalize-class', {
         method: 'POST',
         body: JSON.stringify({
-          student_id: formData.student_id,
+          class_id: selectedClass,
           subject_id: selectedSubject,
           semester: Number(formData.semester)
         })
       });
-      alert('Finalisasi nilai berhasil!');
+      alert(response.message || 'Finalisasi nilai kelas berhasil!');
       setIsModalOpen(false);
       fetchGrades();
+      fetchGradingStats();
     } catch (err: any) {
       alert('Gagal finalisasi: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const activeStats = [
+    { label: 'Total Nilai Diproses', value: gradingStats?.totalGrades?.toLocaleString() || '0', trend: '+12%', icon: BarChart2, color: 'primary' },
+    { label: 'Rata-rata Nilai', value: gradingStats?.averageScore?.toString() || '0', trend: 'Target 75', icon: TrendingUp, color: 'secondary' },
+    { label: 'Siswa Lulus (KKM)', value: gradingStats?.passedCount?.toLocaleString() || '0', trend: `${gradingStats?.passPercentage || 0}% Siswa`, icon: CheckCircle2, color: 'success' },
+    { label: 'Perlu Remedial', value: gradingStats?.remedialCount?.toLocaleString() || '0', trend: 'Tindakan Dibutuhkan', icon: AlertCircle, color: 'error' },
+  ];
 
   return (
     <div className="space-y-10">
@@ -137,11 +194,19 @@ export default function GradingPage() {
             Manajemen evaluasi hasil belajar siswa yang komprehensif, mencakup integrasi nilai CBT, tugas harian, dan ujian akhir semester.
           </p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={() => router.push('/grading/settings')}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <Settings className="w-4.5 h-4.5" />
+            <span>Settings</span>
+          </button>
           <button
             onClick={() => router.push('/grading/report-cards')}
             className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
           >
+
             <FileText className="w-4.5 h-4.5" />
             <span>E-Rapor</span>
           </button>
@@ -167,6 +232,18 @@ export default function GradingPage() {
             <span>Ekspor PDF</span>
           </button>
           <button
+            onClick={() => {
+              if (grades.length > 0) {
+                setInputData({ ...inputData, student_id: grades[0].id });
+              }
+              setIsInputModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <Edit className="w-4.5 h-4.5" />
+            <span>Input Nilai</span>
+          </button>
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-95 transition-all active:scale-95 shadow-xl shadow-primary/20"
           >
@@ -177,7 +254,7 @@ export default function GradingPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
+        {activeStats.map((stat, i) => (
           <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 shadow-sm flex flex-col relative overflow-hidden group hover:border-primary/30 transition-colors">
             <div className="flex justify-between items-start mb-4">
               <div className={cn(
@@ -200,7 +277,7 @@ export default function GradingPage() {
               </span>
             </div>
             <p className="text-[11px] font-bold text-outline uppercase tracking-[0.1em] mb-1">{stat.label}</p>
-            <h3 className="text-3xl font-bold text-on-surface tracking-tight">{stat.value}</h3>
+            <h4 className="text-3xl font-black text-on-surface tracking-tighter">{stat.value}</h4>
           </div>
         ))}
       </div>
@@ -300,7 +377,14 @@ export default function GradingPage() {
                   </td>
                   <td className="px-8 py-5 text-right">
                     <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all transform scale-95 group-hover:scale-100">
-                      <button className="p-2 text-primary hover:bg-primary-fixed/50 rounded-lg transition-colors" title="Edit">
+                      <button 
+                        onClick={() => {
+                          setInputData({ ...inputData, student_id: item.id });
+                          setIsInputModalOpen(true);
+                        }}
+                        className="p-2 text-primary hover:bg-primary-fixed/50 rounded-lg transition-colors" 
+                        title="Input Nilai"
+                      >
                         <Edit className="w-5 h-5" />
                       </button>
                       <button className="p-2 text-outline hover:bg-surface-container-high rounded-lg transition-colors" title="History">
@@ -320,7 +404,7 @@ export default function GradingPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
-              <h3 className="text-lg font-bold text-on-surface">Finalisasi Nilai Akhir</h3>
+              <h3 className="text-lg font-bold text-on-surface">Finalisasi Nilai Satu Kelas</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -328,25 +412,33 @@ export default function GradingPage() {
             
             <div className="p-6 overflow-y-auto">
               <form id="finalizeForm" onSubmit={handleFinalize} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-on-surface-variant">Pilih Siswa</label>
-                  <select required value={formData.student_id} onChange={e => setFormData({...formData, student_id: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
-                    <option value="" disabled>-- Pilih Siswa --</option>
-                    {students.map(s => <option key={s.id} value={s.id}>{s.full_name} ({s.nis})</option>)}
-                  </select>
+                <div className="p-4 bg-surface-container-high rounded-xl border border-outline-variant/50 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-outline uppercase">Kelas</span>
+                    <span className="text-sm font-bold text-on-surface">{classes.find(c => c.id === selectedClass)?.name || '-'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-outline uppercase">Mata Pelajaran</span>
+                    <span className="text-sm font-bold text-on-surface">{subjects.find(s => s.id === selectedSubject)?.name || '-'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-outline uppercase">Total Siswa</span>
+                    <span className="text-sm font-bold text-primary">{students.length} Siswa</span>
+                  </div>
                 </div>
-                
+
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-on-surface-variant">Semester</label>
-                  <select required value={formData.semester} onChange={e => setFormData({...formData, semester: Number(e.target.value)})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                  <select required value={formData.semester} onChange={e => setFormData({...formData, semester: Number(e.target.value)})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none font-semibold">
                     <option value={1}>1 (Ganjil)</option>
                     <option value={2}>2 (Genap)</option>
                   </select>
                 </div>
 
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
-                  <p className="text-sm font-medium text-primary">
-                    Peringatan: Finalisasi akan mengunci seluruh perhitungan nilai komponen (Tugas, UTS, UAS, CBT) menjadi nilai rapor akhir.
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl flex gap-3">
+                  <AlertCircle className="w-5 h-5 text-primary shrink-0" />
+                  <p className="text-[11px] font-medium text-primary leading-relaxed">
+                    Peringatan: Finalisasi akan memproses seluruh nilai komponen (Tugas, UTS, UAS, CBT) menjadi nilai rapor akhir untuk <span className="font-bold underline">seluruh siswa</span> di kelas ini secara otomatis.
                   </p>
                 </div>
               </form>
@@ -354,9 +446,81 @@ export default function GradingPage() {
 
             <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors">Batal</button>
-              <button type="submit" form="finalizeForm" disabled={isSubmitting || !formData.student_id} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
+              <button type="submit" form="finalizeForm" disabled={isSubmitting || !selectedClass || !selectedSubject} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg shadow-primary/20">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Verified className="w-4 h-4" />}
-                <span>Proses Finalisasi</span>
+                <span>Proses Finalisasi Kelas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Input Nilai Manual */}
+      {isInputModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+              <h3 className="text-lg font-bold text-on-surface flex items-center gap-2"><Edit className="w-5 h-5 text-primary" />Input Nilai Manual</h3>
+              <button onClick={() => setIsInputModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              <form id="inputGradeForm" onSubmit={handleInputGrade} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant">Pilih Siswa</label>
+                  <select required value={inputData.student_id} onChange={e => setInputData({...inputData, student_id: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                    <option value="" disabled>-- Pilih Siswa --</option>
+                    {students.map(s => <option key={s.id} value={s.id}>{s.full_name} ({s.nis})</option>)}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-on-surface-variant">Tipe Nilai</label>
+                    <select required value={inputData.type} onChange={e => setInputData({...inputData, type: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+                      <option value="assignment">Tugas</option>
+                      <option value="uts">UTS</option>
+                      <option value="uas">UAS</option>
+                      <option value="cbt">CBT</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-on-surface-variant">Bobot (0-1)</label>
+                    <input 
+                      type="number" step="0.1" min="0" max="1" required 
+                      value={inputData.weight} 
+                      onChange={e => setInputData({...inputData, weight: e.target.value})}
+                      className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant">Nilai (0-100)</label>
+                  <input 
+                    type="number" min="0" max="100" required 
+                    value={inputData.score} 
+                    onChange={e => setInputData({...inputData, score: e.target.value})}
+                    placeholder="Masukkan nilai siswa..."
+                    className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                  />
+                </div>
+
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                  <p className="text-[11px] font-medium text-primary leading-relaxed">
+                    Catatan: Nilai yang diinput akan diakumulasikan dalam perhitungan nilai akhir saat proses finalisasi dilakukan.
+                  </p>
+                </div>
+              </form>
+            </div>
+
+            <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+              <button type="button" onClick={() => setIsInputModalOpen(false)} className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors">Batal</button>
+              <button type="submit" form="inputGradeForm" disabled={isSubmitting || !inputData.student_id} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                <span>Simpan Nilai</span>
               </button>
             </div>
           </div>
@@ -364,4 +528,17 @@ export default function GradingPage() {
       )}
     </div>
   );
+}
+
+export default function GradingPage() {
+  const { canManageGrades, user } = useUserRole();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+
+  return canManageGrades ? <TeacherGradingView /> : <StudentGradingView user={user} />;
 }

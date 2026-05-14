@@ -34,6 +34,7 @@ export function useUserRole() {
     canManageFinance: FINANCE_ROLES.includes(role),
     canManageAssets: ['Administrator Utama', 'Staf Sarpras'].includes(role),
     canManageUsers: ADMIN_ROLES.includes(role),
+    canManageAcademic: ADMIN_ROLES.includes(role),
     canViewOnly: ['Siswa', 'Orang Tua', 'Kepala Sekolah'].includes(role),
   };
 }

@@ -17,6 +17,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/lib/useUserRole';
 
 interface ReportCardData {
   student: {
@@ -70,8 +71,10 @@ export default function ReportCardsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const { canManageGrades } = useUserRole();
 
   const fetchClassesAndStudents = async () => {
+    if (canManageGrades === false) return;
     try {
       const [classesRes, studentsRes] = await Promise.all([
         apiRequest('/classes'),
@@ -115,7 +118,7 @@ export default function ReportCardsPage() {
   const downloadReportCard = async (studentId: string) => {
     setIsDownloading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/report-cards/student/${studentId}/semester/${selectedSemester}/pdf`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -160,6 +163,18 @@ export default function ReportCardsPage() {
     };
     return colors[grade] || 'bg-surface-container-high text-on-surface-variant';
   };
+
+  if (canManageGrades === false) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertCircle className="w-16 h-16 text-error mb-4" />
+        <h3 className="text-2xl font-bold text-on-surface mb-2">Akses Ditolak</h3>
+        <p className="text-on-surface-variant max-w-[28rem]">
+          Anda tidak memiliki izin untuk mengakses halaman manajemen rapor kelas.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

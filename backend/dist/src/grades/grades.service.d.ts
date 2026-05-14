@@ -1,10 +1,20 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateGradeDto, FinalizeGradeDto } from './dto/grade.dto';
+import { CreateGradeDto, FinalizeGradeDto, UpdateGradeComponentDto } from './dto/grade.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Prisma } from '@prisma/client';
 export declare class GradesService {
     private prisma;
     constructor(prisma: PrismaService);
+    getGradeComponents(): Promise<{
+        id: string;
+        name: string;
+        weight_percentage: Prisma.Decimal;
+    }[]>;
+    updateGradeComponent(data: UpdateGradeComponentDto): Promise<{
+        id: string;
+        name: string;
+        weight_percentage: Prisma.Decimal;
+    }>;
     private generateDescription;
     create(data: CreateGradeDto): Promise<{
         id: string;
@@ -15,8 +25,8 @@ export declare class GradesService {
         student_id: string | null;
         type: string;
         subject_id: string;
-        exam_id: string | null;
         score: Prisma.Decimal;
+        exam_id: string | null;
         weight: Prisma.Decimal;
     }>;
     findByStudent(studentId: string, pagination: PaginationDto): Promise<{
@@ -25,6 +35,9 @@ export declare class GradesService {
                 id: string;
                 major_id: string | null;
                 name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
             };
             exam: {
                 id: string;
@@ -45,8 +58,8 @@ export declare class GradesService {
             student_id: string | null;
             type: string;
             subject_id: string;
-            exam_id: string | null;
             score: Prisma.Decimal;
+            exam_id: string | null;
             weight: Prisma.Decimal;
         })[];
         meta: {
@@ -69,11 +82,22 @@ export declare class GradesService {
         grade_letter: string;
         is_passed: boolean;
     }>;
+    finalizeClassGrades(data: {
+        class_id: string;
+        subject_id: string;
+        semester: number;
+    }): Promise<{
+        message: string;
+        finalized_count: number;
+    }>;
     getFinalReport(studentId: string): Promise<({
         subject: {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
     } & {
         id: string;

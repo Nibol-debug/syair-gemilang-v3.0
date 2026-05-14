@@ -29,3 +29,8 @@ export class LogViolationDto {
   @IsString()
   description?: string;
 }
+
+export class GradeEssayDto {
+  @IsNotEmpty()
+  score: number;
+}

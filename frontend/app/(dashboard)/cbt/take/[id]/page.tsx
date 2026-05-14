@@ -37,7 +37,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   const warningsRef = useRef(0);
 
   useEffect(() => {
-    const t = localStorage.getItem('token');
+    const t = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (t && id) {
       apiRequest(`/exams/${id}`).then(d => setExam(d)).catch(e => setError(e.message)).finally(() => setIsLoading(false));
     }
@@ -116,10 +116,14 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     setIsStarting(true); setError('');
     try {
       try { await document.documentElement.requestFullscreen(); } catch {}
+      // 1. Start exam session dengan token
       const sess = await apiRequest(`/exams/${id}/start`, { method: 'POST', body: JSON.stringify({ token, device_id: navigator.userAgent }) });
       setSession(sess);
-      const qs = await apiRequest(`/exams/${id}/questions`);
+      
+      // 2. Fetch questions dari session (endpoint baru untuk siswa)
+      const qs = await apiRequest(`/exams/sessions/${sess.id}/questions`);
       setQuestions(shuffleArray(qs).map((q: any) => ({ ...q, options: q.options ? shuffleArray(q.options) : [] })));
+      
       const dur = exam.duration * 60;
       const elapsed = (Date.now() - new Date(sess.start_time).getTime()) / 1000;
       setTimeLeft(Math.max(0, Math.floor(dur - elapsed)));
@@ -167,7 +171,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   // --- DISQUALIFIED SCREEN ---
   if (isDisqualified) return (
     <div className="min-h-screen bg-error/5 flex items-center justify-center p-6">
-      <div className="bg-surface-container-lowest border-2 border-error/30 rounded-3xl p-12 max-w-md w-full shadow-2xl text-center space-y-6">
+      <div className="bg-surface-container-lowest border-2 border-error/30 rounded-3xl p-12 max-w-[28rem] w-full shadow-2xl text-center space-y-6">
         <div className="w-24 h-24 bg-error/10 rounded-full flex items-center justify-center mx-auto"><XCircle className="w-14 h-14 text-error" /></div>
         <h2 className="text-2xl font-black text-error">DISKUALIFIKASI</h2>
         <p className="text-on-surface-variant font-medium leading-relaxed">Anda telah melanggar aturan ujian sebanyak <strong className="text-error">{WARNING_LIMIT} kali</strong>. Ujian telah dikumpulkan otomatis dan dilaporkan ke pengawas.</p>
@@ -186,7 +190,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
   // --- TOKEN ENTRY SCREEN ---
   if (!session) return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-6">
-      <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 max-w-md w-full shadow-2xl space-y-8">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-10 max-w-[28rem] w-full shadow-2xl space-y-8">
         <div className="text-center space-y-2">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto mb-4"><Lock className="w-8 h-8" /></div>
           <h2 className="text-2xl font-black text-on-surface tracking-tight">Konfirmasi Token</h2>
@@ -222,7 +226,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
       {/* Warning Overlay */}
       {showWarningOverlay && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-error/20 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-none">
-          <div className="bg-error text-on-error px-10 py-8 rounded-3xl shadow-2xl text-center max-w-md pointer-events-auto">
+          <div className="bg-error text-on-error px-10 py-8 rounded-3xl shadow-2xl text-center max-w-[28rem] pointer-events-auto">
             <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
             <p className="text-lg font-black">{warningMsg}</p>
             <p className="text-sm font-bold mt-3 opacity-80">Jika mencapai {WARNING_LIMIT}x, ujian otomatis dikumpulkan!</p>

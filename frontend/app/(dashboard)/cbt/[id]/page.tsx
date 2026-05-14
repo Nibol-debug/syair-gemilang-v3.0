@@ -5,7 +5,7 @@ import { apiRequest } from '@/lib/api';
 import { 
   Plus, Trash2, ChevronLeft, Save, CheckSquare, Type, Loader2,
   AlertCircle, GripVertical, Activity, Users, Eye, Shield,
-  RefreshCw, StopCircle, Clock, AlertTriangle
+  RefreshCw, StopCircle, Clock, AlertTriangle, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -20,6 +20,13 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
   // Monitoring
   const [monitoring, setMonitoring] = useState<any>(null);
   const [isLoadingMonitoring, setIsLoadingMonitoring] = useState(false);
+
+  // Evaluation
+  const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [evalDetail, setEvalDetail] = useState<any>(null);
+  const [isLoadingEval, setIsLoadingEval] = useState(false);
+  const [evalScores, setEvalScores] = useState<Record<string, number>>({});
 
   // Question Form State
   const [showAddForm, setShowAddForm] = useState(false);
@@ -59,7 +66,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token && id) fetchExam();
   }, [id]);
 
@@ -115,6 +122,40 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
       fetchMonitoring();
     } catch (err: any) {
       alert('Gagal: ' + err.message);
+    }
+  };
+
+  const handleOpenEval = async (session: any) => {
+    setSelectedSession(session);
+    setIsEvalModalOpen(true);
+    setIsLoadingEval(true);
+    try {
+      const data = await apiRequest(`/exams/sessions/${session.id}/answers-detail`);
+      setEvalDetail(data);
+      // Initialize scores from existing data
+      const initialScores: Record<string, number> = {};
+      data.questions.forEach((q: any) => {
+        if (q.type === 'essay' && q.student_answer) {
+          initialScores[q.student_answer.id] = Number(q.student_answer.score || 0);
+        }
+      });
+      setEvalScores(initialScores);
+    } catch (err) {
+      console.error('Failed to fetch evaluation detail', err);
+    } finally {
+      setIsLoadingEval(false);
+    }
+  };
+
+  const handleUpdateEssayScore = async (answerId: string) => {
+    try {
+      await apiRequest(`/exams/answers/${answerId}/score`, {
+        method: 'PATCH',
+        body: JSON.stringify({ score: Number(evalScores[answerId] || 0) })
+      });
+      alert('Nilai berhasil disimpan!');
+    } catch (err: any) {
+      alert('Gagal menyimpan nilai: ' + err.message);
     }
   };
 
@@ -348,6 +389,7 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
 
       {/* TAB: Monitoring */}
       {activeTab === 'monitoring' && (
+        <>
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-bold text-on-surface">Monitor Sesi Ujian Real-time</h3>
@@ -414,14 +456,24 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
                           {new Date(s.start_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="py-4 px-6 text-right">
-                          {s.status === 'ongoing' && (
-                            <button onClick={() => handleForceSubmit(s.id)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error/10 text-error text-[10px] font-bold uppercase tracking-wider hover:bg-error/20 transition-colors opacity-0 group-hover:opacity-100"
-                              title="Paksa kumpulkan">
-                              <StopCircle className="w-3.5 h-3.5" />
-                              Force Submit
-                            </button>
-                          )}
+                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                            {s.status === 'submitted' && (
+                              <button onClick={() => handleOpenEval(s)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary/20 transition-colors"
+                                title="Evaluasi Jawaban">
+                                <CheckSquare className="w-3.5 h-3.5" />
+                                Evaluasi
+                              </button>
+                            )}
+                            {s.status === 'ongoing' && (
+                              <button onClick={() => handleForceSubmit(s.id)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error/10 text-error text-[10px] font-bold uppercase tracking-wider hover:bg-error/20 transition-colors"
+                                title="Paksa kumpulkan">
+                                <StopCircle className="w-3.5 h-3.5" />
+                                Force Submit
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -431,6 +483,98 @@ export default function ExamDetailPage({ params }: { params: Promise<{ id: strin
             </table>
           </div>
         </div>
+
+        {/* Evaluation Modal */}
+        {isEvalModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-surface-container-lowest w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
+                <div className="flex flex-col">
+                  <h3 className="text-lg font-bold text-on-surface">Evaluasi Jawaban Siswa</h3>
+                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                    {selectedSession?.student?.full_name || selectedSession?.applicant?.full_name}
+                  </p>
+                </div>
+                <button onClick={() => setIsEvalModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto flex-1">
+                {isLoadingEval ? (
+                  <div className="flex flex-col items-center justify-center py-12 gap-3">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    <p className="text-xs font-bold text-outline uppercase tracking-widest">Memuat Jawaban...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {evalDetail?.questions.map((q: any, i: number) => (
+                      <div key={q.id} className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/30">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase">Pertanyaan {i + 1} ({q.type})</span>
+                          {q.type === 'mcq' && (
+                            <span className={cn(
+                              "px-2 py-0.5 text-[10px] font-bold rounded uppercase",
+                              q.student_answer?.answer === q.options.find((o: any) => o.is_correct)?.option_text 
+                                ? "bg-success-container/30 text-success" 
+                                : "bg-error-container/20 text-error"
+                            )}>
+                              {q.student_answer?.answer === q.options.find((o: any) => o.is_correct)?.option_text ? 'Benar' : 'Salah'}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold text-on-surface mb-3">{q.question_text}</p>
+                        
+                        <div className="bg-surface p-3 rounded-lg border border-outline-variant/50">
+                          <label className="text-[10px] font-bold text-outline uppercase tracking-widest mb-1 block">Jawaban Siswa:</label>
+                          <p className="text-sm text-on-surface-variant font-medium italic whitespace-pre-wrap">
+                            {q.student_answer?.answer || <span className="text-error font-bold not-italic">TIDAK MENJAWAB</span>}
+                          </p>
+                        </div>
+
+                        {q.type === 'essay' && q.student_answer && (
+                          <div className="mt-4 flex items-center gap-4 pt-4 border-t border-outline-variant/30">
+                            <div className="flex-1">
+                              <label className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1 block">Berikan Nilai (0-1):</label>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="number" step="0.1" min="0" max="1"
+                                  value={evalScores[q.student_answer.id] ?? 0}
+                                  onChange={(e) => setEvalScores({...evalScores, [q.student_answer.id]: Number(e.target.value)})}
+                                  className="w-24 px-3 py-2 bg-surface border border-outline-variant rounded-lg text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
+                                />
+                                <button 
+                                  onClick={() => handleUpdateEssayScore(q.student_answer.id)}
+                                  className="px-4 py-2 bg-primary text-on-primary text-[11px] font-bold rounded-lg hover:opacity-90 transition-opacity"
+                                >
+                                  Simpan
+                                </button>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-[10px] font-bold text-outline uppercase">Maksimal</p>
+                              <p className="text-lg font-bold text-on-surface">1.0</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-between items-center">
+                <p className="text-xs font-bold text-on-surface-variant">
+                  * MCQ dihitung otomatis 1.0 jika benar, Essay dinilai manual (0-1).
+                </p>
+                <button onClick={() => { setIsEvalModalOpen(false); fetchMonitoring(); }} className="px-6 py-2.5 rounded-xl bg-outline-variant/20 text-on-surface-variant text-sm font-bold hover:bg-outline-variant/30 transition-all">
+                  Selesai & Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
     </div>
   );

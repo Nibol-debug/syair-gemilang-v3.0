@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Put } from '@nestjs/common';
 import { GradesService } from './grades.service';
-import { CreateGradeDto, FinalizeGradeDto } from './dto/grade.dto';
+import { CreateGradeDto, FinalizeGradeDto, FinalizeClassGradeDto, UpdateGradeComponentDto } from './dto/grade.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -10,6 +10,18 @@ import { Roles } from '../common/decorators/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class GradesController {
   constructor(private readonly gradesService: GradesService) {}
+
+  @Get('components')
+  @Roles('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran')
+  getGradeComponents() {
+    return this.gradesService.getGradeComponents();
+  }
+
+  @Put('components')
+  @Roles('Administrator Utama')
+  updateGradeComponent(@Body() updateGradeComponentDto: UpdateGradeComponentDto) {
+    return this.gradesService.updateGradeComponent(updateGradeComponentDto);
+  }
 
   @Post()
   @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
@@ -26,6 +38,12 @@ export class GradesController {
   @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   finalize(@Body() finalizeGradeDto: FinalizeGradeDto) {
     return this.gradesService.finalizeGrade(finalizeGradeDto);
+  }
+
+  @Post('finalize-class')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
+  finalizeClass(@Body() finalizeClassGradeDto: FinalizeClassGradeDto) {
+    return this.gradesService.finalizeClassGrades(finalizeClassGradeDto);
   }
 
   @Get('final/:student_id')

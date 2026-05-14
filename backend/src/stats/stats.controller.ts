@@ -37,4 +37,10 @@ export class StatsController {
   getEmployeeStats() {
     return this.statsService.getEmployeeStats();
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('grading')
+  getGradingStats() {
+    return this.statsService.getGradingStats();
+  }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Loader2, Trash2, Save, Eye, User, Phone, Mail, MapPin, Calendar, BookOpen, Briefcase, GraduationCap, FileText, Upload, Download, CheckCircle2, Plus, Edit } from 'lucide-react';
+import { X, Loader2, Trash2, Save, Eye, User, Phone, Mail, MapPin, Calendar, BookOpen, Briefcase, GraduationCap, FileText, Upload, Download, CheckCircle2, Plus, Edit, ShieldCheck, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 
@@ -90,7 +90,7 @@ export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }
           </button>
         </div>
         
-        <div className="p-8 overflow-y-auto flex-1 text-sm">
+        <div className="p-4 md:p-8 overflow-y-auto flex-1 text-sm">
           {activeTab === 'profile' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center gap-6 pb-6 border-b border-outline-variant/50">
@@ -112,7 +112,7 @@ export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
                 <div className="space-y-4">
                   <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Informasi Dasar</h5>
                   <div className="space-y-3">
@@ -124,14 +124,26 @@ export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }
                       <GraduationCap className="w-4 h-4 text-outline" />
                       <span>Pendidikan Terakhir: {employee.education}</span>
                     </div>
+                    <div className="flex items-center gap-3 text-on-surface-variant font-medium">
+                      <ShieldCheck className="w-4 h-4 text-outline" />
+                      <span>Pangkat/Gol: {employee.current_rank || '-'} / {employee.current_golongan || '-'}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-on-surface-variant font-medium">
+                      <Award className="w-4 h-4 text-outline" />
+                      <span>Sertifikasi: {employee.certification_status || 'Belum Sertifikasi'}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Departemen / Bidang</h5>
-                  <div className="bg-surface-container rounded-2xl p-5 border border-outline-variant/30 shadow-inner">
+                  <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Departemen & Spesialisasi</h5>
+                  <div className="bg-surface-container rounded-2xl p-5 border border-outline-variant/30 shadow-inner space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-outline font-bold text-[10px] uppercase tracking-widest">Jurusan</span>
                       <span className="text-on-surface font-bold">{employee.major?.name || '-'}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-3 border-t border-outline-variant/30">
+                      <span className="text-outline font-bold text-[10px] uppercase tracking-widest">Spesialisasi</span>
+                      <span className="text-on-surface font-bold text-xs">{employee.teaching_specialty || '-'}</span>
                     </div>
                   </div>
                 </div>
@@ -141,17 +153,40 @@ export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }
 
           {activeTab === 'education' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-               <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-4">Riwayat Pendidikan</h5>
-               <div className="bg-surface-container rounded-2xl p-6 border border-outline-variant/30">
-                 <div className="flex gap-4 items-start relative">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <GraduationCap className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-on-surface">{employee.education}</p>
-                      <p className="text-xs font-medium text-on-surface-variant mt-0.5">Pendidikan Terakhir yang Terdaftar</p>
-                    </div>
+               <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-4">Riwayat Pendidikan & Gelar</h5>
+               <div className="grid grid-cols-1 gap-4">
+                 <div className="bg-surface-container rounded-2xl p-6 border border-outline-variant/30 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <GraduationCap className="w-16 h-16" />
+                   </div>
+                   <div className="flex gap-4 items-start relative">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-lg font-bold text-on-surface">{employee.education} {employee.education_degree && `(${employee.education_degree})`}</p>
+                        <p className="text-sm font-bold text-primary">{employee.education_institution || 'Institusi tidak tercatat'}</p>
+                        <div className="flex items-center gap-4 mt-2">
+                          <span className="flex items-center gap-1.5 text-xs font-bold text-on-surface-variant bg-surface px-2.5 py-1 rounded-lg border border-outline-variant/50">
+                            <Calendar className="w-3 h-3" />
+                            Lulus Tahun: {employee.education_graduation_year || '-'}
+                          </span>
+                        </div>
+                      </div>
+                   </div>
                  </div>
+
+                 {employee.teaching_specialty && (
+                   <div className="bg-secondary-container/10 rounded-2xl p-6 border border-secondary/20 flex gap-4 items-center">
+                     <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                        <BookOpen className="w-5 h-5" />
+                     </div>
+                     <div>
+                        <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">Spesialisasi Mengajar</p>
+                        <p className="text-sm font-bold text-on-surface">{employee.teaching_specialty}</p>
+                     </div>
+                   </div>
+                 )}
                </div>
             </div>
           )}
@@ -171,7 +206,7 @@ export const ViewEmployeeModal = ({ employee: initialEmployee, isOpen, onClose }
                </div>
                
                {employee.documents && employee.documents.length > 0 ? (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                    {employee.documents.map((doc: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-4 border border-outline-variant rounded-xl bg-surface hover:bg-surface-container transition-colors group">
                         <div className="flex items-center gap-3">
@@ -220,7 +255,15 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
         position: employee.position,
         join_date: employee.join_date ? new Date(employee.join_date).toISOString().split('T')[0] : '',
         status: employee.status,
-        major_id: employee.major_id || ''
+        major_id: employee.major_id || '',
+        education_institution: employee.education_institution || '',
+        education_degree: employee.education_degree || '',
+        education_graduation_year: employee.education_graduation_year || '',
+        teaching_specialty: employee.teaching_specialty || '',
+        current_rank: employee.current_rank || '',
+        current_golongan: employee.current_golongan || '',
+        certification_status: employee.certification_status || 'Belum Sertifikasi',
+        is_certified: employee.is_certified || false
       });
     } else {
       setFormData({
@@ -229,7 +272,15 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
         position: '',
         join_date: new Date().toISOString().split('T')[0],
         status: 'active',
-        major_id: ''
+        major_id: '',
+        education_institution: '',
+        education_degree: '',
+        education_graduation_year: '',
+        teaching_specialty: '',
+        current_rank: '',
+        current_golongan: '',
+        certification_status: 'Belum Sertifikasi',
+        is_certified: false
       });
     }
   }, [employee, isOpen, isCreate]);
@@ -250,6 +301,14 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
         position: formData.position,
         join_date: new Date(formData.join_date).toISOString(),
         status: formData.status,
+        education_institution: formData.education_institution,
+        education_degree: formData.education_degree,
+        education_graduation_year: formData.education_graduation_year,
+        teaching_specialty: formData.teaching_specialty,
+        current_rank: formData.current_rank,
+        current_golongan: formData.current_golongan,
+        certification_status: formData.certification_status,
+        is_certified: formData.is_certified,
       };
       if (formData.major_id) payload.major_id = formData.major_id;
 
@@ -286,10 +345,10 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
               <input type="text" required value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pendidikan Terakhir</label>
-                <input type="text" required placeholder="Contoh: S1 Pendidikan" value={formData.education} onChange={e => setFormData({...formData, education: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+                <input type="text" required placeholder="Contoh: S1" value={formData.education} onChange={e => setFormData({...formData, education: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Jabatan</label>
@@ -297,7 +356,63 @@ export const EditEmployeeModal = ({ employee, isOpen, onClose, onSuccess, majors
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Profil Profesional Section */}
+            <div className="p-4 bg-surface-container rounded-2xl space-y-4 border border-outline-variant/30">
+              <h4 className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Profil Profesional & Pendidikan</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Institusi</label>
+                  <input type="text" placeholder="Nama Universitas/Sekolah" value={formData.education_institution} onChange={e => setFormData({...formData, education_institution: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Gelar / Bidang</label>
+                  <input type="text" placeholder="Contoh: S.Pd / Teknik Informatika" value={formData.education_degree} onChange={e => setFormData({...formData, education_degree: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tahun Lulus</label>
+                  <input type="text" placeholder="Tahun Lulus" value={formData.education_graduation_year} onChange={e => setFormData({...formData, education_graduation_year: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Spesialisasi Mapel</label>
+                  <input type="text" placeholder="Mata Pelajaran yang diampu" value={formData.teaching_specialty} onChange={e => setFormData({...formData, teaching_specialty: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+              </div>
+            </div>
+
+            {/* Masa Kerja & Sertifikasi */}
+            <div className="p-4 bg-surface-container rounded-2xl space-y-4 border border-outline-variant/30">
+              <h4 className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Manajemen Masa Kerja & Sertifikasi</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Pangkat</label>
+                  <input type="text" placeholder="Contoh: Pembina" value={formData.current_rank} onChange={e => setFormData({...formData, current_rank: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Golongan</label>
+                  <input type="text" placeholder="Contoh: IV/a" value={formData.current_golongan} onChange={e => setFormData({...formData, current_golongan: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status Sertifikasi</label>
+                  <select value={formData.certification_status} onChange={e => setFormData({...formData, certification_status: e.target.value, is_certified: e.target.value === 'Sudah Sertifikasi'})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none cursor-pointer">
+                    <option value="Belum Sertifikasi">Belum Sertifikasi</option>
+                    <option value="Sudah Sertifikasi">Sudah Sertifikasi</option>
+                    <option value="Proses">Dalam Proses</option>
+                  </select>
+                </div>
+                <div className="flex items-end pb-1.5">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={formData.is_certified} onChange={e => setFormData({...formData, is_certified: e.target.checked, certification_status: e.target.checked ? 'Sudah Sertifikasi' : 'Belum Sertifikasi'})} className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20" />
+                    <span className="text-sm font-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Telah Tersertifikasi</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tanggal Bergabung</label>
                 <input type="date" required value={formData.join_date} onChange={e => setFormData({...formData, join_date: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
@@ -373,7 +488,7 @@ export const DeleteEmployeeModal = ({ employee, isOpen, onClose, onSuccess }: an
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6 animate-in fade-in zoom-in duration-200">
+      <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-2xl shadow-2xl overflow-hidden p-4 md:p-8 text-center space-y-6 animate-in fade-in zoom-in duration-200">
         <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
           <Trash2 className="w-10 h-10" />
         </div>
@@ -383,7 +498,7 @@ export const DeleteEmployeeModal = ({ employee, isOpen, onClose, onSuccess }: an
             Anda akan menghapus data <span className="text-on-surface font-bold">"{employee.full_name}"</span>. Tindakan ini tidak dapat dibatalkan.
           </p>
         </div>
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
           <button onClick={onClose} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all active:scale-95">Batal</button>
           <button 
             onClick={handleDelete} 

@@ -207,7 +207,8 @@ export class ExamSessionsService {
       }
     });
 
-    const finalScore = totalMcq > 0 ? (score / totalMcq) * 100 : 0;
+    const totalQuestions = session.exam.questions.length;
+    const finalScore = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
 
     // Update Session Status
     await this.prisma.examSession.update({

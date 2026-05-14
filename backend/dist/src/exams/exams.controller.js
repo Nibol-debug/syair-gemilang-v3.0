@@ -37,8 +37,8 @@ let ExamsController = class ExamsController {
     findAll(pagination, major_id, subject_id, search) {
         return this.examsService.findAll(pagination, { major_id, subject_id, search });
     }
-    findOne(id) {
-        return this.examsService.findOne(id);
+    findOne(id, req) {
+        return this.examsService.findOne(id, req.user?.role);
     }
     getMonitoring(id) {
         return this.examsService.getMonitoring(id);
@@ -65,6 +65,15 @@ let ExamsController = class ExamsController {
     removeQuestion(questionId) {
         return this.examsService.deleteQuestion(questionId);
     }
+    async getSessionQuestions(sessionId) {
+        return this.examsService.getSessionQuestions(sessionId);
+    }
+    getSessionAnswersDetail(sessionId) {
+        return this.examsService.getSessionAnswersDetail(sessionId);
+    }
+    gradeEssay(id, data) {
+        return this.examsService.gradeEssay(id, data.score);
+    }
 };
 exports.ExamsController = ExamsController;
 __decorate([
@@ -90,6 +99,7 @@ __decorate([
 ], ExamsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Query)('major_id')),
     __param(2, (0, common_1.Query)('subject_id')),
@@ -100,13 +110,16 @@ __decorate([
 ], ExamsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ExamsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Get)(':id/monitoring'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -114,6 +127,7 @@ __decorate([
 ], ExamsController.prototype, "getMonitoring", null);
 __decorate([
     (0, common_1.Get)(':id/questions'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -162,6 +176,31 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ExamsController.prototype, "removeQuestion", null);
+__decorate([
+    (0, common_1.Get)('sessions/:sessionId/questions'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ExamsController.prototype, "getSessionQuestions", null);
+__decorate([
+    (0, common_1.Get)('sessions/:sessionId/answers-detail'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('sessionId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ExamsController.prototype, "getSessionAnswersDetail", null);
+__decorate([
+    (0, common_1.Patch)('answers/:id/score'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ExamsController.prototype, "gradeEssay", null);
 exports.ExamsController = ExamsController = __decorate([
     (0, common_1.Controller)('exams'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

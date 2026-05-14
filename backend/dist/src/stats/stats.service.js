@@ -172,7 +172,7 @@ let StatsService = class StatsService {
             this.prisma.employee.count({ where: { position: { contains: 'Guru' } } }),
             this.prisma.employee.count({ where: { NOT: { position: { contains: 'Guru' } } } }),
             this.prisma.employee.findMany({
-                select: { education: true, status: true, major_id: true }
+                select: { education: true, status: true, is_certified: true, certification_status: true }
             }),
         ]);
         const educationDist = {};
@@ -185,12 +185,43 @@ let StatsService = class StatsService {
             const label = e.status || 'unknown';
             statusDist[label] = (statusDist[label] || 0) + 1;
         });
+        const certifiedCount = employees.filter(e => e.is_certified).length;
+        const certificationDist = {
+            'Sudah Sertifikasi': certifiedCount,
+            'Belum Sertifikasi': total - certifiedCount
+        };
         return {
             total,
             teachers,
             staff,
+            certifiedCount,
             educationDistribution: Object.entries(educationDist).map(([name, value]) => ({ name, value })),
-            statusDistribution: Object.entries(statusDist).map(([name, value]) => ({ name, value }))
+            statusDistribution: Object.entries(statusDist).map(([name, value]) => ({ name, value })),
+            certificationDistribution: Object.entries(certificationDist).map(([name, value]) => ({ name, value }))
+        };
+    }
+    async getGradingStats() {
+        const [totalGrades, finalGrades] = await Promise.all([
+            this.prisma.grade.count(),
+            this.prisma.finalGrade.findMany({
+                select: { final_score: true, is_passed: true }
+            })
+        ]);
+        const totalFinalized = finalGrades.length;
+        const passedCount = finalGrades.filter(g => g.is_passed).length;
+        const remedialCount = totalFinalized - passedCount;
+        const averageScore = totalFinalized > 0
+            ? finalGrades.reduce((acc, g) => acc + Number(g.final_score), 0) / totalFinalized
+            : 0;
+        const passPercentage = totalFinalized > 0
+            ? (passedCount / totalFinalized) * 100
+            : 0;
+        return {
+            totalGrades,
+            averageScore: Math.round(averageScore * 10) / 10,
+            passedCount,
+            remedialCount,
+            passPercentage: Math.round(passPercentage),
         };
     }
 };

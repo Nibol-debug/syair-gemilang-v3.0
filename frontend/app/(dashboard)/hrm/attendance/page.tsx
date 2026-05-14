@@ -100,7 +100,7 @@ export default function EmployeeAttendancePage() {
          <div className="md:col-span-3">
             <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
                <div className="p-6 border-b border-outline-variant bg-surface flex justify-between items-center gap-4">
-                  <div className="relative flex-1 max-w-md">
+                  <div className="relative flex-1 max-w-[28rem]">
                     <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-outline" />
                     <input 
                       type="text" 

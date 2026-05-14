@@ -32,11 +32,15 @@ export declare class StatsController {
                 batch_id: string;
                 grade_level: number;
                 homeroom_teacher_id: string | null;
+                class_president_id: string | null;
             } | null;
             subject: {
                 id: string;
                 major_id: string | null;
                 name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
             };
         } & {
             id: string;
@@ -47,6 +51,8 @@ export declare class StatsController {
             subject_id: string;
             teacher_id: string;
             note: string;
+            material_summary: string | null;
+            assignment_given: string | null;
         })[];
     }> | Promise<{
         ongoingExams: number;
@@ -56,6 +62,9 @@ export declare class StatsController {
                 id: string;
                 major_id: string | null;
                 name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
             };
         } & {
             id: string;
@@ -66,8 +75,8 @@ export declare class StatsController {
             student_id: string | null;
             type: string;
             subject_id: string;
-            exam_id: string | null;
             score: import("@prisma/client/runtime/library").Decimal;
+            exam_id: string | null;
             weight: import("@prisma/client/runtime/library").Decimal;
         })[];
         unpaidFees: ({
@@ -108,6 +117,7 @@ export declare class StatsController {
         total: number;
         teachers: number;
         staff: number;
+        certifiedCount: number;
         educationDistribution: {
             name: string;
             value: number;
@@ -116,5 +126,16 @@ export declare class StatsController {
             name: string;
             value: number;
         }[];
+        certificationDistribution: {
+            name: string;
+            value: number;
+        }[];
+    }>;
+    getGradingStats(): Promise<{
+        totalGrades: number;
+        averageScore: number;
+        passedCount: number;
+        remedialCount: number;
+        passPercentage: number;
     }>;
 }

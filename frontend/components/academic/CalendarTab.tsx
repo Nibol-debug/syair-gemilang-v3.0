@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, X, Loader2, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
+import { useUserRole } from '@/lib/useUserRole';
 
 const EVENT_TYPES: Record<string, { label: string; color: string; dot: string }> = {
   ujian: { label: 'Ujian', color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' },
@@ -17,6 +18,7 @@ const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Ju
 const DAY_NAMES = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 export default function CalendarTab() {
+  const { canManageAcademic } = useUserRole();
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -94,9 +96,11 @@ export default function CalendarTab() {
           <h3 className="text-xl font-bold text-on-surface">Kalender Akademik</h3>
           <p className="text-sm text-on-surface-variant mt-1">Jadwal ujian, libur, dan kegiatan sekolah.</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
-          <Plus className="w-4 h-4" /> Tambah Event
-        </button>
+        {canManageAcademic && (
+          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+            <Plus className="w-4 h-4" /> Tambah Event
+          </button>
+        )}
       </div>
 
       {/* Legend */}
@@ -149,7 +153,9 @@ export default function CalendarTab() {
                         {dayEvents.map(ev => (
                           <div key={ev.id} className="flex items-center justify-between gap-2 text-[10px] py-0.5">
                             <span className="truncate">{ev.title}</span>
-                            <button onClick={() => handleDelete(ev.id)} className="text-red-300 hover:text-red-400 flex-shrink-0"><Trash2 className="w-3 h-3" /></button>
+                            {canManageAcademic && (
+                              <button onClick={() => handleDelete(ev.id)} className="text-red-300 hover:text-red-400 flex-shrink-0"><Trash2 className="w-3 h-3" /></button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -182,7 +188,9 @@ export default function CalendarTab() {
                   </div>
                   <p className="text-sm font-bold">{ev.title}</p>
                   <p className="text-[10px] font-medium mt-1 opacity-70">{d.getDate()} {MONTH_NAMES[d.getMonth()]} {d.getFullYear()}</p>
-                  <button onClick={() => handleDelete(ev.id)} className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 rounded transition-all hover:bg-black/10"><Trash2 className="w-3 h-3" /></button>
+                  {canManageAcademic && (
+                    <button onClick={() => handleDelete(ev.id)} className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 rounded transition-all hover:bg-black/10"><Trash2 className="w-3 h-3" /></button>
+                  )}
                 </div>
               );
             })}
@@ -193,7 +201,7 @@ export default function CalendarTab() {
       {/* Create Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-3xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface">
               <h3 className="text-xl font-black text-on-surface tracking-tight">Tambah Event</h3>
               <button onClick={() => setModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-xl"><X className="w-6 h-6" /></button>

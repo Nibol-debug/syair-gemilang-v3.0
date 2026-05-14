@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LogViolationDto = exports.SubmitAnswerDto = exports.StartExamDto = void 0;
+exports.GradeEssayDto = exports.LogViolationDto = exports.SubmitAnswerDto = exports.StartExamDto = void 0;
 const class_validator_1 = require("class-validator");
 class StartExamDto {
     token;
@@ -56,4 +56,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], LogViolationDto.prototype, "description", void 0);
+class GradeEssayDto {
+    score;
+}
+exports.GradeEssayDto = GradeEssayDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], GradeEssayDto.prototype, "score", void 0);
 //# sourceMappingURL=exam-session.dto.js.map

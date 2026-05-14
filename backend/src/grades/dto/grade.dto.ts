@@ -40,3 +40,27 @@ export class FinalizeGradeDto {
   @IsNotEmpty()
   semester: number;
 }
+
+export class FinalizeClassGradeDto {
+  @IsNotEmpty()
+  @IsUUID()
+  class_id: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  subject_id: string;
+
+  @IsNotEmpty()
+  semester: number;
+}
+
+export class UpdateGradeComponentDto {
+  @IsNotEmpty()
+  @IsUUID()
+  id: string;
+
+  @IsNotEmpty()
+  @Min(0)
+  @Max(100)
+  weight_percentage: number;
+}

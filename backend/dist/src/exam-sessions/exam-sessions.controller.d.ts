@@ -48,6 +48,7 @@ export declare class ExamSessionsController {
             id: string;
             question_id: string;
             answer: string;
+            score: import("@prisma/client/runtime/library").Decimal | null;
             session_id: string;
         })[];
         logs: {
@@ -72,6 +73,7 @@ export declare class ExamSessionsController {
         id: string;
         question_id: string;
         answer: string;
+        score: import("@prisma/client/runtime/library").Decimal | null;
         session_id: string;
     }>;
     logViolation(sessionId: string, data: LogViolationDto): Promise<{

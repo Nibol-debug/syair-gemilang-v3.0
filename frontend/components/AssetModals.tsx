@@ -61,7 +61,7 @@ export const ViewAssetModal = ({ asset, isOpen, onClose }: any) => {
           </div>
         </div>
         
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-8">
           <div className="flex justify-center">
             {asset.qr_code ? (
               <div className="bg-white p-4 border-2 border-primary/20 rounded-2xl shadow-sm">
@@ -79,7 +79,7 @@ export const ViewAssetModal = ({ asset, isOpen, onClose }: any) => {
             <p className="text-lg font-bold text-primary">{asset.name}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-surface-container p-4 rounded-xl space-y-1">
               <span className="text-[10px] font-bold text-outline uppercase tracking-widest">Kategori</span>
               <p className="font-bold text-on-surface flex items-center gap-2">
@@ -171,7 +171,7 @@ export const EditAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => {
         
         <div className="p-6">
           <form id="editAssetForm" onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant">Kode Aset</label>
                 <input type="text" required value={formData.code || ''} onChange={e => setFormData({...formData, code: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
@@ -182,7 +182,7 @@ export const EditAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant">Kategori</label>
                 <input type="text" required value={formData.category || ''} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
@@ -193,7 +193,7 @@ export const EditAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant">Kondisi</label>
                 <select required value={formData.condition || ''} onChange={e => setFormData({...formData, condition: e.target.value})} className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none">
@@ -214,7 +214,7 @@ export const EditAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => {
           </form>
         </div>
 
-        <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-outline-variant bg-surface flex flex-col sm:flex-row justify-end gap-3 w-full">
           <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors">Batal</button>
           <button type="submit" form="editAssetForm" disabled={isSubmitting} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
             {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -247,7 +247,7 @@ export const DeleteAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => 
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
+      <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-2xl shadow-2xl overflow-hidden p-4 md:p-8 text-center space-y-6">
         <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
           <Trash2 className="w-10 h-10" />
         </div>
@@ -257,7 +257,7 @@ export const DeleteAssetModal = ({ asset, isOpen, onClose, onSuccess }: any) => 
             Anda akan menghapus data <span className="text-on-surface font-bold">"{asset.name}"</span>. Tindakan ini tidak dapat dibatalkan.
           </p>
         </div>
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
           <button onClick={onClose} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all active:scale-95">Batal</button>
           <button 
             onClick={handleDelete} 

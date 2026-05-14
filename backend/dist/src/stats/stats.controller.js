@@ -40,6 +40,9 @@ let StatsController = class StatsController {
     getEmployeeStats() {
         return this.statsService.getEmployeeStats();
     }
+    getGradingStats() {
+        return this.statsService.getGradingStats();
+    }
 };
 exports.StatsController = StatsController;
 __decorate([
@@ -64,6 +67,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], StatsController.prototype, "getEmployeeStats", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('grading'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], StatsController.prototype, "getGradingStats", null);
 exports.StatsController = StatsController = __decorate([
     (0, common_1.Controller)('stats'),
     __metadata("design:paramtypes", [stats_service_1.StatsService])

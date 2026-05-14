@@ -3,29 +3,44 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiRequest } from '@/lib/api';
-import { School, User, Lock, AlertCircle, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { School, User, Lock, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!username.trim() || !password.trim()) {
+      setError('Username dan password wajib diisi');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
+
+    // Clear any existing tokens from both storages
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
 
     try {
       const data = await apiRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       });
-      
+
       if (data.access_token) {
-        localStorage.setItem('token', data.access_token);
+        if (rememberMe) {
+          localStorage.setItem('token', data.access_token);
+        } else {
+          sessionStorage.setItem('token', data.access_token);
+        }
         router.push('/dashboard');
       } else {
         setError('Terjadi kesalahan saat login');
@@ -54,15 +69,23 @@ const LoginPage = () => {
           <p className="text-sm font-medium text-on-surface-variant mt-2 uppercase tracking-widest">Educational ERP</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6" noValidate>
+          {/* Username */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1">Username</label>
+            <label
+              htmlFor="username"
+              className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1"
+            >
+              Username
+            </label>
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
-              <input 
+              <input
+                id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
                 className="w-full pl-12 pr-4 py-3.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-outline-variant placeholder:font-medium"
                 placeholder="Masukkan username"
                 required
@@ -70,35 +93,79 @@ const LoginPage = () => {
             </div>
           </div>
 
+          {/* Password */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1">Password</label>
+            <label
+              htmlFor="password"
+              className="text-xs font-bold text-on-surface-variant uppercase tracking-wider px-1"
+            >
+              Password
+            </label>
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline group-focus-within:text-primary transition-colors" />
-              <input 
-                type="password"
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-outline-variant placeholder:font-medium"
+                autoComplete="current-password"
+                className="w-full pl-12 pr-12 py-3.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none placeholder:text-outline-variant placeholder:font-medium"
                 placeholder="Masukkan password"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
 
+          {/* Remember Me */}
+          <div className="flex items-center gap-3 px-1">
+            <input
+              id="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded accent-primary cursor-pointer"
+            />
+            <label
+              htmlFor="remember-me"
+              className="text-sm font-medium text-on-surface-variant cursor-pointer select-none"
+            >
+              Ingat saya di perangkat ini
+            </label>
+          </div>
+
+          {/* Error message */}
           {error && (
-            <div className="bg-error-container/30 border border-error/20 text-on-error-container text-sm font-semibold p-4 rounded-xl flex items-center gap-3 animate-pulse">
+            <div
+              role="alert"
+              className="bg-error-container/30 border border-error/20 text-on-error-container text-sm font-semibold p-4 rounded-xl flex items-center gap-3"
+            >
               <AlertCircle className="w-5 h-5 text-error flex-shrink-0" />
               {error}
             </div>
           )}
 
-          <button 
+          <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-primary text-on-primary rounded-xl py-3.5 font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-primary text-on-primary rounded-xl py-3.5 font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Memproses...</span>
+              </>
             ) : (
               'Masuk ke Sistem'
             )}
@@ -107,7 +174,10 @@ const LoginPage = () => {
 
         <div className="mt-8 text-center border-t border-outline-variant/50 pt-8">
           <p className="text-xs font-medium text-on-surface-variant">
-            Lupa kredensial akses? Hubungi <a href="#" className="text-primary font-bold hover:underline transition-all">Administrator IT</a>
+            Lupa kredensial akses? Hubungi{' '}
+            <a href="#" className="text-primary font-bold hover:underline transition-all">
+              Administrator IT
+            </a>
           </p>
         </div>
       </div>

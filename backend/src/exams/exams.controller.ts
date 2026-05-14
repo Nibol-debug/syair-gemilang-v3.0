@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Patch, Delete, Request } from '@nestjs/common';
 import { ExamsService } from './exams.service';
 import { CreateExamDto } from './dto/create-exam.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -28,6 +28,7 @@ export class ExamsController {
   }
 
   @Get()
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua')
   findAll(
     @Query() pagination: PaginationDto,
     @Query('major_id') major_id?: string,
@@ -38,16 +39,19 @@ export class ExamsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.examsService.findOne(id);
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua')
+  findOne(@Param('id') id: string, @Request() req) {
+    return this.examsService.findOne(id, req.user?.role);
   }
 
   @Get(':id/monitoring')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   getMonitoring(@Param('id') id: string) {
     return this.examsService.getMonitoring(id);
   }
 
   @Get(':id/questions')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   async getQuestions(@Param('id') id: string) {
     const exam = await this.examsService.findOne(id);
     // Hide correct options for students
@@ -86,5 +90,28 @@ export class ExamsController {
   @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
   removeQuestion(@Param('questionId') questionId: string) {
     return this.examsService.deleteQuestion(questionId);
+  }
+
+  /**
+   * NEW: Endpoint untuk siswa get soal dari session ujian mereka
+   * GET /exams/sessions/:sessionId/questions
+   */
+  @Get('sessions/:sessionId/questions')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua')
+  async getSessionQuestions(@Param('sessionId') sessionId: string) {
+    // Service will handle session validation
+    return this.examsService.getSessionQuestions(sessionId);
+  }
+
+  @Get('sessions/:sessionId/answers-detail')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
+  getSessionAnswersDetail(@Param('sessionId') sessionId: string) {
+    return this.examsService.getSessionAnswersDetail(sessionId);
+  }
+
+  @Patch('answers/:id/score')
+  @Roles('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas')
+  gradeEssay(@Param('id') id: string, @Body() data: any) {
+    return this.examsService.gradeEssay(id, data.score);
   }
 }

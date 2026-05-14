@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Loader2, Save, CheckCircle, XCircle, AlertCircle, Clock, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
+import { useUserRole } from '@/lib/useUserRole';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
   hadir: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700 border-emerald-300', icon: CheckCircle },
@@ -13,6 +14,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }>
 };
 
 export default function AttendanceTab() {
+  const { isTeacher } = useUserRole();
   const [classes, setClasses] = useState<any[]>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
@@ -69,7 +71,47 @@ export default function AttendanceTab() {
     } catch (err) { console.error(err); }
   };
 
-  useEffect(() => { if (selectedClass) { loadStudents(); fetchSummary(); } }, [selectedClass, selectedDate]);
+  useEffect(() => { 
+    if (selectedClass) { 
+      loadStudents(); 
+      fetchSummary(); 
+    } 
+  }, [selectedClass, selectedDate]);
+
+  useEffect(() => {
+    const fetchExistingAttendance = async () => {
+      if (!selectedClass || !selectedSchedule || !selectedDate || students.length === 0) return;
+      setIsLoading(true);
+      try {
+        const res = await apiRequest(`/attendance/schedule/${selectedSchedule}?date=${selectedDate}`);
+        if (Array.isArray(res) && res.length > 0) {
+          const updated: Record<string, string> = {};
+          res.forEach((att: any) => { updated[att.student_id] = att.status; });
+          
+          setAttendanceData(prev => {
+            const newData = { ...prev };
+            Object.keys(newData).forEach(id => {
+              if (updated[id]) newData[id] = updated[id];
+            });
+            return newData;
+          });
+          setSubmitted(true);
+        } else {
+          setAttendanceData(prev => {
+            const newData = { ...prev };
+            Object.keys(newData).forEach(id => { newData[id] = 'hadir'; });
+            return newData;
+          });
+          setSubmitted(false);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchExistingAttendance();
+  }, [selectedSchedule, selectedDate, students.length]);
 
   const handleSubmit = async () => {
     if (!selectedSchedule) { alert('Pilih jadwal/mata pelajaran terlebih dahulu'); return; }
@@ -93,6 +135,7 @@ export default function AttendanceTab() {
     const updated: Record<string, string> = {};
     students.forEach(s => { updated[s.id] = status; });
     setAttendanceData(updated);
+    setSubmitted(false);
   };
 
   const counts = {
@@ -152,7 +195,7 @@ export default function AttendanceTab() {
       </div>
 
       {/* Quick Actions */}
-      {students.length > 0 && (
+      {students.length > 0 && isTeacher && (
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Set Semua:</span>
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
@@ -201,10 +244,15 @@ export default function AttendanceTab() {
                     return (
                       <button
                         key={key}
-                        onClick={() => setAttendanceData({ ...attendanceData, [student.id]: key })}
+                        disabled={!isTeacher}
+                        onClick={() => {
+                          setAttendanceData({ ...attendanceData, [student.id]: key });
+                          setSubmitted(false);
+                        }}
                         className={cn(
                           "px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all",
-                          isActive ? cfg.color + ' scale-105 shadow-sm' : 'bg-surface-container text-on-surface-variant border-outline-variant/50 opacity-50 hover:opacity-80'
+                          isActive ? cfg.color + ' scale-105 shadow-sm' : 'bg-surface-container text-on-surface-variant border-outline-variant/50 opacity-50 hover:opacity-80',
+                          !isTeacher && 'cursor-default hover:scale-100 hover:opacity-50'
                         )}
                       >
                         {cfg.label}
@@ -219,11 +267,11 @@ export default function AttendanceTab() {
             <span className="text-xs font-medium text-on-surface-variant">{students.length} siswa</span>
             {submitted ? (
               <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm"><CheckCircle className="w-5 h-5" /> Presensi tersimpan!</div>
-            ) : (
+            ) : isTeacher ? (
               <button onClick={handleSubmit} disabled={isSubmitting || !selectedSchedule} className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Simpan Presensi
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       )}

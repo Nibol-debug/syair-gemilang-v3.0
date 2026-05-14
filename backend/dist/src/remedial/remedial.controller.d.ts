@@ -41,6 +41,9 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
         exam: {
             id: string;
@@ -78,6 +81,7 @@ export declare class RemedialController {
                 batch_id: string;
                 grade_level: number;
                 homeroom_teacher_id: string | null;
+                class_president_id: string | null;
             } | null;
             batch: {
                 id: string;
@@ -91,6 +95,9 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
         exam: {
             id: string;
@@ -126,6 +133,9 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
         exam: {
             id: string;
@@ -180,6 +190,9 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
         exam: {
             id: string;
@@ -234,6 +247,9 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
     } & {
         id: string;

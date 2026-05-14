@@ -68,7 +68,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           </button>
         </div>
 
-        <div className="p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
+        <div className="p-4 md:p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
           {/* Status Badge */}
           <div className="flex justify-center">
             <span className={cn(
@@ -82,7 +82,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
             <div className="space-y-6">
                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Informasi Biodata</h4>
                <InfoRow icon={<User />} label="Nama Lengkap" value={applicant.full_name} />
@@ -103,7 +103,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           {/* Documents Section */}
           <div className="space-y-4 pt-4">
             <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Dokumen Terlampir</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <DocLink label="Scan Ijazah / SKL" url={applicant.document_url} />
                <DocLink label="KTP" url={applicant.ktp_url} />
                <DocLink label="Kartu Keluarga" url={applicant.kk_url} />
@@ -116,7 +116,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
 
         {/* Action Buttons */}
         <div className="px-8 py-6 border-t border-outline-variant bg-surface-container-low flex flex-col gap-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
             <button 
               onClick={() => updateStatus('rejected')}
               disabled={isUpdating}

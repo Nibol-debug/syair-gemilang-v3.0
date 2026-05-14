@@ -18,6 +18,12 @@ let AttendancesService = class AttendancesService {
         this.prisma = prisma;
     }
     async bulkCreate(data) {
+        await this.prisma.attendance.deleteMany({
+            where: {
+                schedule_id: data.schedule_id,
+                date: data.date,
+            },
+        });
         const records = data.attendances.map((a) => ({
             schedule_id: data.schedule_id,
             date: data.date,

@@ -12,6 +12,7 @@ export declare class ClassesController {
         batch_id: string;
         grade_level: number;
         homeroom_teacher_id: string | null;
+        class_president_id: string | null;
     }>;
     findAll(paginationDto: PaginationDto): Promise<{
         data: ({
@@ -39,6 +40,14 @@ export declare class ClassesController {
                 id: string;
                 full_name: string;
                 education: string;
+                education_institution: string | null;
+                education_degree: string | null;
+                education_graduation_year: string | null;
+                teaching_specialty: string | null;
+                current_rank: string | null;
+                current_golongan: string | null;
+                certification_status: string | null;
+                is_certified: boolean;
                 position: string;
                 join_date: Date;
                 status: string;
@@ -51,6 +60,7 @@ export declare class ClassesController {
             batch_id: string;
             grade_level: number;
             homeroom_teacher_id: string | null;
+            class_president_id: string | null;
         })[];
         meta: {
             total: number;
@@ -78,6 +88,14 @@ export declare class ClassesController {
             id: string;
             full_name: string;
             education: string;
+            education_institution: string | null;
+            education_degree: string | null;
+            education_graduation_year: string | null;
+            teaching_specialty: string | null;
+            current_rank: string | null;
+            current_golongan: string | null;
+            certification_status: string | null;
+            is_certified: boolean;
             position: string;
             join_date: Date;
             status: string;
@@ -90,6 +108,7 @@ export declare class ClassesController {
         batch_id: string;
         grade_level: number;
         homeroom_teacher_id: string | null;
+        class_president_id: string | null;
     }>;
     findStudents(id: string): Promise<{
         id: string;
@@ -105,6 +124,7 @@ export declare class ClassesController {
         batch_id: string;
         grade_level: number;
         homeroom_teacher_id: string | null;
+        class_president_id: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -113,5 +133,6 @@ export declare class ClassesController {
         batch_id: string;
         grade_level: number;
         homeroom_teacher_id: string | null;
+        class_president_id: string | null;
     }>;
 }

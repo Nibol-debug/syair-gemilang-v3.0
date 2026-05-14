@@ -130,12 +130,13 @@ export class ReportCardsService {
     // Table Header
     const tableTop = doc.y;
     doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('No', 50, tableTop, { width: 40, align: 'center' });
-    doc.text('Mata Pelajaran', 90, tableTop, { width: 200 });
-    doc.text('Nilai Akhir', 290, tableTop, { width: 80, align: 'right' });
-    doc.text('Grade', 370, tableTop, { width: 60, align: 'center' });
-    doc.text('Status', 430, tableTop, { width: 100, align: 'center' });
-    doc.text('Deskripsi', 50, tableTop + 15, { width: 480 });
+    doc.text('No', 50, tableTop, { width: 30, align: 'center' });
+    doc.text('Mata Pelajaran', 80, tableTop, { width: 180 });
+    doc.text('KKM', 260, tableTop, { width: 40, align: 'center' });
+    doc.text('Nilai Akhir', 300, tableTop, { width: 70, align: 'right' });
+    doc.text('Grade', 370, tableTop, { width: 50, align: 'center' });
+    doc.text('Status', 420, tableTop, { width: 130, align: 'center' });
+    doc.text('Deskripsi', 50, tableTop + 15, { width: 500 });
 
     // Table Lines
     doc.moveTo(50, tableTop + 30).lineTo(550, tableTop + 30).stroke();
@@ -144,14 +145,15 @@ export class ReportCardsService {
     let yPos = tableTop + 40;
     finalGrades.forEach((grade, index) => {
       doc.fontSize(9).font('Helvetica');
-      doc.text((index + 1).toString(), 50, yPos, { width: 40, align: 'center' });
-      doc.text(grade.subject.name, 90, yPos, { width: 200 });
-      doc.text(grade.final_score.toString(), 290, yPos, { width: 80, align: 'right' });
-      doc.text(grade.grade_letter, 370, yPos, { width: 60, align: 'center' });
+      doc.text((index + 1).toString(), 50, yPos, { width: 30, align: 'center' });
+      doc.text(grade.subject.name, 80, yPos, { width: 180 });
+      doc.text((grade.subject.passing_grade || 75).toString(), 260, yPos, { width: 40, align: 'center' });
+      doc.text(grade.final_score.toString(), 300, yPos, { width: 70, align: 'right' });
+      doc.text(grade.grade_letter, 370, yPos, { width: 50, align: 'center' });
       
       const statusText = grade.is_passed ? 'Lulus' : 'Remedial';
       const statusColor = grade.is_passed ? '#22c55e' : '#ef4444';
-      doc.fillColor(statusColor).text(statusText, 430, yPos, { width: 100, align: 'center' });
+      doc.fillColor(statusColor).text(statusText, 420, yPos, { width: 130, align: 'center' });
       doc.fillColor('#000000');
 
       // Description (may need multiple lines)

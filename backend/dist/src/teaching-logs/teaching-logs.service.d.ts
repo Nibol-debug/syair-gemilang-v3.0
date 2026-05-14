@@ -12,6 +12,8 @@ export declare class TeachingLogsService {
         subject_id: string;
         teacher_id: string;
         note: string;
+        material_summary: string | null;
+        assignment_given: string | null;
     }>;
     findAll(filters: {
         teacher_id?: string;
@@ -24,16 +26,28 @@ export declare class TeachingLogsService {
             batch_id: string;
             grade_level: number;
             homeroom_teacher_id: string | null;
+            class_president_id: string | null;
         } | null;
         subject: {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         };
         teacher: {
             id: string;
             full_name: string;
             education: string;
+            education_institution: string | null;
+            education_degree: string | null;
+            education_graduation_year: string | null;
+            teaching_specialty: string | null;
+            current_rank: string | null;
+            current_golongan: string | null;
+            certification_status: string | null;
+            is_certified: boolean;
             position: string;
             join_date: Date;
             status: string;
@@ -48,5 +62,7 @@ export declare class TeachingLogsService {
         subject_id: string;
         teacher_id: string;
         note: string;
+        material_summary: string | null;
+        assignment_given: string | null;
     })[]>;
 }

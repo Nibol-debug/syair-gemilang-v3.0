@@ -14,17 +14,45 @@ import {
   Loader2,
   AlertCircle,
   BookOpen,
-  Users,
-  Layers,
+  MapPin,
   Save,
-  MapPin
+  Layers,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+
+function StatCard({ title, value, icon, color }: any) {
+  const colorMap: any = {
+    primary:   'bg-primary/10 text-primary border-primary/20',
+    secondary: 'bg-secondary/10 text-secondary border-secondary/20',
+    tertiary:  'bg-tertiary/10 text-tertiary border-tertiary/20',
+    success:   'bg-success-container/30 text-success border-success/20',
+  };
+
+  return (
+    <div className={cn(
+      'p-4 sm:p-6 rounded-2xl border flex items-center gap-3 sm:gap-4',
+      'bg-surface-container-lowest shadow-sm relative overflow-hidden',
+      colorMap[color],
+    )}>
+      <div className="p-3 rounded-xl bg-current opacity-10" />
+      <div className="absolute left-4 sm:left-6">{icon}</div>
+      <div className="ml-10 sm:ml-12">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 truncate max-w-[100px] sm:max-w-none">
+          {title}
+        </p>
+        <p className="text-xl sm:text-2xl font-black leading-none mt-1">{value}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function MajorsPage() {
   const [majors, setMajors] = useState<any[]>([]);
   const [branches, setBranches] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({ total: 0, totalStudents: 0 });
+  const [stats, setStats] = useState<any>({ total: 0, branchCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -51,6 +79,7 @@ export default function MajorsPage() {
     try {
       const res = await apiRequest('/branches');
       setBranches(res || []);
+      setStats(prev => ({ ...prev, branchCount: res?.length || 0 }));
     } catch (err) {
       console.error('Gagal mengambil data cabang:', err);
     }
@@ -59,10 +88,10 @@ export default function MajorsPage() {
   const fetchStats = async () => {
     try {
       const res = await apiRequest('/majors');
-      setStats({
-        total: res.meta.total,
-        totalStudents: 0
-      });
+      setStats(prev => ({
+        ...prev,
+        total: res.meta.total
+      }));
     } catch (err) {
       console.error('Gagal mengambil statistik:', err);
     }
@@ -92,7 +121,7 @@ export default function MajorsPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       fetchMajors();
       fetchStats();
@@ -184,16 +213,22 @@ export default function MajorsPage() {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/20"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Jurusan</span>
         </button>
       </div>
 
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Jurusan" value={stats.total} icon={<BookOpen className="w-6 h-6" />} color="primary" />
+        <StatCard title="Total Cabang" value={stats.branchCount} icon={<MapPin className="w-6 h-6" />} color="secondary" />
+      </div>
+
       {/* Filter Section */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
-        <div className="max-w-md">
+        <div className="w-full sm:max-w-[28rem]">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cari Jurusan</label>
             <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
@@ -205,7 +240,7 @@ export default function MajorsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              {search && <button onClick={() => setSearch('')} className="absolute right-3 text-outline"><X className="w-4 h-4" /></button>}
+              {search && <button onClick={() => setSearch('')} className="absolute right-3 text-outline hover:text-on-surface transition-colors"><X className="w-4 h-4" /></button>}
             </div>
           </div>
         </div>
@@ -225,11 +260,22 @@ export default function MajorsPage() {
             </thead>
             <tbody className="text-sm">
               {isLoading ? (
-                <tr><td colSpan={4} className="py-10 text-center"><Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" /></td></tr>
+                <tr>
+                  <td colSpan={4} className="py-10 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      <p className="text-on-surface-variant font-medium text-sm">Memuat data...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : majors.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-10 text-center text-on-surface-variant font-medium">Belum ada data jurusan.</td>
+                </tr>
               ) : (
                 majors.map((major) => (
                   <tr key={major.id} className="border-b border-surface-container-low hover:bg-surface-container/30 transition-colors group">
-                    <td className="py-4 px-8 font-bold text-primary">{major.code}</td>
+                    <td className="py-4 px-8 font-bold text-primary uppercase tracking-wider">{major.code}</td>
                     <td className="py-4 px-8 font-semibold text-on-surface">{major.name}</td>
                     <td className="py-4 px-8">
                        <span className="flex items-center gap-2 text-on-surface-variant font-bold text-xs uppercase">
@@ -239,8 +285,8 @@ export default function MajorsPage() {
                     </td>
                     <td className="py-4 px-8 text-right">
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleOpenModal(major)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => { setSelectedMajor(major); setShowDeleteConfirm(true); }} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleOpenModal(major)} className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit"><Edit2 className="w-4 h-4" /></button>
+                        <button onClick={() => { setSelectedMajor(major); setShowDeleteConfirm(true); }} className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors" title="Hapus"><Trash2 className="w-4 h-4" /></button>
                       </div>
                       <MoreHorizontal className="w-4 h-4 text-on-surface-variant group-hover:hidden ml-auto" />
                     </td>
@@ -255,9 +301,9 @@ export default function MajorsPage() {
         <div className="flex items-center justify-between px-8 py-5 border-t border-outline-variant bg-surface-container-lowest">
           <span className="text-xs font-medium text-on-surface-variant">Halaman {pagination.page} dari {pagination.last_page}</span>
           <div className="flex items-center gap-1">
-            <button onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))} disabled={pagination.page === 1} className="p-2 rounded-lg text-outline"><ChevronLeft className="w-5 h-5" /></button>
-            <button className="w-9 h-9 rounded-lg bg-primary text-on-primary font-bold text-xs">{pagination.page}</button>
-            <button onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.last_page, prev.page + 1) }))} disabled={pagination.page === pagination.last_page} className="p-2 rounded-lg text-on-surface"><ChevronRight className="w-5 h-5" /></button>
+            <button onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))} disabled={pagination.page === 1} className="p-2 rounded-lg text-outline hover:bg-surface-container disabled:opacity-50 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+            <button className="w-9 h-9 rounded-lg bg-primary text-on-primary font-bold text-xs flex items-center justify-center shadow-md">{pagination.page}</button>
+            <button onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.last_page, prev.page + 1) }))} disabled={pagination.page === pagination.last_page} className="p-2 rounded-lg text-on-surface hover:bg-surface-container transition-colors active:scale-95"><ChevronRight className="w-5 h-5" /></button>
           </div>
         </div>
       </div>
@@ -265,38 +311,41 @@ export default function MajorsPage() {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
+          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
               <h3 className="text-lg font-bold text-on-surface">{selectedMajor ? 'Edit Jurusan' : 'Tambah Jurusan'}</h3>
-              <button onClick={() => setIsModalOpen(false)}><X className="w-5 h-5" /></button>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors"><X className="w-5 h-5" /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Kode Jurusan</label>
-                <input type="text" required placeholder="Contoh: FD, GD, SE" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})} className="w-full px-5 py-3 bg-surface border border-outline-variant rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Nama Jurusan</label>
-                <input type="text" required placeholder="Contoh: Fashion Design" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-5 py-3 bg-surface border border-outline-variant rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none" />
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between items-center mb-1">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Pilih Cabang RGI</label>
-                   <button type="button" onClick={handleAddBranch} className="text-[10px] font-black text-primary hover:underline">+ TAMBAH CABANG</button>
+            <div className="p-6 overflow-y-auto">
+              <form id="majorForm" onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Kode Jurusan</label>
+                  <input type="text" required placeholder="Contoh: TKJ, FD" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value.toUpperCase()})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" />
                 </div>
-                <select required value={formData.branch_id} onChange={e => setFormData({...formData, branch_id: e.target.value})} className="w-full px-5 py-3 bg-surface border border-outline-variant rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 outline-none cursor-pointer">
-                  {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-                </select>
-              </div>
-              
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 border border-outline rounded-2xl text-sm font-black text-on-surface-variant">BATAL</button>
-                <button type="submit" disabled={isSubmitting} className="px-10 py-3 bg-primary text-on-primary rounded-2xl text-sm font-black flex items-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} SIMPAN DATA
-                </button>
-              </div>
-            </form>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Jurusan</label>
+                  <input type="text" required placeholder="Contoh: Teknik Komputer Jaringan" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cabang RGI</label>
+                    <button type="button" onClick={handleAddBranch} className="text-[10px] font-bold text-primary hover:underline">+ Tambah Cabang</button>
+                  </div>
+                  <select required value={formData.branch_id} onChange={e => setFormData({...formData, branch_id: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer">
+                    {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors">Batal</button>
+              <button type="submit" form="majorForm" disabled={isSubmitting} className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                <span>Simpan Jurusan</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -304,15 +353,19 @@ export default function MajorsPage() {
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
-            <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error"><Trash2 className="w-10 h-10" /></div>
+          <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
+            <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
+              <Trash2 className="w-10 h-10" />
+            </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-on-surface">Hapus Jurusan?</h3>
-              <p className="text-on-surface-variant font-medium">Anda akan menghapus <span className="text-on-surface font-bold">"{selectedMajor?.name}"</span>.</p>
+              <h3 className="text-xl font-bold text-on-surface tracking-tight">Hapus Jurusan?</h3>
+              <p className="text-on-surface-variant font-medium">Anda akan menghapus data <span className="text-on-surface font-bold">"{selectedMajor?.name}"</span>.</p>
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm">Batal</button>
-              <button onClick={handleDelete} disabled={isDeleting} className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm flex items-center justify-center gap-2">{isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Hapus'}</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all active:scale-95">Batal</button>
+              <button onClick={handleDelete} disabled={isDeleting} className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-error/20">
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Hapus
+              </button>
             </div>
           </div>
         </div>

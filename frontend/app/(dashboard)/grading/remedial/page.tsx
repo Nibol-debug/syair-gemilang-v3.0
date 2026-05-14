@@ -20,6 +20,7 @@ import {
   RefreshCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/lib/useUserRole';
 
 interface RemedialStats {
   total: number;
@@ -62,6 +63,7 @@ export default function RemedialPage() {
   const [modalMode, setModalMode] = useState<'create' | 'schedule' | 'update'>('create');
   const [selectedStudent, setSelectedStudent] = useState<StudentNeedingRemedial | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { canManageGrades } = useUserRole();
 
   const [formData, setFormData] = useState({
     student_id: '',
@@ -74,6 +76,7 @@ export default function RemedialPage() {
   });
 
   const fetchSubjectsAndClasses = async () => {
+    if (canManageGrades === false) return;
     try {
       const [subjectsRes, classesRes] = await Promise.all([
         apiRequest('/subjects'),
@@ -92,6 +95,7 @@ export default function RemedialPage() {
   };
 
   const fetchRemedialStats = async () => {
+    if (canManageGrades === false) return;
     try {
       const res = await apiRequest('/remedial/stats');
       setStats(res);
@@ -101,6 +105,7 @@ export default function RemedialPage() {
   };
 
   const fetchStudentsNeedingRemedial = async () => {
+    if (canManageGrades === false) return;
     if (!selectedSubject) return;
     setIsLoading(true);
     try {
@@ -261,6 +266,18 @@ export default function RemedialPage() {
         return <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase bg-surface-container-high text-on-surface-variant border border-outline-variant/30">{status}</span>;
     }
   };
+
+  if (canManageGrades === false) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertTriangle className="w-16 h-16 text-error mb-4" />
+        <h3 className="text-2xl font-bold text-on-surface mb-2">Akses Ditolak</h3>
+        <p className="text-on-surface-variant max-w-[28rem]">
+          Anda tidak memiliki izin untuk mengakses halaman manajemen remedial.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

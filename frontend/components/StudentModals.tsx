@@ -68,7 +68,7 @@ export const ViewStudentModal = ({ student, isOpen, onClose }: any) => {
             <button onClick={onClose} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors"><X className="w-5 h-5" /></button>
           </div>
         </div>
-        <div className="p-8 overflow-y-auto flex-1 space-y-8 text-sm">
+        <div className="p-4 md:p-8 overflow-y-auto flex-1 space-y-8 text-sm">
           <div className="flex items-start gap-6 pb-6 border-b border-outline-variant/50">
             {student.profile_picture ? (
               <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${student.profile_picture}`} alt="" className="w-32 h-32 rounded-2xl object-cover shadow-md border-2 border-primary/20" />
@@ -88,7 +88,7 @@ export const ViewStudentModal = ({ student, isOpen, onClose }: any) => {
               <span className="text-[10px] font-bold text-outline-variant uppercase">ID QR Scan</span>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             <div className="space-y-4 col-span-1">
               <h5 className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><User className="w-4 h-4" /> Data Pribadi</h5>
               <div className="space-y-4">
@@ -241,7 +241,7 @@ export const EditStudentModal = ({ student, isOpen, onClose, onSuccess, branches
               </div>
               <div><h4 className="font-bold text-on-surface uppercase tracking-wider">Foto Profil Santri</h4><p className="text-[10px] font-medium text-on-surface-variant">Unggah foto formal santri untuk kartu pelajar digital.</p></div>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-1"><label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">NIS</label><input type="text" required value={formData.nis || ''} onChange={e => setFormData({...formData, nis: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" /></div>
               <div className="space-y-1"><label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">NIK</label><input type="text" required value={formData.nik || ''} onChange={e => setFormData({...formData, nik: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" /></div>
             </div>
@@ -257,7 +257,7 @@ export const EditStudentModal = ({ student, isOpen, onClose, onSuccess, branches
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cabang</label>
                 <select 
@@ -322,7 +322,7 @@ export const EditStudentModal = ({ student, isOpen, onClose, onSuccess, branches
             <div className="space-y-1"><label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Riwayat Kesehatan</label><textarea value={formData.health_history || ''} onChange={e => setFormData({...formData, health_history: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none h-20 resize-none"></textarea></div>
           </form>
         </div>
-        <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3"><button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button><button type="submit" form="editStudentForm" disabled={isSubmitting} className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}Simpan Perubahan</button></div>
+        <div className="px-6 py-4 border-t border-outline-variant bg-surface flex flex-col sm:flex-row justify-end gap-3 w-full"><button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button><button type="submit" form="editStudentForm" disabled={isSubmitting} className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">{isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}Simpan Perubahan</button></div>
       </div>
     </div>
   );
@@ -340,10 +340,10 @@ export const DeleteStudentModal = ({ student, isOpen, onClose, onSuccess }: any)
   };
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
+      <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-2xl shadow-2xl overflow-hidden p-4 md:p-8 text-center space-y-6">
         <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error"><Trash2 className="w-10 h-10" /></div>
         <div className="space-y-2"><h3 className="text-xl font-bold text-on-surface tracking-tight">Hapus Data Siswa?</h3><p className="text-on-surface-variant font-medium leading-relaxed">Anda akan menghapus data <span className="text-on-surface font-bold">"{student.full_name}"</span>.</p></div>
-        <div className="flex gap-3 pt-2"><button onClick={onClose} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button><button onClick={handleDelete} disabled={isDeleting} className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-error/20">{isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Hapus</button></div>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full"><button onClick={onClose} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button><button onClick={handleDelete} disabled={isDeleting} className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-error/20">{isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Hapus</button></div>
       </div>
     </div>
   );

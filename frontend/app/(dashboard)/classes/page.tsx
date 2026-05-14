@@ -17,9 +17,39 @@ import {
   Save,
   UserCheck,
   MapPin,
-  GraduationCap
+  GraduationCap,
+  Layers,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+
+function StatCard({ title, value, icon, color }: any) {
+  const colorMap: any = {
+    primary:   'bg-primary/10 text-primary border-primary/20',
+    secondary: 'bg-secondary/10 text-secondary border-secondary/20',
+    tertiary:  'bg-tertiary/10 text-tertiary border-tertiary/20',
+    success:   'bg-success-container/30 text-success border-success/20',
+  };
+
+  return (
+    <div className={cn(
+      'p-4 sm:p-6 rounded-2xl border flex items-center gap-3 sm:gap-4',
+      'bg-surface-container-lowest shadow-sm relative overflow-hidden',
+      colorMap[color],
+    )}>
+      <div className="p-3 rounded-xl bg-current opacity-10" />
+      <div className="absolute left-4 sm:left-6">{icon}</div>
+      <div className="ml-10 sm:ml-12">
+        <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 truncate max-w-[100px] sm:max-w-none">
+          {title}
+        </p>
+        <p className="text-xl sm:text-2xl font-black leading-none mt-1">{value}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<any[]>([]);
@@ -103,7 +133,7 @@ export default function ClassesPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token) {
       fetchClasses();
       fetchStats();
@@ -191,16 +221,22 @@ export default function ClassesPage() {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/20"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Kelas</span>
         </button>
       </div>
 
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Kelas" value={stats.total} icon={<Layers className="w-6 h-6" />} color="primary" />
+        <StatCard title="Total Jurusan" value={majors.length} icon={<BookOpen className="w-6 h-6" />} color="secondary" />
+      </div>
+
       {/* Filter Section */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
-        <div className="max-w-md">
+        <div className="w-full sm:max-w-[28rem]">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cari Rombel</label>
             <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
@@ -242,13 +278,15 @@ export default function ClassesPage() {
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="py-10 text-center">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      <p className="text-on-surface-variant font-medium text-sm">Memuat data...</p>
+                    </div>
                   </td>
                 </tr>
               ) : classes.length === 0 ? (
                 <tr>
-                   <td colSpan={5} className="py-10 text-center text-on-surface-variant font-medium flex flex-col items-center gap-2">
-                     <AlertCircle className="w-8 h-8 opacity-20" />
+                   <td colSpan={5} className="py-10 text-center text-on-surface-variant font-medium">
                      Belum ada data kelas.
                    </td>
                 </tr>
@@ -294,7 +332,7 @@ export default function ClassesPage() {
         
         {/* Pagination */}
         <div className="flex items-center justify-between px-8 py-5 border-t border-outline-variant bg-surface-container-lowest">
-          <span className="text-xs font-medium text-on-surface-variant">Menampilkan halaman {pagination.page} dari {pagination.last_page}</span>
+          <span className="text-xs font-medium text-on-surface-variant">Halaman {pagination.page} dari {pagination.last_page}</span>
           <div className="flex items-center gap-1">
             <button 
               onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
@@ -318,7 +356,7 @@ export default function ClassesPage() {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
+          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
               <h3 className="text-lg font-bold text-on-surface">{selectedClass ? 'Edit Rombel' : 'Tambah Rombel'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
@@ -326,7 +364,8 @@ export default function ClassesPage() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <div className="p-6 overflow-y-auto">
+              <form id="classForm" onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Rombongan Belajar</label>
                 <input 
@@ -377,25 +416,27 @@ export default function ClassesPage() {
                   {employees.map(e => <option key={e.id} value={e.id}>{e.full_name}</option>)}
                 </select>
               </div>
-              
-              <div className="pt-4 flex justify-end gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)} 
-                  className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors"
-                >
-                  Batal
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95"
-                >
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  <span>{selectedClass ? 'Update Data' : 'Simpan Data'}</span>
-                </button>
-              </div>
             </form>
+            </div>
+
+            <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
+              <button 
+                type="button" 
+                onClick={() => setIsModalOpen(false)} 
+                className="px-5 py-2.5 rounded-lg border border-outline text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                form="classForm"
+                disabled={isSubmitting} 
+                className="flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                <span>Simpan Kelas</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -403,22 +444,22 @@ export default function ClassesPage() {
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
+          <div className="bg-surface-container-lowest w-full max-w-[28rem] rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
             <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
               <Trash2 className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-on-surface">Hapus Rombel?</h3>
-              <p className="text-on-surface-variant font-medium">
+              <h3 className="text-xl font-bold text-on-surface tracking-tight">Hapus Rombel?</h3>
+              <p className="text-on-surface-variant font-medium leading-relaxed">
                 Menghapus rombel <span className="text-on-surface font-bold">"{selectedClass?.name}"</span> akan melepaskan referensi kelas dari para santri di dalamnya.
               </p>
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all active:scale-95">Batal</button>
               <button 
                 onClick={handleDelete} 
                 disabled={isDeleting}
-                className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3 rounded-xl bg-error text-on-error font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-error/20"
               >
                 {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                 Hapus

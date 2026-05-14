@@ -18,6 +18,17 @@ let GradesService = class GradesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async getGradeComponents() {
+        return this.prisma.gradeComponent.findMany();
+    }
+    async updateGradeComponent(data) {
+        return this.prisma.gradeComponent.update({
+            where: { id: data.id },
+            data: {
+                weight_percentage: new client_1.Prisma.Decimal(data.weight_percentage)
+            }
+        });
+    }
     generateDescription(gradeLetter, finalScore, subjectName) {
         const descriptions = {
             'A': {
@@ -95,15 +106,29 @@ let GradesService = class GradesService {
         if (grades.length === 0) {
             throw new common_1.BadRequestException('No grades found for this subject/student');
         }
-        let totalScore = 0;
-        let totalWeight = 0;
-        grades.forEach(g => {
-            const score = Number(g.score);
-            const weight = Number(g.weight);
-            totalScore += score * weight;
-            totalWeight += weight;
+        const components = await this.prisma.gradeComponent.findMany();
+        const weights = {};
+        components.forEach(c => {
+            weights[c.name.toLowerCase()] = Number(c.weight_percentage) / 100;
         });
-        const finalScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+        const gradesByType = {};
+        grades.forEach(g => {
+            const type = g.type.toLowerCase();
+            if (!gradesByType[type])
+                gradesByType[type] = [];
+            gradesByType[type].push(Number(g.score));
+        });
+        let finalScore = 0;
+        Object.keys(gradesByType).forEach(type => {
+            const avg = gradesByType[type].reduce((a, b) => a + b, 0) / gradesByType[type].length;
+            const weight = weights[type] || 0;
+            finalScore += avg * weight;
+        });
+        const subject = await this.prisma.subject.findUnique({
+            where: { id: data.subject_id }
+        });
+        if (!subject)
+            throw new common_1.NotFoundException('Subject not found');
         let gradeLetter = 'E';
         if (finalScore >= 85)
             gradeLetter = 'A';
@@ -113,17 +138,12 @@ let GradesService = class GradesService {
             gradeLetter = 'C';
         else if (finalScore >= 50)
             gradeLetter = 'D';
-        const isPassed = finalScore >= 75;
+        const isPassed = finalScore >= Number(subject.passing_grade);
         const student = await this.prisma.student.findUnique({
             where: { id: data.student_id }
         });
         if (!student)
             throw new common_1.NotFoundException('Student not found');
-        const subject = await this.prisma.subject.findUnique({
-            where: { id: data.subject_id }
-        });
-        if (!subject)
-            throw new common_1.NotFoundException('Subject not found');
         const { description, competencies_achieved } = this.generateDescription(gradeLetter, finalScore, subject.name);
         const existingFinal = await this.prisma.finalGrade.findFirst({
             where: {
@@ -158,6 +178,32 @@ let GradesService = class GradesService {
                 batch_id: student.batch_id,
             }
         });
+    }
+    async finalizeClassGrades(data) {
+        const students = await this.prisma.student.findMany({
+            where: { class_id: data.class_id }
+        });
+        if (students.length === 0) {
+            throw new common_1.NotFoundException('No students found in this class');
+        }
+        const results = [];
+        for (const student of students) {
+            try {
+                const result = await this.finalizeGrade({
+                    student_id: student.id,
+                    subject_id: data.subject_id,
+                    semester: data.semester
+                });
+                results.push(result);
+            }
+            catch (err) {
+                continue;
+            }
+        }
+        return {
+            message: `Successfully finalized ${results.length} students out of ${students.length}`,
+            finalized_count: results.length
+        };
     }
     async getFinalReport(studentId) {
         return this.prisma.finalGrade.findMany({

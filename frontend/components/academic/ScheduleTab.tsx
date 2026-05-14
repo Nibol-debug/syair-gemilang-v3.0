@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, X, Loader2, Save, Calendar, Clock, Users, Book, User } from 'lucide-react';
 import { apiRequest } from '@/lib/api';
+import { useUserRole } from '@/lib/useUserRole';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_LABELS: Record<string, string> = {
@@ -19,6 +20,7 @@ const DAY_COLORS: Record<string, string> = {
 };
 
 export default function ScheduleTab() {
+  const { canManageAcademic } = useUserRole();
   const [schedules, setSchedules] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -98,9 +100,11 @@ export default function ScheduleTab() {
             <button onClick={() => setViewMode('grid')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'grid' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant'}`}>Grid</button>
             <button onClick={() => setViewMode('table')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'table' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant'}`}>Tabel</button>
           </div>
-          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
-            <Plus className="w-4 h-4" /> Tambah Jadwal
-          </button>
+          {canManageAcademic && (
+            <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+              <Plus className="w-4 h-4" /> Tambah Jadwal
+            </button>
+          )}
         </div>
       </div>
 
@@ -148,9 +152,11 @@ export default function ScheduleTab() {
                       <span className="text-[10px] font-semibold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">{s.class?.name}</span>
                       <span className="text-[10px] text-on-surface-variant">{s.teacher?.full_name}</span>
                     </div>
-                    <button onClick={() => handleDelete(s.id)} className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error rounded transition-all">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {canManageAcademic && (
+                      <button onClick={() => handleDelete(s.id)} className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error rounded transition-all">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -182,7 +188,9 @@ export default function ScheduleTab() {
                   <td className="py-3 px-6"><span className="px-2 py-0.5 bg-surface-container border border-outline-variant rounded text-[11px] font-bold">{s.class?.name}</span></td>
                   <td className="py-3 px-6 text-on-surface-variant">{s.teacher?.full_name}</td>
                   <td className="py-3 px-6 text-right">
-                    <button onClick={() => handleDelete(s.id)} className="p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-md transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                    {canManageAcademic && (
+                      <button onClick={() => handleDelete(s.id)} className="p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-md transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                    )}
                   </td>
                 </tr>
               ))}

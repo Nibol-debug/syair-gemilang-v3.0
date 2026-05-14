@@ -17,26 +17,25 @@ const common_1 = require("@nestjs/common");
 const audit_logs_service_1 = require("./audit-logs.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
-const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let AuditLogsController = class AuditLogsController {
     auditLogsService;
     constructor(auditLogsService) {
         this.auditLogsService = auditLogsService;
     }
-    findAll(page, limit, module, action) {
-        return this.auditLogsService.findAll({ page, limit, module, action });
+    findAll(req, page, limit, module, action) {
+        return this.auditLogsService.findAll({ page, limit, module, action, user: req.user });
     }
 };
 exports.AuditLogsController = AuditLogsController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('Administrator Utama'),
-    __param(0, (0, common_1.Query)('page')),
-    __param(1, (0, common_1.Query)('limit')),
-    __param(2, (0, common_1.Query)('module')),
-    __param(3, (0, common_1.Query)('action')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
+    __param(3, (0, common_1.Query)('module')),
+    __param(4, (0, common_1.Query)('action')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:paramtypes", [Object, Number, Number, String, String]),
     __metadata("design:returntype", void 0)
 ], AuditLogsController.prototype, "findAll", null);
 exports.AuditLogsController = AuditLogsController = __decorate([

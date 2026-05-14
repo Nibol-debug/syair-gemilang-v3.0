@@ -51,6 +51,7 @@
 - major_id
 - batch_id
 - homeroom_teacher_id
+- class_president_id (nullable)
 
 ---
 
@@ -283,6 +284,8 @@ POST /employees/:id/documents
 - id
 - name
 - major_id (nullable)
+- hours_per_week (nullable)
+- competency_standards (nullable)
 
 ---
 
@@ -291,6 +294,7 @@ POST /employees/:id/documents
 - class_id
 - subject_id
 - teacher_id
+- room (nullable)
 - day
 - start_time
 - end_time
@@ -312,6 +316,8 @@ POST /employees/:id/documents
 - class_id
 - subject_id
 - note
+- material_summary (nullable)
+- assignment_given (nullable)
 - date
 
 ---
@@ -342,7 +348,7 @@ POST /teaching-log
   - class_id
   - teacher_id
   - subject_id
-- basic anti bentrok (no duplicate time)
+- basic anti bentrok (no duplicate time, teacher, or room)
 
 ---
 

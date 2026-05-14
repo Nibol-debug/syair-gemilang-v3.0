@@ -9,6 +9,9 @@ export declare class SubjectsController {
         id: string;
         major_id: string | null;
         name: string;
+        passing_grade: number;
+        hours_per_week: number | null;
+        competency_standards: string | null;
     }>;
     findAll(pagination: PaginationDto, major_id?: string): Promise<{
         data: ({
@@ -23,6 +26,9 @@ export declare class SubjectsController {
             id: string;
             major_id: string | null;
             name: string;
+            passing_grade: number;
+            hours_per_week: number | null;
+            competency_standards: string | null;
         })[];
         meta: {
             total: number;
@@ -43,6 +49,9 @@ export declare class SubjectsController {
         id: string;
         major_id: string | null;
         name: string;
+        passing_grade: number;
+        hours_per_week: number | null;
+        competency_standards: string | null;
     }>;
     update(id: string, updateSubjectDto: UpdateSubjectDto): Promise<{
         major: {
@@ -56,10 +65,16 @@ export declare class SubjectsController {
         id: string;
         major_id: string | null;
         name: string;
+        passing_grade: number;
+        hours_per_week: number | null;
+        competency_standards: string | null;
     }>;
     remove(id: string): Promise<{
         id: string;
         major_id: string | null;
         name: string;
+        passing_grade: number;
+        hours_per_week: number | null;
+        competency_standards: string | null;
     }>;
 }

@@ -5,8 +5,10 @@ import { Plus, Loader2, Save, FileText, X, Calendar, User, Book, Clock } from 'l
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
+import { useUserRole } from '@/lib/useUserRole';
 
 export default function TeachingLogTab() {
+  const { isTeacher } = useUserRole();
   const [logs, setLogs] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
@@ -73,9 +75,11 @@ export default function TeachingLogTab() {
           <h3 className="text-xl font-bold text-on-surface">Jurnal Mengajar</h3>
           <p className="text-sm text-on-surface-variant mt-1">Catatan materi dan tugas setiap sesi pertemuan.</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
-          <Plus className="w-4 h-4" /> Tulis Jurnal
-        </button>
+        {isTeacher && (
+          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+            <Plus className="w-4 h-4" /> Tulis Jurnal
+          </button>
+        )}
       </div>
 
       {/* Filters */}

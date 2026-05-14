@@ -11,3 +11,12 @@ export declare class FinalizeGradeDto {
     subject_id: string;
     semester: number;
 }
+export declare class FinalizeClassGradeDto {
+    class_id: string;
+    subject_id: string;
+    semester: number;
+}
+export declare class UpdateGradeComponentDto {
+    id: string;
+    weight_percentage: number;
+}

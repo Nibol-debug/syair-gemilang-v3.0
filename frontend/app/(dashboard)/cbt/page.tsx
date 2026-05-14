@@ -8,6 +8,7 @@ import {
   Trash2, Eye, Shield, BookOpen, Timer, Monitor, RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getUserFromToken } from '@/lib/utils';
 import Link from 'next/link';
 import { useUserRole } from '@/lib/useUserRole';
 
@@ -43,7 +44,21 @@ export default function CBTPage() {
     try {
       const query = searchQuery ? `&search=${searchQuery}` : '';
       const response = await apiRequest(`/exams?limit=50${query}`);
-      setExams(response.data || []);
+      let examsData = response.data || [];
+      
+      // Filter untuk siswa: hanya yang sedang active dan sesuai major mereka
+      const user = getUserFromToken();
+      if (user?.role === 'Siswa' || user?.role === 'Orang Tua') {
+        const now = new Date();
+        examsData = examsData.filter((exam: any) => {
+          const startTime = new Date(exam.start_time);
+          const endTime = new Date(exam.end_time);
+          // Hanya tampilkan ujian yang sedang berlangsung
+          return startTime <= now && endTime >= now;
+        });
+      }
+      
+      setExams(examsData);
     } catch (err) {
       console.error('Failed to fetch exams', err);
     } finally {
@@ -83,7 +98,7 @@ export default function CBTPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token) {
       fetchMasterData();
       fetchStats();
@@ -92,7 +107,7 @@ export default function CBTPage() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     if (token) {
       const timer = setTimeout(() => fetchExams(), 300);
       return () => clearTimeout(timer);
@@ -108,16 +123,38 @@ export default function CBTPage() {
 
   const handleCreateExam = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.subject_id) {
+      alert('Pilih Mata Pelajaran terlebih dahulu.'); return;
+    }
+    if (!formData.major_id) {
+      alert('Pilih Jurusan terlebih dahulu.'); return;
+    }
+    if (!formData.start_time || !formData.end_time) {
+      alert('Waktu mulai dan selesai harus diisi.'); return;
+    }
+
     setIsSubmitting(true);
     try {
+      const start = new Date(formData.start_time);
+      const end = new Date(formData.end_time);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+         throw new Error("Format tanggal tidak valid.");
+      }
+
+      if (end <= start) {
+         throw new Error("Waktu selesai harus lebih besar dari waktu mulai.");
+      }
+
       const payload: any = {
         title: formData.title,
         subject_id: formData.subject_id,
         major_id: formData.major_id,
         duration: Number(formData.duration),
         token: formData.token,
-        start_time: new Date(formData.start_time).toISOString(),
-        end_time: new Date(formData.end_time).toISOString()
+        start_time: start.toISOString(),
+        end_time: end.toISOString()
       };
       await apiRequest('/exams', {
         method: 'POST',
@@ -286,9 +323,11 @@ export default function CBTPage() {
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            {canManageExams && (
                             <Link href={`/cbt/${exam.id}`} className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Bank Soal & Detail">
                               <Eye className="w-4 h-4" />
                             </Link>
+                            )}
                             {status.label === 'Aktif' && (
                               <Link href={`/cbt/take/${exam.id}`} className="p-2 text-secondary hover:bg-secondary/10 rounded-lg transition-colors" title="Mulai Ujian">
                                 <Play className="w-4 h-4" />
@@ -357,8 +396,8 @@ export default function CBTPage() {
 
       {/* Create Exam Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-surface-container-lowest w-full sm:max-w-[36rem] rounded-t-3xl sm:rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface">
               <h3 className="text-lg font-bold text-on-surface flex items-center gap-2"><Plus className="w-5 h-5 text-primary" />Buat Ujian Baru</h3>
               <button onClick={() => setIsModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
@@ -366,7 +405,7 @@ export default function CBTPage() {
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
               <form id="examForm" onSubmit={handleCreateExam} className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Judul Ujian</label>
@@ -426,9 +465,9 @@ export default function CBTPage() {
               </form>
             </div>
 
-            <div className="px-6 py-4 border-t border-outline-variant bg-surface flex justify-end gap-3">
-              <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">Batal</button>
-              <button type="submit" form="examForm" disabled={isSubmitting} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">
+            <div className="px-6 py-4 border-t border-outline-variant bg-surface flex flex-col sm:flex-row justify-end gap-3">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all text-center">Batal</button>
+              <button type="submit" form="examForm" disabled={isSubmitting} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 active:scale-95">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Simpan Ujian
               </button>
@@ -439,8 +478,8 @@ export default function CBTPage() {
 
       {/* Delete Confirm Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-8 text-center space-y-6">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4">
+          <div className="bg-surface-container-lowest w-full sm:max-w-[28rem] rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8 text-center space-y-6 animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
             <div className="w-20 h-20 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error shadow-inner">
               <Trash2 className="w-10 h-10" />
             </div>
