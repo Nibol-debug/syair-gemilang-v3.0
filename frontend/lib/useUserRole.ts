@@ -19,6 +19,8 @@ export function useUserRole() {
   return {
     user,
     role,
+    employeeId: user?.employeeId,
+    studentId: user?.studentId,
     isAdmin: ADMIN_ROLES.includes(role),
     isStaff: STAFF_ROLES.includes(role),
     isTeacher: TEACHER_ROLES.includes(role),

@@ -35,6 +35,7 @@ model User {
   user_devices  UserDevice[]
   notifications Notification[]
   preferences   UserPreferences?
+  approved_leaves LeaveRequest[]
 
   @@map("users")
 }
@@ -251,6 +252,12 @@ model Employee {
   schedules     Schedule[]
   teaching_logs TeachingLog[]
   behavior_assessments StudentBehaviorAssessment[]
+  leave_requests LeaveRequest[]
+  payrolls      Payroll[]
+  appraisals_as_appraisee EmployeeAppraisal[] @relation("Appraisee")
+  appraisals_as_evaluator EmployeeAppraisal[] @relation("Evaluator")
+  asset_loans   AssetLoan[]
+  history       EmployeeHistory[]
 
   @@map("employees")
 }
@@ -608,6 +615,7 @@ model Asset {
   status     String   @default("available") // available, loaned, maintenance
   qr_code    String?  @db.LongText
   created_at DateTime @default(now())
+  loans      AssetLoan[]
 
   @@map("assets")
 }
@@ -667,4 +675,88 @@ model StudentBehaviorAssessment {
   created_at   DateTime @default(now())
 
   @@map("student_behavior_assessments")
+}
+
+model EmployeeHistory {
+  id          String   @id @default(uuid())
+  employee_id String
+  employee    Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  type        String // promotion, education, mutation, achievement
+  description String   @db.Text
+  date        DateTime
+  created_at  DateTime @default(now())
+
+  @@map("employee_histories")
+}
+
+model LeaveRequest {
+  id          String    @id @default(uuid())
+  employee_id String
+  employee    Employee  @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  type        String // sick, annual_leave, emergency, maternity
+  start_date  DateTime
+  end_date    DateTime
+  reason      String    @db.Text
+  proof_url   String?   @db.Text
+  status      String    @default("pending") // pending, approved, rejected
+  approver_id String?
+  approver    User?     @relation(fields: [approver_id], references: [id], onDelete: SetNull)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("leave_requests")
+}
+
+model Payroll {
+  id            String   @id @default(uuid())
+  employee_id   String
+  employee      Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  month         Int
+  year          Int
+  basic_salary  Decimal  @db.Decimal(12, 2)
+  allowances    Decimal  @db.Decimal(12, 2) @default(0)
+  deductions    Decimal  @db.Decimal(12, 2) @default(0)
+  net_salary    Decimal  @db.Decimal(12, 2)
+  status        String   @default("pending") // pending, paid
+  pdf_url       String?  @db.Text
+  payment_date  DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@unique([employee_id, month, year])
+  @@map("payrolls")
+}
+
+model EmployeeAppraisal {
+  id               String   @id @default(uuid())
+  employee_id      String
+  employee         Employee @relation("Appraisee", fields: [employee_id], references: [id], onDelete: Cascade)
+  evaluator_id     String
+  evaluator        Employee @relation("Evaluator", fields: [evaluator_id], references: [id], onDelete: Cascade)
+  period           String
+  discipline_score Decimal  @db.Decimal(5, 2)
+  pedagogic_score  Decimal  @db.Decimal(5, 2)
+  professional_score Decimal @db.Decimal(5, 2)
+  notes            String?  @db.Text
+  created_at       DateTime @default(now())
+
+  @@map("employee_appraisals")
+}
+
+model AssetLoan {
+  id                   String   @id @default(uuid())
+  asset_id             String
+  asset                Asset    @relation(fields: [asset_id], references: [id], onDelete: Cascade)
+  employee_id          String
+  employee             Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  loan_date            DateTime @default(now())
+  expected_return_date DateTime?
+  actual_return_date   DateTime?
+  status               String   @default("borrowed") // borrowed, returned, overdue
+  condition_on_return  String?
+  notes                String?  @db.Text
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  @@map("asset_loans")
 }

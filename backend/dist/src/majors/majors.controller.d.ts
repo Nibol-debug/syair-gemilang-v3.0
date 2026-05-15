@@ -7,10 +7,10 @@ export declare class MajorsController {
     constructor(majorsService: MajorsService);
     create(createMajorDto: CreateMajorDto): Promise<{
         id: string;
-        code: string;
         name: string;
-        created_at: Date;
         branch_id: string;
+        created_at: Date;
+        code: string;
     }>;
     findAll(paginationDto: PaginationDto, branchId?: string): Promise<{
         data: ({
@@ -21,10 +21,10 @@ export declare class MajorsController {
             };
         } & {
             id: string;
-            code: string;
             name: string;
-            created_at: Date;
             branch_id: string;
+            created_at: Date;
+            code: string;
         })[];
         meta: {
             total: number;
@@ -35,23 +35,23 @@ export declare class MajorsController {
     }>;
     findOne(id: string): Promise<{
         id: string;
-        code: string;
         name: string;
-        created_at: Date;
         branch_id: string;
+        created_at: Date;
+        code: string;
     }>;
     update(id: string, updateMajorDto: UpdateMajorDto): Promise<{
         id: string;
-        code: string;
         name: string;
-        created_at: Date;
         branch_id: string;
+        created_at: Date;
+        code: string;
     }>;
     remove(id: string): Promise<{
         id: string;
-        code: string;
         name: string;
-        created_at: Date;
         branch_id: string;
+        created_at: Date;
+        code: string;
     }>;
 }

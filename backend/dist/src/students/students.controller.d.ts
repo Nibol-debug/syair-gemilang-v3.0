@@ -8,9 +8,9 @@ export declare class StudentsController {
     constructor(studentsService: StudentsService);
     create(createStudentDto: CreateStudentDto): Promise<{
         parents: {
+            id: string;
             address: string;
             phone: string;
-            id: string;
             student_id: string;
             father_name: string;
             mother_name: string;
@@ -23,14 +23,13 @@ export declare class StudentsController {
             date: Date;
         }[];
     } & {
-        class_id: string | null;
-        branch_id: string;
+        id: string;
+        full_name: string;
+        status: string;
         major_id: string;
-        batch_id: string;
-        gender: string;
         nis: string;
         nik: string;
-        full_name: string;
+        gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
@@ -40,8 +39,9 @@ export declare class StudentsController {
         profile_picture: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
-        status: string;
-        id: string;
+        branch_id: string;
+        class_id: string | null;
+        batch_id: string;
         qr_code: string | null;
         created_at: Date;
         applicant_id: string | null;
@@ -49,17 +49,26 @@ export declare class StudentsController {
     findAll(query: StudentQueryDto): Promise<{
         data: ({
             major: {
-                branch_id: string;
                 id: string;
-                created_at: Date;
                 name: string;
+                branch_id: string;
+                created_at: Date;
                 code: string;
             };
             branch: {
                 id: string;
-                created_at: Date;
                 name: string;
+                created_at: Date;
             };
+            class: {
+                id: string;
+                major_id: string;
+                name: string;
+                batch_id: string;
+                grade_level: number;
+                homeroom_teacher_id: string | null;
+                class_president_id: string | null;
+            } | null;
             batch: {
                 id: string;
                 name: string;
@@ -67,32 +76,22 @@ export declare class StudentsController {
                 end_date: Date;
                 is_active: boolean;
             };
-            class: {
-                major_id: string;
-                batch_id: string;
-                id: string;
-                name: string;
-                grade_level: number;
-                homeroom_teacher_id: string | null;
-                class_president_id: string | null;
-            } | null;
             parents: {
+                id: string;
                 address: string;
                 phone: string;
-                id: string;
                 student_id: string;
                 father_name: string;
                 mother_name: string;
             }[];
         } & {
-            class_id: string | null;
-            branch_id: string;
+            id: string;
+            full_name: string;
+            status: string;
             major_id: string;
-            batch_id: string;
-            gender: string;
             nis: string;
             nik: string;
-            full_name: string;
+            gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
@@ -102,8 +101,9 @@ export declare class StudentsController {
             profile_picture: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
-            status: string;
-            id: string;
+            branch_id: string;
+            class_id: string | null;
+            batch_id: string;
             qr_code: string | null;
             created_at: Date;
             applicant_id: string | null;
@@ -124,17 +124,26 @@ export declare class StudentsController {
     };
     findOne(id: string): Promise<{
         major: {
-            branch_id: string;
             id: string;
-            created_at: Date;
             name: string;
+            branch_id: string;
+            created_at: Date;
             code: string;
         };
         branch: {
             id: string;
-            created_at: Date;
             name: string;
+            created_at: Date;
         };
+        class: {
+            id: string;
+            major_id: string;
+            name: string;
+            batch_id: string;
+            grade_level: number;
+            homeroom_teacher_id: string | null;
+            class_president_id: string | null;
+        } | null;
         batch: {
             id: string;
             name: string;
@@ -142,19 +151,10 @@ export declare class StudentsController {
             end_date: Date;
             is_active: boolean;
         };
-        class: {
-            major_id: string;
-            batch_id: string;
-            id: string;
-            name: string;
-            grade_level: number;
-            homeroom_teacher_id: string | null;
-            class_president_id: string | null;
-        } | null;
         parents: {
+            id: string;
             address: string;
             phone: string;
-            id: string;
             student_id: string;
             father_name: string;
             mother_name: string;
@@ -167,14 +167,13 @@ export declare class StudentsController {
             date: Date;
         }[];
     } & {
-        class_id: string | null;
-        branch_id: string;
+        id: string;
+        full_name: string;
+        status: string;
         major_id: string;
-        batch_id: string;
-        gender: string;
         nis: string;
         nik: string;
-        full_name: string;
+        gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
@@ -184,8 +183,9 @@ export declare class StudentsController {
         profile_picture: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
-        status: string;
-        id: string;
+        branch_id: string;
+        class_id: string | null;
+        batch_id: string;
         qr_code: string | null;
         created_at: Date;
         applicant_id: string | null;
@@ -193,13 +193,13 @@ export declare class StudentsController {
     update(id: string, updateStudentDto: UpdateStudentDto): Promise<{
         branch: {
             id: string;
-            created_at: Date;
             name: string;
+            created_at: Date;
         };
         parents: {
+            id: string;
             address: string;
             phone: string;
-            id: string;
             student_id: string;
             father_name: string;
             mother_name: string;
@@ -212,14 +212,13 @@ export declare class StudentsController {
             date: Date;
         }[];
     } & {
-        class_id: string | null;
-        branch_id: string;
+        id: string;
+        full_name: string;
+        status: string;
         major_id: string;
-        batch_id: string;
-        gender: string;
         nis: string;
         nik: string;
-        full_name: string;
+        gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
@@ -229,21 +228,21 @@ export declare class StudentsController {
         profile_picture: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
-        status: string;
-        id: string;
+        branch_id: string;
+        class_id: string | null;
+        batch_id: string;
         qr_code: string | null;
         created_at: Date;
         applicant_id: string | null;
     }>;
     remove(id: string): Promise<{
-        class_id: string | null;
-        branch_id: string;
+        id: string;
+        full_name: string;
+        status: string;
         major_id: string;
-        batch_id: string;
-        gender: string;
         nis: string;
         nik: string;
-        full_name: string;
+        gender: string;
         birth_place: string;
         birth_date: Date;
         address: string;
@@ -253,8 +252,9 @@ export declare class StudentsController {
         profile_picture: string | null;
         latitude: import("@prisma/client/runtime/library").Decimal | null;
         longitude: import("@prisma/client/runtime/library").Decimal | null;
-        status: string;
-        id: string;
+        branch_id: string;
+        class_id: string | null;
+        batch_id: string;
         qr_code: string | null;
         created_at: Date;
         applicant_id: string | null;

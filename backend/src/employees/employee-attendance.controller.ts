@@ -24,7 +24,7 @@ export class EmployeeAttendanceController {
   @Post('self')
   @Roles('Guru Mata Pelajaran', 'Wali Kelas', 'Bendahara', 'Staf Sarpras', 'Administrator Utama')
   recordSelfAttendance(@Req() req: any) {
-    const employeeId = req.user.employee_id;
+    const employeeId = req.user.employeeId;
     if (!employeeId) {
       throw new Error('Akun Anda tidak terhubung dengan data pegawai.');
     }

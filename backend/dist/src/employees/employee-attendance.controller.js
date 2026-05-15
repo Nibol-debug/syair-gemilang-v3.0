@@ -30,7 +30,7 @@ let EmployeeAttendanceController = class EmployeeAttendanceController {
         return this.employeesService.getMonthlyAttendance(month || new Date().toISOString().slice(0, 7));
     }
     recordSelfAttendance(req) {
-        const employeeId = req.user.employee_id;
+        const employeeId = req.user.employeeId;
         if (!employeeId) {
             throw new Error('Akun Anda tidak terhubung dengan data pegawai.');
         }

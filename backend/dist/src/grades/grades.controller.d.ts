@@ -16,49 +16,49 @@ export declare class GradesController {
     }>;
     create(createGradeDto: CreateGradeDto): Promise<{
         id: string;
-        type: string;
-        score: import("@prisma/client/runtime/library").Decimal;
-        weight: import("@prisma/client/runtime/library").Decimal;
-        created_at: Date;
-        student_id: string | null;
-        applicant_id: string | null;
-        subject_id: string;
-        exam_id: string | null;
-        batch_id: string;
         major_id: string;
+        batch_id: string;
+        created_at: Date;
+        applicant_id: string | null;
+        student_id: string | null;
+        type: string;
+        subject_id: string;
+        score: import("@prisma/client/runtime/library").Decimal;
+        exam_id: string | null;
+        weight: import("@prisma/client/runtime/library").Decimal;
     }>;
     findByStudent(studentId: string, pagination: PaginationDto): Promise<{
         data: ({
             subject: {
                 id: string;
-                name: string;
                 major_id: string | null;
-                hours_per_week: number | null;
+                name: string;
                 passing_grade: number;
+                hours_per_week: number | null;
                 competency_standards: string | null;
             };
             exam: {
                 id: string;
-                subject_id: string;
                 major_id: string;
+                subject_id: string;
+                start_time: Date;
+                end_time: Date;
                 title: string;
                 duration: number;
                 token: string;
-                start_time: Date;
-                end_time: Date;
             } | null;
         } & {
             id: string;
-            type: string;
-            score: import("@prisma/client/runtime/library").Decimal;
-            weight: import("@prisma/client/runtime/library").Decimal;
-            created_at: Date;
-            student_id: string | null;
-            applicant_id: string | null;
-            subject_id: string;
-            exam_id: string | null;
-            batch_id: string;
             major_id: string;
+            batch_id: string;
+            created_at: Date;
+            applicant_id: string | null;
+            student_id: string | null;
+            type: string;
+            subject_id: string;
+            score: import("@prisma/client/runtime/library").Decimal;
+            exam_id: string | null;
+            weight: import("@prisma/client/runtime/library").Decimal;
         })[];
         meta: {
             total: number;
@@ -75,24 +75,24 @@ export declare class GradesController {
     getFinalReport(studentId: string): Promise<({
         subject: {
             id: string;
-            name: string;
             major_id: string | null;
-            hours_per_week: number | null;
+            name: string;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
-        batch_id: string;
         major_id: string;
+        batch_id: string;
+        student_id: string;
+        description: string | null;
+        subject_id: string;
+        semester: number;
+        competencies_achieved: string | null;
         final_score: import("@prisma/client/runtime/library").Decimal;
         grade_letter: string;
         is_passed: boolean;
-        description: string | null;
-        competencies_achieved: string | null;
-        semester: number;
     })[]>;
     findByClass(classId: string, subjectId: string): Promise<{
         id: string;

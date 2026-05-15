@@ -22,33 +22,33 @@ export declare class RemedialService {
     create(data: CreateRemedialDto): Promise<{
         student: {
             id: string;
-            nis: string;
             full_name: string;
+            nis: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            hours_per_week: number | null;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            subject_id: string;
             major_id: string;
+            subject_id: string;
+            start_time: Date;
+            end_time: Date;
             title: string;
             duration: number;
             token: string;
-            start_time: Date;
-            end_time: Date;
         } | null;
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;
@@ -60,24 +60,24 @@ export declare class RemedialService {
     schedule(remedialId: string, data: ScheduleRemedialDto): Promise<{
         student: {
             id: string;
-            batch_id: string;
+            full_name: string;
+            status: string;
             major_id: string;
             nis: string;
             nik: string;
-            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
             phone: string;
             email: string;
-            status: string;
             health_history: string | null;
             profile_picture: string | null;
             latitude: Prisma.Decimal | null;
             longitude: Prisma.Decimal | null;
             branch_id: string;
             class_id: string | null;
+            batch_id: string;
             qr_code: string | null;
             created_at: Date;
             applicant_id: string | null;
@@ -86,26 +86,26 @@ export declare class RemedialService {
             id: string;
             major_id: string | null;
             name: string;
-            hours_per_week: number | null;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            subject_id: string;
             major_id: string;
+            subject_id: string;
+            start_time: Date;
+            end_time: Date;
             title: string;
             duration: number;
             token: string;
-            start_time: Date;
-            end_time: Date;
         } | null;
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;
@@ -117,24 +117,24 @@ export declare class RemedialService {
     updateScore(remedialId: string, data: UpdateRemedialScoreDto): Promise<{
         student: {
             id: string;
-            batch_id: string;
+            full_name: string;
+            status: string;
             major_id: string;
             nis: string;
             nik: string;
-            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
             phone: string;
             email: string;
-            status: string;
             health_history: string | null;
             profile_picture: string | null;
             latitude: Prisma.Decimal | null;
             longitude: Prisma.Decimal | null;
             branch_id: string;
             class_id: string | null;
+            batch_id: string;
             qr_code: string | null;
             created_at: Date;
             applicant_id: string | null;
@@ -143,16 +143,16 @@ export declare class RemedialService {
             id: string;
             major_id: string | null;
             name: string;
-            hours_per_week: number | null;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;
@@ -168,36 +168,36 @@ export declare class RemedialService {
     }): Promise<({
         student: {
             id: string;
+            full_name: string;
+            nis: string;
             class: {
                 name: string;
             } | null;
-            nis: string;
-            full_name: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            hours_per_week: number | null;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            subject_id: string;
             major_id: string;
+            subject_id: string;
+            start_time: Date;
+            end_time: Date;
             title: string;
             duration: number;
             token: string;
-            start_time: Date;
-            end_time: Date;
         } | null;
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;
@@ -209,6 +209,17 @@ export declare class RemedialService {
     findOne(id: string): Promise<{
         student: {
             id: string;
+            full_name: string;
+            nis: string;
+            class: {
+                id: string;
+                major_id: string;
+                name: string;
+                batch_id: string;
+                grade_level: number;
+                homeroom_teacher_id: string | null;
+                class_president_id: string | null;
+            } | null;
             batch: {
                 id: string;
                 name: string;
@@ -216,42 +227,31 @@ export declare class RemedialService {
                 end_date: Date;
                 is_active: boolean;
             };
-            class: {
-                id: string;
-                batch_id: string;
-                major_id: string;
-                name: string;
-                grade_level: number;
-                homeroom_teacher_id: string | null;
-                class_president_id: string | null;
-            } | null;
-            nis: string;
-            full_name: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            hours_per_week: number | null;
             passing_grade: number;
+            hours_per_week: number | null;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            subject_id: string;
             major_id: string;
+            subject_id: string;
+            start_time: Date;
+            end_time: Date;
             title: string;
             duration: number;
             token: string;
-            start_time: Date;
-            end_time: Date;
         } | null;
     } & {
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;
@@ -262,10 +262,10 @@ export declare class RemedialService {
     }>;
     remove(id: string): Promise<{
         id: string;
-        student_id: string;
-        subject_id: string;
         status: string;
         created_at: Date;
+        student_id: string;
+        subject_id: string;
         exam_id: string | null;
         score_before: Prisma.Decimal;
         score_after: Prisma.Decimal | null;

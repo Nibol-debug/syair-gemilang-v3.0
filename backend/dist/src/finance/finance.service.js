@@ -77,17 +77,44 @@ let FinanceService = class FinanceService {
         });
     }
     async createPayment(createPaymentDto) {
+        const paymentDate = createPaymentDto.date ? new Date(createPaymentDto.date) : new Date();
+        paymentDate.setHours(0, 0, 0, 0);
+        const nextDay = new Date(paymentDate);
+        nextDay.setDate(paymentDate.getDate() + 1);
+        const existingPayment = await this.prisma.payment.findFirst({
+            where: {
+                student_id: createPaymentDto.student_id,
+                fee_id: createPaymentDto.fee_id,
+                date: {
+                    gte: paymentDate,
+                    lt: nextDay,
+                },
+            },
+        });
+        if (existingPayment) {
+            throw new Error('Pembayaran untuk siswa dan jenis biaya ini pada tanggal yang sama sudah ada.');
+        }
         const payment = await this.prisma.payment.create({
             data: {
                 ...createPaymentDto,
-                date: createPaymentDto.date ? new Date(createPaymentDto.date) : new Date(),
+                date: paymentDate,
             },
             include: {
                 student: true,
                 fee: true,
             },
         });
-        await this.notificationsService.createForUser(payment.student_id, 'Pembayaran Baru', `Pembayaran ${payment.fee.name} sebesar Rp ${payment.amount.toLocaleString()} telah dicatatkan.`, 'payment', '/finance');
+        try {
+            const user = await this.prisma.user.findFirst({
+                where: { student_id: payment.student_id },
+            });
+            if (user) {
+                await this.notificationsService.createForUser(user.id, 'Pembayaran Baru', `Pembayaran ${payment.fee.name} sebesar Rp ${Number(payment.amount).toLocaleString()} telah dicatatkan.`, 'payment', '/finance');
+            }
+        }
+        catch (err) {
+            console.error('Failed to create notification for payment:', err);
+        }
         return payment;
     }
     async findAllPayments(pagination, filters) {
@@ -162,8 +189,18 @@ let FinanceService = class FinanceService {
                 fee: true,
             },
         });
-        if (currentPayment.status !== 'success' && updatedPayment.status === 'success') {
-            await this.notificationsService.createForUser(updatedPayment.student_id, 'Pembayaran Berhasil', `Pembayaran ${updatedPayment.fee.name} sebesar Rp ${updatedPayment.amount.toLocaleString()} telah berhasil dikonfirmasi.`, 'payment', '/finance');
+        try {
+            if (currentPayment.status !== 'success' && updatedPayment.status === 'success') {
+                const user = await this.prisma.user.findFirst({
+                    where: { student_id: updatedPayment.student_id },
+                });
+                if (user) {
+                    await this.notificationsService.createForUser(user.id, 'Pembayaran Berhasil', `Pembayaran ${updatedPayment.fee.name} sebesar Rp ${Number(updatedPayment.amount).toLocaleString()} telah berhasil dikonfirmasi.`, 'payment', '/finance');
+                }
+            }
+        }
+        catch (err) {
+            console.error('Failed to create notification for payment status change:', err);
         }
         if (updatedPayment.status === 'success' && updatedPayment.fee.name === 'Biaya Daftar Ulang') {
             await this.studentsService.finalizeRegistration(updatedPayment.student_id);

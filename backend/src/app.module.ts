@@ -35,6 +35,11 @@ import { RemedialModule } from './remedial/remedial.module';
 import { ReportCardsModule } from './report-cards/report-cards.module';
 import { StudentBehaviorModule } from './student-behavior/student-behavior.module';
 import { SettingsModule } from './settings/settings.module';
+import { LeavesModule } from './leaves/leaves.module';
+import { PayrollsModule } from './payrolls/payrolls.module';
+import { AppraisalsModule } from './appraisals/appraisals.module';
+import { AssetLoansModule } from './asset-loans/asset-loans.module';
+import { EmployeeHistoryModule } from './employee-history/employee-history.module';
 
 @Module({
   imports: [
@@ -72,6 +77,11 @@ import { SettingsModule } from './settings/settings.module';
     ReportCardsModule,
     StudentBehaviorModule,
     SettingsModule,
+    LeavesModule,
+    PayrollsModule,
+    AppraisalsModule,
+    AssetLoansModule,
+    EmployeeHistoryModule,
   ],
   controllers: [AppController],
   providers: [

@@ -17,16 +17,14 @@ export class RemedialController {
   @Get('needs')
   @Roles('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas')
   getStudentsNeedingRemedial(
-    subjectId?: string,
     @Query('subject_id') subjectId: string,
     @Query('class_id') classId?: string,
-    @Query('semester') semester?: number
+    @Query('semester') semester?: string,
   ) {
     return this.remedialService.getStudentsNeedingRemedial(
-    subjectId?: string,
       subjectId,
       classId,
-      semester ? parseInt(semester.toString()) : undefined
+      semester ? parseInt(semester) : undefined,
     );
   }
 

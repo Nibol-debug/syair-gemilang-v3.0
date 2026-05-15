@@ -44,6 +44,11 @@ const remedial_module_1 = require("./remedial/remedial.module");
 const report_cards_module_1 = require("./report-cards/report-cards.module");
 const student_behavior_module_1 = require("./student-behavior/student-behavior.module");
 const settings_module_1 = require("./settings/settings.module");
+const leaves_module_1 = require("./leaves/leaves.module");
+const payrolls_module_1 = require("./payrolls/payrolls.module");
+const appraisals_module_1 = require("./appraisals/appraisals.module");
+const asset_loans_module_1 = require("./asset-loans/asset-loans.module");
+const employee_history_module_1 = require("./employee-history/employee-history.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -84,6 +89,11 @@ exports.AppModule = AppModule = __decorate([
             report_cards_module_1.ReportCardsModule,
             student_behavior_module_1.StudentBehaviorModule,
             settings_module_1.SettingsModule,
+            leaves_module_1.LeavesModule,
+            payrolls_module_1.PayrollsModule,
+            appraisals_module_1.AppraisalsModule,
+            asset_loans_module_1.AssetLoansModule,
+            employee_history_module_1.EmployeeHistoryModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

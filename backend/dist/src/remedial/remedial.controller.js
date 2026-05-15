@@ -24,8 +24,8 @@ let RemedialController = class RemedialController {
     constructor(remedialService) {
         this.remedialService = remedialService;
     }
-    getStudentsNeedingRemedial(subjectId, subjectId, classId, semester) {
-        return this.remedialService.getStudentsNeedingRemedial(subjectId ?  : string, subjectId, classId, semester ? parseInt(semester.toString()) : undefined);
+    getStudentsNeedingRemedial(subjectId, classId, semester) {
+        return this.remedialService.getStudentsNeedingRemedial(subjectId, classId, semester ? parseInt(semester) : undefined);
     }
     getStats() {
         return this.remedialService.getStats();
@@ -53,11 +53,11 @@ exports.RemedialController = RemedialController;
 __decorate([
     (0, common_1.Get)('needs'),
     (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas'),
-    __param(1, (0, common_1.Query)('subject_id')),
-    __param(2, (0, common_1.Query)('class_id')),
-    __param(3, (0, common_1.Query)('semester')),
+    __param(0, (0, common_1.Query)('subject_id')),
+    __param(1, (0, common_1.Query)('class_id')),
+    __param(2, (0, common_1.Query)('semester')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, Number]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], RemedialController.prototype, "getStudentsNeedingRemedial", null);
 __decorate([
