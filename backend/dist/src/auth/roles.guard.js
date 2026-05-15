@@ -23,11 +23,20 @@ let RolesGuard = class RolesGuard {
             context.getHandler(),
             context.getClass(),
         ]);
-        if (!requiredRoles) {
+        if (!requiredRoles || requiredRoles.length === 0) {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
-        return requiredRoles.includes(user.role);
+        if (!user || !user.role) {
+            console.warn(`Access denied: No user or role found in request for endpoint ${context.getHandler().name}`);
+            return false;
+        }
+        const userRole = user.role;
+        const hasRole = requiredRoles.includes(userRole);
+        if (!hasRole) {
+            console.warn(`Access denied: User role '${userRole}' does not match required roles: ${requiredRoles.join(', ')}`);
+        }
+        return hasRole;
     }
 };
 exports.RolesGuard = RolesGuard;

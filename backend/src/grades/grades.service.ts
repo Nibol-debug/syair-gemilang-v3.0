@@ -167,8 +167,9 @@ export class GradesService {
       }
     });
 
+    let finalGradeRecord;
     if (existingFinal) {
-      return this.prisma.finalGrade.update({
+      finalGradeRecord = await this.prisma.finalGrade.update({
         where: { id: existingFinal.id },
         data: {
           final_score: new Prisma.Decimal(finalScore),
@@ -178,22 +179,46 @@ export class GradesService {
           competencies_achieved,
         }
       });
+    } else {
+      finalGradeRecord = await this.prisma.finalGrade.create({
+        data: {
+          student_id: data.student_id,
+          subject_id: data.subject_id,
+          semester: data.semester,
+          final_score: new Prisma.Decimal(finalScore),
+          grade_letter: gradeLetter,
+          is_passed: isPassed,
+          description,
+          competencies_achieved,
+          major_id: student.major_id,
+          batch_id: student.batch_id,
+        }
+      });
     }
 
-    return this.prisma.finalGrade.create({
-      data: {
-        student_id: data.student_id,
-        subject_id: data.subject_id,
-        semester: data.semester,
-        final_score: new Prisma.Decimal(finalScore),
-        grade_letter: gradeLetter,
-        is_passed: isPassed,
-        description,
-        competencies_achieved,
-        major_id: student.major_id,
-        batch_id: student.batch_id,
+    // Auto-create remedial record if student failed
+    if (!isPassed) {
+      const existingRemedial = await this.prisma.remedial.findFirst({
+        where: {
+          student_id: data.student_id,
+          subject_id: data.subject_id,
+          status: 'active',
+        }
+      });
+      if (!existingRemedial) {
+        await this.prisma.remedial.create({
+          data: {
+            student_id: data.student_id,
+            subject_id: data.subject_id,
+            score_before: new Prisma.Decimal(finalScore),
+            status: 'active',
+            notes: `Nilai di bawah KKM (${subject.passing_grade}). Nilai akhir: ${finalScore.toFixed(1)}`,
+          }
+        });
       }
-    });
+    }
+
+    return finalGradeRecord;
   }
 
   async finalizeClassGrades(data: { class_id: string, subject_id: string, semester: number }) {

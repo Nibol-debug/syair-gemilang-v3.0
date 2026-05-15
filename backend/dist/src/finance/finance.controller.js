@@ -21,6 +21,9 @@ const create_payment_dto_1 = require("./dto/create-payment.dto");
 const update_payment_dto_1 = require("./dto/update-payment.dto");
 const finance_query_dto_1 = require("./dto/finance-query.dto");
 const audit_interceptor_1 = require("../common/interceptors/audit.interceptor");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let FinanceController = class FinanceController {
     financeService;
     constructor(financeService) {
@@ -62,6 +65,7 @@ let FinanceController = class FinanceController {
 exports.FinanceController = FinanceController;
 __decorate([
     (0, common_1.Post)('fees'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_fee_dto_1.CreateFeeDto]),
@@ -69,6 +73,7 @@ __decorate([
 ], FinanceController.prototype, "createFee", null);
 __decorate([
     (0, common_1.Get)('fees'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara', 'Kepala Sekolah'),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [finance_query_dto_1.FinanceQueryDto]),
@@ -76,6 +81,7 @@ __decorate([
 ], FinanceController.prototype, "findAllFees", null);
 __decorate([
     (0, common_1.Get)('fees/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -83,6 +89,7 @@ __decorate([
 ], FinanceController.prototype, "findOneFee", null);
 __decorate([
     (0, common_1.Patch)('fees/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -91,6 +98,7 @@ __decorate([
 ], FinanceController.prototype, "updateFee", null);
 __decorate([
     (0, common_1.Delete)('fees/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -98,6 +106,7 @@ __decorate([
 ], FinanceController.prototype, "removeFee", null);
 __decorate([
     (0, common_1.Post)('payments'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_payment_dto_1.CreatePaymentDto]),
@@ -105,6 +114,7 @@ __decorate([
 ], FinanceController.prototype, "createPayment", null);
 __decorate([
     (0, common_1.Get)('payments'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara', 'Kepala Sekolah'),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [finance_query_dto_1.FinanceQueryDto]),
@@ -112,6 +122,7 @@ __decorate([
 ], FinanceController.prototype, "findAllPayments", null);
 __decorate([
     (0, common_1.Get)('payments/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara', 'Kepala Sekolah'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -119,6 +130,7 @@ __decorate([
 ], FinanceController.prototype, "findOnePayment", null);
 __decorate([
     (0, common_1.Patch)('payments/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -127,6 +139,7 @@ __decorate([
 ], FinanceController.prototype, "updatePayment", null);
 __decorate([
     (0, common_1.Delete)('payments/:id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -134,6 +147,7 @@ __decorate([
 ], FinanceController.prototype, "removePayment", null);
 exports.FinanceController = FinanceController = __decorate([
     (0, common_1.Controller)('finance'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.UseInterceptors)(audit_interceptor_1.AuditInterceptor),
     __metadata("design:paramtypes", [finance_service_1.FinanceService])
 ], FinanceController);

@@ -14,18 +14,24 @@ export class MajorsService {
     });
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, branchId?: string) {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
+    const where: any = {};
+    if (branchId) {
+      where.branch_id = branchId;
+    }
+
     const [data, total] = await Promise.all([
       this.prisma.major.findMany({
+        where,
         skip,
         take: limit,
         include: { branch: true },
         orderBy: { created_at: 'desc' },
       }),
-      this.prisma.major.count(),
+      this.prisma.major.count({ where }),
     ]);
 
     return {

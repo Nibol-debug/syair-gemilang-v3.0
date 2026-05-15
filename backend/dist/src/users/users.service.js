@@ -145,12 +145,41 @@ let UsersService = class UsersService {
                 }
             }
             if (Object.keys(updateData).length > 0) {
-                return await this.prisma.user.update({
+                await this.prisma.user.update({
                     where: { id: userId },
                     data: updateData,
                 });
             }
-            return user;
+            const updatedUser = await this.prisma.user.findUnique({
+                where: { id: userId },
+                include: {
+                    role: true,
+                    student: {
+                        select: {
+                            id: true,
+                            full_name: true,
+                            email: true,
+                            phone: true,
+                            profile_picture: true,
+                            gender: true,
+                            birth_place: true,
+                            birth_date: true,
+                            address: true,
+                        },
+                    },
+                    employee: {
+                        select: {
+                            id: true,
+                            full_name: true,
+                            education: true,
+                            position: true,
+                            join_date: true,
+                            status: true,
+                        },
+                    },
+                },
+            });
+            return updatedUser || user;
         }
         catch (error) {
             if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {

@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 const pagination_dto_1 = require("../../common/dto/pagination.dto");
 class StudentQueryDto extends pagination_dto_1.PaginationDto {
     class_id;
+    branch_id;
     major_id;
     batch_id;
     gender;
@@ -25,6 +26,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], StudentQueryDto.prototype, "class_id", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], StudentQueryDto.prototype, "branch_id", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),

@@ -445,7 +445,7 @@ function StatCard({ title, value, icon, color }: any) {
   };
 
   return (
-    <div className={cn("p-6 rounded-2xl border flex items-center gap-4 bg-surface-container-lowest shadow-sm", colorClasses[color])}>
+    <div className={cn("p-6 rounded-2xl border flex items-center gap-4 bg-surface-container-lowest shadow-sm relative overflow-hidden", colorClasses[color])}>
       <div className="p-3 rounded-xl bg-current opacity-10" />
       <div className="absolute p-3">{icon}</div>
       <div className="ml-12">

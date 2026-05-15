@@ -58,6 +58,7 @@ export default function MajorsPage() {
 
   // Filters & Search
   const [search, setSearch] = useState('');
+  const [branchFilter, setBranchFilter] = useState('');
   const [pagination, setPagination] = useState({
     page: 1, limit: 10, total: 0, last_page: 1
   });
@@ -100,13 +101,14 @@ export default function MajorsPage() {
   const fetchMajors = async () => {
     setIsLoading(true);
     try {
-      const query = new URLSearchParams({
+      const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
-        ...(search && { search }),
-      }).toString();
+      });
+      if (search) params.set('search', search);
+      if (branchFilter) params.set('branch_id', branchFilter);
 
-      const response = await apiRequest(`/majors?${query}`);
+      const response = await apiRequest(`/majors?${params.toString()}`);
       setMajors(response.data || []);
       setPagination(prev => ({
         ...prev,
@@ -127,7 +129,7 @@ export default function MajorsPage() {
       fetchStats();
       fetchMasterData();
     }
-  }, [pagination.page, search]);
+  }, [pagination.page, search, branchFilter]);
 
   const handleOpenModal = (major: any = null) => {
     if (major) {
@@ -228,19 +230,36 @@ export default function MajorsPage() {
 
       {/* Filter Section */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
-        <div className="w-full sm:max-w-[28rem]">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cari Jurusan</label>
-            <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
-              <Search className="w-4 h-4 text-outline mr-3" />
-              <input 
-                type="text" 
-                placeholder="Cari Kode atau Nama Jurusan..." 
-                className="bg-transparent outline-none text-sm w-full text-on-surface placeholder:text-outline-variant pr-8"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && <button onClick={() => setSearch('')} className="absolute right-3 text-outline hover:text-on-surface transition-colors"><X className="w-4 h-4" /></button>}
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex-1 min-w-[200px] sm:max-w-[28rem]">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Cari Jurusan</label>
+              <div className="flex items-center border border-outline-variant rounded-xl px-4 py-2.5 bg-surface-container focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
+                <Search className="w-4 h-4 text-outline mr-3" />
+                <input 
+                  type="text" 
+                  placeholder="Cari Kode atau Nama Jurusan..." 
+                  className="bg-transparent outline-none text-sm w-full text-on-surface placeholder:text-outline-variant pr-8"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && <button onClick={() => setSearch('')} className="absolute right-3 text-outline hover:text-on-surface transition-colors"><X className="w-4 h-4" /></button>}
+              </div>
+            </div>
+          </div>
+          <div className="w-full sm:w-64">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Filter Cabang</label>
+              <select
+                value={branchFilter}
+                onChange={(e) => setBranchFilter(e.target.value)}
+                className="px-4 py-2.5 bg-surface-container border border-outline-variant rounded-xl text-sm font-semibold text-on-surface outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+              >
+                <option value="">Semua Cabang</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

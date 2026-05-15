@@ -20,11 +20,16 @@ let RemedialService = class RemedialService {
     }
     async getStudentsNeedingRemedial(subjectId, classId, semester) {
         const where = {
-            subject_id: subjectId,
             is_passed: false,
         };
+        if (subjectId) {
+            where.subject_id = subjectId;
+        }
         if (semester) {
             where.semester = semester;
+        }
+        if (classId) {
+            where.student = { class_id: classId };
         }
         const finalGrades = await this.prisma.finalGrade.findMany({
             where,
@@ -39,9 +44,6 @@ let RemedialService = class RemedialService {
             }
         });
         let filtered = finalGrades;
-        if (classId) {
-            filtered = finalGrades.filter(g => g.student.class_id === classId);
-        }
         const studentIds = filtered.map(g => g.student_id);
         const existingRemedials = await this.prisma.remedial.findMany({
             where: {
@@ -97,13 +99,24 @@ let RemedialService = class RemedialService {
         if (existing) {
             throw new common_1.BadRequestException('Student already has an active remedial for this subject');
         }
+        let scoreBefore = data.score_before;
+        if (scoreBefore === undefined || scoreBefore === null) {
+            const finalGrade = await this.prisma.finalGrade.findFirst({
+                where: {
+                    student_id: data.student_id,
+                    subject_id: data.subject_id,
+                },
+                orderBy: { semester: 'desc' }
+            });
+            scoreBefore = finalGrade ? Number(finalGrade.final_score) : 0;
+        }
         return this.prisma.remedial.create({
             data: {
                 student_id: data.student_id,
                 subject_id: data.subject_id,
                 exam_id: data.exam_id,
                 status: data.scheduled_at ? 'scheduled' : 'pending',
-                score_before: new client_1.Prisma.Decimal(data.score_before),
+                score_before: new client_1.Prisma.Decimal(scoreBefore),
                 scheduled_at: data.scheduled_at ? new Date(data.scheduled_at) : null,
                 notes: data.notes,
             },

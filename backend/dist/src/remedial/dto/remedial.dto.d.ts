@@ -2,7 +2,7 @@ export declare class CreateRemedialDto {
     student_id: string;
     subject_id: string;
     exam_id?: string;
-    score_before: number;
+    score_before?: number;
     scheduled_at?: string;
     notes?: string;
 }

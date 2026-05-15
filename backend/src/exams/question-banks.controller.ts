@@ -17,7 +17,7 @@ export class QuestionBanksController {
   }
 
   @Get()
-  @Roles('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas')
+  @Roles('Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua')
   findAll(
     @Query() pagination: PaginationDto,
     @Query('major_id') major_id?: string,

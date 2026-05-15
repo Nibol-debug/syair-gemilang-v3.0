@@ -30,8 +30,8 @@ let MajorsController = class MajorsController {
     create(createMajorDto) {
         return this.majorsService.create(createMajorDto);
     }
-    findAll(paginationDto) {
-        return this.majorsService.findAll(paginationDto);
+    findAll(paginationDto, branchId) {
+        return this.majorsService.findAll(paginationDto, branchId);
     }
     findOne(id) {
         return this.majorsService.findOne(id);
@@ -56,8 +56,9 @@ __decorate([
     (0, common_1.Get)(),
     (0, public_decorator_1.Public)(),
     __param(0, (0, common_1.Query)()),
+    __param(1, (0, common_1.Query)('branch_id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto]),
+    __metadata("design:paramtypes", [pagination_dto_1.PaginationDto, String]),
     __metadata("design:returntype", void 0)
 ], MajorsController.prototype, "findAll", null);
 __decorate([

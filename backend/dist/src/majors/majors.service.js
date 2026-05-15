@@ -22,17 +22,22 @@ let MajorsService = class MajorsService {
             data: createMajorDto,
         });
     }
-    async findAll(paginationDto) {
+    async findAll(paginationDto, branchId) {
         const { page = 1, limit = 10 } = paginationDto;
         const skip = (page - 1) * limit;
+        const where = {};
+        if (branchId) {
+            where.branch_id = branchId;
+        }
         const [data, total] = await Promise.all([
             this.prisma.major.findMany({
+                where,
                 skip,
                 take: limit,
                 include: { branch: true },
                 orderBy: { created_at: 'desc' },
             }),
-            this.prisma.major.count(),
+            this.prisma.major.count({ where }),
         ]);
         return {
             data,

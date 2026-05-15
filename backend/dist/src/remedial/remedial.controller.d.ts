@@ -3,7 +3,7 @@ import { CreateRemedialDto, ScheduleRemedialDto, UpdateRemedialScoreDto } from '
 export declare class RemedialController {
     private readonly remedialService;
     constructor(remedialService: RemedialService);
-    getStudentsNeedingRemedial(subjectId: string, classId?: string, semester?: number): Promise<{
+    getStudentsNeedingRemedial(subjectId?: string, subjectId: string, classId?: string, semester?: number): Promise<{
         id: string;
         final_grade_id: string;
         student_id: string;
@@ -31,58 +31,47 @@ export declare class RemedialController {
     findAll(status?: string, subjectId?: string, studentId?: string): Promise<({
         student: {
             id: string;
-            full_name: string;
-            nis: string;
             class: {
                 name: string;
             } | null;
+            nis: string;
+            full_name: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            passing_grade: number;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            major_id: string;
             subject_id: string;
-            start_time: Date;
-            end_time: Date;
+            major_id: string;
             title: string;
             duration: number;
             token: string;
+            start_time: Date;
+            end_time: Date;
         } | null;
     } & {
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     })[]>;
     findOne(id: string): Promise<{
         student: {
             id: string;
-            full_name: string;
-            nis: string;
-            class: {
-                id: string;
-                major_id: string;
-                name: string;
-                batch_id: string;
-                grade_level: number;
-                homeroom_teacher_id: string | null;
-                class_president_id: string | null;
-            } | null;
             batch: {
                 id: string;
                 name: string;
@@ -90,98 +79,109 @@ export declare class RemedialController {
                 end_date: Date;
                 is_active: boolean;
             };
+            class: {
+                id: string;
+                batch_id: string;
+                major_id: string;
+                name: string;
+                grade_level: number;
+                homeroom_teacher_id: string | null;
+                class_president_id: string | null;
+            } | null;
+            nis: string;
+            full_name: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            passing_grade: number;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            major_id: string;
             subject_id: string;
-            start_time: Date;
-            end_time: Date;
+            major_id: string;
             title: string;
             duration: number;
             token: string;
+            start_time: Date;
+            end_time: Date;
         } | null;
     } & {
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     }>;
     create(createRemedialDto: CreateRemedialDto): Promise<{
         student: {
             id: string;
-            full_name: string;
             nis: string;
+            full_name: string;
         };
         subject: {
             id: string;
             major_id: string | null;
             name: string;
-            passing_grade: number;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            major_id: string;
             subject_id: string;
-            start_time: Date;
-            end_time: Date;
+            major_id: string;
             title: string;
             duration: number;
             token: string;
+            start_time: Date;
+            end_time: Date;
         } | null;
     } & {
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     }>;
     schedule(id: string, data: ScheduleRemedialDto): Promise<{
         student: {
             id: string;
-            full_name: string;
-            status: string;
+            batch_id: string;
             major_id: string;
             nis: string;
             nik: string;
+            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
             phone: string;
             email: string;
+            status: string;
             health_history: string | null;
             profile_picture: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
             branch_id: string;
             class_id: string | null;
-            batch_id: string;
             qr_code: string | null;
             created_at: Date;
             applicant_id: string | null;
@@ -190,55 +190,55 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
-            passing_grade: number;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
         exam: {
             id: string;
-            major_id: string;
             subject_id: string;
-            start_time: Date;
-            end_time: Date;
+            major_id: string;
             title: string;
             duration: number;
             token: string;
+            start_time: Date;
+            end_time: Date;
         } | null;
     } & {
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     }>;
     updateScore(id: string, data: UpdateRemedialScoreDto): Promise<{
         student: {
             id: string;
-            full_name: string;
-            status: string;
+            batch_id: string;
             major_id: string;
             nis: string;
             nik: string;
+            full_name: string;
             gender: string;
             birth_place: string;
             birth_date: Date;
             address: string;
             phone: string;
             email: string;
+            status: string;
             health_history: string | null;
             profile_picture: string | null;
             latitude: import("@prisma/client/runtime/library").Decimal | null;
             longitude: import("@prisma/client/runtime/library").Decimal | null;
             branch_id: string;
             class_id: string | null;
-            batch_id: string;
             qr_code: string | null;
             created_at: Date;
             applicant_id: string | null;
@@ -247,36 +247,36 @@ export declare class RemedialController {
             id: string;
             major_id: string | null;
             name: string;
-            passing_grade: number;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
     } & {
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     }>;
     remove(id: string): Promise<{
         id: string;
-        status: string;
-        created_at: Date;
         student_id: string;
         subject_id: string;
+        status: string;
+        created_at: Date;
         exam_id: string | null;
         score_before: import("@prisma/client/runtime/library").Decimal;
-        scheduled_at: Date | null;
-        notes: string | null;
         score_after: import("@prisma/client/runtime/library").Decimal | null;
+        scheduled_at: Date | null;
         completed_at: Date | null;
+        notes: string | null;
         updated_at: Date;
     }>;
 }

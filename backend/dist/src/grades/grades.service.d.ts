@@ -18,49 +18,49 @@ export declare class GradesService {
     private generateDescription;
     create(data: CreateGradeDto): Promise<{
         id: string;
-        major_id: string;
-        batch_id: string;
-        created_at: Date;
-        applicant_id: string | null;
-        student_id: string | null;
         type: string;
-        subject_id: string;
         score: Prisma.Decimal;
-        exam_id: string | null;
         weight: Prisma.Decimal;
+        created_at: Date;
+        student_id: string | null;
+        applicant_id: string | null;
+        subject_id: string;
+        exam_id: string | null;
+        batch_id: string;
+        major_id: string;
     }>;
     findByStudent(studentId: string, pagination: PaginationDto): Promise<{
         data: ({
             subject: {
                 id: string;
-                major_id: string | null;
                 name: string;
-                passing_grade: number;
+                major_id: string | null;
                 hours_per_week: number | null;
+                passing_grade: number;
                 competency_standards: string | null;
             };
             exam: {
                 id: string;
-                major_id: string;
                 subject_id: string;
-                start_time: Date;
-                end_time: Date;
+                major_id: string;
                 title: string;
                 duration: number;
                 token: string;
+                start_time: Date;
+                end_time: Date;
             } | null;
         } & {
             id: string;
-            major_id: string;
-            batch_id: string;
-            created_at: Date;
-            applicant_id: string | null;
-            student_id: string | null;
             type: string;
-            subject_id: string;
             score: Prisma.Decimal;
-            exam_id: string | null;
             weight: Prisma.Decimal;
+            created_at: Date;
+            student_id: string | null;
+            applicant_id: string | null;
+            subject_id: string;
+            exam_id: string | null;
+            batch_id: string;
+            major_id: string;
         })[];
         meta: {
             total: number;
@@ -69,19 +69,7 @@ export declare class GradesService {
             last_page: number;
         };
     }>;
-    finalizeGrade(data: FinalizeGradeDto): Promise<{
-        id: string;
-        major_id: string;
-        batch_id: string;
-        student_id: string;
-        description: string | null;
-        subject_id: string;
-        semester: number;
-        competencies_achieved: string | null;
-        final_score: Prisma.Decimal;
-        grade_letter: string;
-        is_passed: boolean;
-    }>;
+    finalizeGrade(data: FinalizeGradeDto): Promise<any>;
     finalizeClassGrades(data: {
         class_id: string;
         subject_id: string;
@@ -93,24 +81,24 @@ export declare class GradesService {
     getFinalReport(studentId: string): Promise<({
         subject: {
             id: string;
-            major_id: string | null;
             name: string;
-            passing_grade: number;
+            major_id: string | null;
             hours_per_week: number | null;
+            passing_grade: number;
             competency_standards: string | null;
         };
     } & {
         id: string;
-        major_id: string;
-        batch_id: string;
         student_id: string;
-        description: string | null;
         subject_id: string;
-        semester: number;
-        competencies_achieved: string | null;
+        batch_id: string;
+        major_id: string;
         final_score: Prisma.Decimal;
         grade_letter: string;
         is_passed: boolean;
+        description: string | null;
+        competencies_achieved: string | null;
+        semester: number;
     })[]>;
     findByClass(classId: string, subjectId: string): Promise<{
         id: string;

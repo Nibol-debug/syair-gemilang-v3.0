@@ -126,15 +126,46 @@ export class UsersService {
         }
       }
 
-      // Only update user if there's data to update
+      // Update user table if needed
       if (Object.keys(updateData).length > 0) {
-        return await this.prisma.user.update({
+        await this.prisma.user.update({
           where: { id: userId },
           data: updateData,
         });
       }
 
-      return user;
+      // Fetch fresh data with all relations to return to client
+      const updatedUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          role: true,
+          student: {
+            select: {
+              id: true,
+              full_name: true,
+              email: true,
+              phone: true,
+              profile_picture: true,
+              gender: true,
+              birth_place: true,
+              birth_date: true,
+              address: true,
+            },
+          },
+          employee: {
+            select: {
+              id: true,
+              full_name: true,
+              education: true,
+              position: true,
+              join_date: true,
+              status: true,
+            },
+          },
+        },
+      });
+
+      return updatedUser || user;
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;

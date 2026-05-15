@@ -152,8 +152,9 @@ let GradesService = class GradesService {
                 semester: data.semester
             }
         });
+        let finalGradeRecord;
         if (existingFinal) {
-            return this.prisma.finalGrade.update({
+            finalGradeRecord = await this.prisma.finalGrade.update({
                 where: { id: existingFinal.id },
                 data: {
                     final_score: new client_1.Prisma.Decimal(finalScore),
@@ -164,20 +165,43 @@ let GradesService = class GradesService {
                 }
             });
         }
-        return this.prisma.finalGrade.create({
-            data: {
-                student_id: data.student_id,
-                subject_id: data.subject_id,
-                semester: data.semester,
-                final_score: new client_1.Prisma.Decimal(finalScore),
-                grade_letter: gradeLetter,
-                is_passed: isPassed,
-                description,
-                competencies_achieved,
-                major_id: student.major_id,
-                batch_id: student.batch_id,
+        else {
+            finalGradeRecord = await this.prisma.finalGrade.create({
+                data: {
+                    student_id: data.student_id,
+                    subject_id: data.subject_id,
+                    semester: data.semester,
+                    final_score: new client_1.Prisma.Decimal(finalScore),
+                    grade_letter: gradeLetter,
+                    is_passed: isPassed,
+                    description,
+                    competencies_achieved,
+                    major_id: student.major_id,
+                    batch_id: student.batch_id,
+                }
+            });
+        }
+        if (!isPassed) {
+            const existingRemedial = await this.prisma.remedial.findFirst({
+                where: {
+                    student_id: data.student_id,
+                    subject_id: data.subject_id,
+                    status: 'active',
+                }
+            });
+            if (!existingRemedial) {
+                await this.prisma.remedial.create({
+                    data: {
+                        student_id: data.student_id,
+                        subject_id: data.subject_id,
+                        score_before: new client_1.Prisma.Decimal(finalScore),
+                        status: 'active',
+                        notes: `Nilai di bawah KKM (${subject.passing_grade}). Nilai akhir: ${finalScore.toFixed(1)}`,
+                    }
+                });
             }
-        });
+        }
+        return finalGradeRecord;
     }
     async finalizeClassGrades(data) {
         const students = await this.prisma.student.findMany({

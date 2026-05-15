@@ -5,7 +5,7 @@ import {
   ClipboardList, 
   Search, 
   Filter, 
-  Eye, 
+  Eye, Trash2, 
   CheckCircle2, 
   XCircle, 
   Clock, 
@@ -67,6 +67,16 @@ export default function PPDBAdminPage() {
   const handleView = (applicant: any) => {
     setSelectedApplicant(applicant);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (applicant: any) => {
+    if (!confirm(`Hapus pendaftar "${applicant.full_name}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+    try {
+      await apiRequest(`/applicants/${applicant.id}`, { method: 'DELETE' });
+      fetchData(pagination.page);
+    } catch (err: any) {
+      alert('Gagal menghapus: ' + err.message);
+    }
   };
 
   return (
@@ -158,6 +168,14 @@ export default function PPDBAdminPage() {
                        >
                          <Eye className="w-5 h-5" />
                        </button>
+                        {item.status === 'rejected' && (
+                          <button
+                            onClick={() => handleDelete(item)}
+                            className="p-2 text-error hover:bg-error/10 rounded-xl transition-all ml-1"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        )}
                     </td>
                   </tr>
                 ))

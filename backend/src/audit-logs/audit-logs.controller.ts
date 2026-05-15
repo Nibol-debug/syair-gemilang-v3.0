@@ -10,6 +10,7 @@ export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Get()
+  @Roles('Administrator Utama')
   findAll(
     @Request() req,
     @Query('page') page?: number,

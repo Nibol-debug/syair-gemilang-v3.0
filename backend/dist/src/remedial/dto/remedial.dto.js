@@ -36,7 +36,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateRemedialDto.prototype, "exam_id", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDecimal)(),
     (0, class_validator_1.Min)(0),
     (0, class_validator_1.Max)(100),

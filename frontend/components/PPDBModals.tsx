@@ -14,13 +14,16 @@ import {
   FileText,
   Loader2,
   Award,
-  Eye
+  Eye,
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 
 export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'verify' | 'reject' | 'accept' | null>(null);
 
   if (!isOpen || !applicant) return null;
 
@@ -55,6 +58,35 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
     }
   };
 
+  const handleConfirm = async () => {
+    if (confirmAction === 'verify') {
+      await updateStatus('verified');
+    } else if (confirmAction === 'reject') {
+      await updateStatus('rejected');
+    } else if (confirmAction === 'accept') {
+      await acceptAsStudent();
+    }
+    setConfirmAction(null);
+  };
+
+  const confirmMessages = {
+    verify: {
+      title: 'Verifikasi Berkas',
+      message: `Verifikasi berkas pendaftaran ${applicant?.full_name}? Pastikan semua dokumen sudah lengkap dan valid.`,
+      action: 'Verifikasi'
+    },
+    reject: {
+      title: 'Tolak Berkas',
+      message: `Tolak berkas pendaftaran ${applicant?.full_name}? Pendaftar akan menerima notifikasi penolakan.`,
+      action: 'Tolak Berkas'
+    },
+    accept: {
+      title: 'Terima Sebagai Siswa',
+      message: `Terima ${applicant?.full_name} sebagai siswa baru? Sistem akan otomatis membuat akun siswa dan tagihan biaya daftar ulang sebesar Rp 1.500.000.`,
+      action: 'Terima & Generate Tagihan'
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-surface-container-lowest w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
@@ -69,7 +101,6 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
         </div>
 
         <div className="p-4 md:p-8 overflow-y-auto flex-1 space-y-8 custom-scrollbar">
-          {/* Status Badge */}
           <div className="flex justify-center">
             <span className={cn(
               "px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest border-2",
@@ -83,24 +114,23 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
-            <div className="space-y-6">
-               <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Informasi Biodata</h4>
-               <InfoRow icon={<User />} label="Nama Lengkap" value={applicant.full_name} />
-               <InfoRow icon={<Mail />} label="Email" value={applicant.email} />
-               <InfoRow icon={<Phone />} label="Telepon" value={applicant.phone} />
-               <InfoRow icon={<Calendar />} label="TTL" value={`${applicant.birth_place}, ${new Date(applicant.birth_date).toLocaleDateString()}`} />
-               <InfoRow icon={<User />} label="Status / Pendidikan" value={`${applicant.marital_status === 'single' ? 'Single' : 'Menikah'} / ${applicant.education_level}`} />
-               <InfoRow icon={<User />} label="Nama Ayah / Ibu" value={`${applicant.father_name || '-'} / ${applicant.mother_name || '-'}`} />
-            </div>
-            <div className="space-y-6">
-               <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Pendidikan & Lokasi</h4>
-               <InfoRow icon={<School />} label="Asal Sekolah" value={applicant.previous_school} />
-               <InfoRow icon={<Award />} label="Pilihan Jurusan & Cabang" value={applicant.major?.name} />
-               <InfoRow icon={<MapPin />} label="Alamat" value={applicant.address} />
-            </div>
+             <div className="space-y-6">
+                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Informasi Biodata</h4>
+                <InfoRow icon={<User />} label="Nama Lengkap" value={applicant.full_name} />
+                <InfoRow icon={<Mail />} label="Email" value={applicant.email} />
+                <InfoRow icon={<Phone />} label="Telepon" value={applicant.phone} />
+                <InfoRow icon={<Calendar />} label="TTL" value={`${applicant.birth_place}, ${new Date(applicant.birth_date).toLocaleDateString()}`} />
+                <InfoRow icon={<User />} label="Status / Pendidikan" value={`${applicant.marital_status === 'single' ? 'Single' : 'Menikah'} / ${applicant.education_level}`} />
+                <InfoRow icon={<User />} label="Nama Ayah / Ibu" value={`${applicant.father_name || '-'} / ${applicant.mother_name || '-'}`} />
+             </div>
+             <div className="space-y-6">
+                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Pendidikan & Lokasi</h4>
+                <InfoRow icon={<School />} label="Asal Sekolah" value={applicant.previous_school} />
+                <InfoRow icon={<Award />} label="Pilihan Jurusan & Cabang" value={applicant.major?.name} />
+                <InfoRow icon={<MapPin />} label="Alamat" value={applicant.address} />
+             </div>
           </div>
 
-          {/* Documents Section */}
           <div className="space-y-4 pt-4">
             <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] border-b border-primary/20 pb-2">Dokumen Terlampir</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -114,11 +144,10 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="px-8 py-6 border-t border-outline-variant bg-surface-container-low flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <button 
-              onClick={() => updateStatus('rejected')}
+              onClick={() => setConfirmAction('reject')}
               disabled={isUpdating}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-error/20 text-error font-black text-sm hover:bg-error/5 transition-all"
             >
@@ -126,7 +155,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
               Tolak Berkas
             </button>
             <button 
-              onClick={() => updateStatus('verified')}
+              onClick={() => setConfirmAction('verify')}
               disabled={isUpdating || applicant.status !== 'pending'}
               className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary font-black text-sm hover:opacity-90 shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
             >
@@ -137,7 +166,7 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           
           {(applicant.status === 'verified' || applicant.status === 'accepted') && (
             <button 
-              onClick={acceptAsStudent}
+              onClick={() => setConfirmAction('accept')}
               disabled={isUpdating || applicant.status === 'accepted'}
               className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-secondary text-on-secondary font-black text-sm hover:opacity-90 shadow-lg shadow-secondary/20 transition-all active:scale-95 disabled:bg-success disabled:text-on-success disabled:opacity-100"
             >
@@ -147,6 +176,46 @@ export const ViewApplicantModal = ({ applicant, isOpen, onClose, onUpdate }: any
           )}
         </div>
       </div>
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8 text-center space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto text-error">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-on-surface tracking-tight">{confirmMessages[confirmAction].title}</h3>
+              <p className="text-on-surface-variant font-medium leading-relaxed text-sm">
+                {confirmMessages[confirmAction].message}
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={() => setConfirmAction(null)} 
+                disabled={isUpdating}
+                className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleConfirm} 
+                disabled={isUpdating}
+                className={cn(
+                  "flex-1 px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg",
+                  confirmAction === 'reject' 
+                    ? "bg-error text-on-error hover:opacity-90 shadow-error/20"
+                    : confirmAction === 'accept'
+                    ? "bg-secondary text-on-secondary hover:opacity-90 shadow-secondary/20"
+                    : "bg-primary text-on-primary hover:opacity-90 shadow-primary/20"
+                )}
+              >
+                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {confirmMessages[confirmAction].action}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -179,7 +248,7 @@ function DocLink({ label, url }: { label: string, url?: string }) {
           rel="noreferrer"
           className="p-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg transition-all"
         >
-          < Eye className="w-4 h-4" />
+          <Eye className="w-4 h-4" />
         </a>
       ) : (
         <span className="text-[10px] font-bold text-outline-variant italic">Kosong</span>

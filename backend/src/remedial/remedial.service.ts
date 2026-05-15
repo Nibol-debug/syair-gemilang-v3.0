@@ -10,14 +10,21 @@ export class RemedialService {
   /**
    * Get daftar siswa yang perlu remedial untuk mata pelajaran tertentu
    */
-  async getStudentsNeedingRemedial(subjectId: string, classId?: string, semester?: number) {
+  async getStudentsNeedingRemedial(subjectId?: string, classId?: string, semester?: number) {
     const where: any = {
-      subject_id: subjectId,
       is_passed: false,
     };
 
+    if (subjectId) {
+      where.subject_id = subjectId;
+    }
+
     if (semester) {
       where.semester = semester;
+    }
+
+    if (classId) {
+      where.student = { class_id: classId };
     }
 
     const finalGrades = await this.prisma.finalGrade.findMany({
@@ -33,11 +40,7 @@ export class RemedialService {
       }
     });
 
-    // Filter by class if provided
     let filtered = finalGrades;
-    if (classId) {
-      filtered = finalGrades.filter(g => g.student.class_id === classId);
-    }
 
     // Get existing remedial records
     const studentIds = filtered.map(g => g.student_id);
@@ -106,13 +109,26 @@ export class RemedialService {
       throw new BadRequestException('Student already has an active remedial for this subject');
     }
 
+    // Get score_before from final grade if not provided
+    let scoreBefore = data.score_before;
+    if (scoreBefore === undefined || scoreBefore === null) {
+      const finalGrade = await this.prisma.finalGrade.findFirst({
+        where: {
+          student_id: data.student_id,
+          subject_id: data.subject_id,
+        },
+        orderBy: { semester: 'desc' }
+      });
+      scoreBefore = finalGrade ? Number(finalGrade.final_score) : 0;
+    }
+
     return this.prisma.remedial.create({
       data: {
         student_id: data.student_id,
         subject_id: data.subject_id,
         exam_id: data.exam_id,
         status: data.scheduled_at ? 'scheduled' : 'pending',
-        score_before: new Prisma.Decimal(data.score_before),
+        score_before: new Prisma.Decimal(scoreBefore),
         scheduled_at: data.scheduled_at ? new Date(data.scheduled_at) : null,
         notes: data.notes,
       },

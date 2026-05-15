@@ -13,11 +13,11 @@ export class CreateRemedialDto {
   @IsUUID()
   exam_id?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsDecimal()
   @Min(0)
   @Max(100)
-  score_before: number;
+  score_before?: number;
 
   @IsOptional()
   @IsDateString()

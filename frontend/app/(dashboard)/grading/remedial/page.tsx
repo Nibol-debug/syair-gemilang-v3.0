@@ -57,6 +57,7 @@ export default function RemedialPage() {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSemester, setSelectedSemester] = useState(1);
   const [students, setStudents] = useState<StudentNeedingRemedial[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
   const [stats, setStats] = useState<RemedialStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,13 +107,12 @@ export default function RemedialPage() {
 
   const fetchStudentsNeedingRemedial = async () => {
     if (canManageGrades === false) return;
-    if (!selectedSubject) return;
     setIsLoading(true);
     try {
       const params = new URLSearchParams({
-        subject_id: selectedSubject,
         semester: selectedSemester.toString()
       });
+      if (selectedSubject) params.append('subject_id', selectedSubject);
       if (selectedClass) params.append('class_id', selectedClass);
 
       const res = await apiRequest(`/remedial/needs?${params}`);
@@ -131,9 +131,7 @@ export default function RemedialPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedSubject) {
-      fetchStudentsNeedingRemedial();
-    }
+    fetchStudentsNeedingRemedial();
   }, [selectedSubject, selectedClass, selectedSemester]);
 
   const handleCreateRemedial = async (e: React.FormEvent) => {
@@ -207,7 +205,7 @@ export default function RemedialPage() {
     }
   };
 
-  const openCreateModal = (student?: StudentNeedingRemedial) => {
+  const openCreateModal = async (student?: StudentNeedingRemedial) => {
     setModalMode('create');
     if (student) {
       setSelectedStudent(student);
@@ -220,6 +218,24 @@ export default function RemedialPage() {
         score_after: 0,
         notes: ''
       });
+    } else {
+      // Manual add: fetch all students and reset form
+      setSelectedStudent(null);
+      setFormData({
+        student_id: '',
+        subject_id: selectedSubject,
+        score_before: 0,
+        scheduled_at: '',
+        exam_id: '',
+        score_after: 0,
+        notes: ''
+      });
+      try {
+        const studentsRes = await apiRequest('/students?limit=1000');
+        setAllStudents(studentsRes.data || []);
+      } catch (err) {
+        console.error('Failed to fetch students:', err);
+      }
     }
     setIsModalOpen(true);
   };
@@ -559,30 +575,58 @@ export default function RemedialPage() {
             <div className="p-6 overflow-y-auto">
               {modalMode === 'create' && (
                 <form id="remedialForm" onSubmit={handleCreateRemedial} className="space-y-4">
+                  {!selectedStudent && (
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-on-surface-variant">Mata Pelajaran</label>
+                        <select
+                          required
+                          value={formData.subject_id}
+                          onChange={e => setFormData({...formData, subject_id: e.target.value})}
+                          className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                        >
+                          <option value="" disabled>-- Pilih Mata Pelajaran --</option>
+                          {subjects.map(subj => (
+                            <option key={subj.id} value={subj.id}>{subj.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-on-surface-variant">Siswa</label>
+                        <select
+                          required
+                          value={formData.student_id}
+                          onChange={e => setFormData({...formData, student_id: e.target.value})}
+                          className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                        >
+                          <option value="" disabled>-- Pilih Siswa --</option>
+                          {allStudents.map(s => (
+                            <option key={s.id} value={s.id}>{s.full_name} ({s.nis})</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+                  {selectedStudent && (
+                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
+                      <p className="text-sm font-medium text-primary">
+                        Remedial untuk: <strong>{selectedStudent.full_name}</strong>
+                      </p>
+                      <p className="text-xs text-on-surface-variant mt-1">
+                        Mapel: {subjects.find(s => s.id === selectedSubject)?.name || '-'} • Nilai: {selectedStudent.final_score}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-on-surface-variant">Siswa</label>
-                    <select
-                      required
-                      value={formData.student_id}
-                      onChange={e => setFormData({...formData, student_id: e.target.value})}
-                      className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                    >
-                      <option value="" disabled>-- Pilih Siswa --</option>
-                      {students.filter(s => !s.remedial_id).map(s => (
-                        <option key={s.student_id} value={s.student_id}>{s.full_name} ({s.nis})</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-on-surface-variant">Nilai Saat Ini</label>
+                    <label className="text-xs font-bold text-on-surface-variant">Nilai Saat Ini (Opsional)</label>
                     <input
                       type="number"
-                      required
                       min="0"
                       max="100"
-                      value={formData.score_before}
-                      onChange={e => setFormData({...formData, score_before: parseFloat(e.target.value)})}
+                      value={formData.score_before || ''}
+                      onChange={e => setFormData({...formData, score_before: e.target.value ? parseFloat(e.target.value) : 0})}
                       className="w-full px-4 py-2 bg-surface border border-outline-variant rounded-lg text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                      placeholder="Kosongkan untuk otomatis dari nilai akhir"
                     />
                   </div>
                   <div className="space-y-1">

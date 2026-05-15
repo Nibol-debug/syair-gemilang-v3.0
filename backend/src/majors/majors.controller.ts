@@ -31,8 +31,8 @@ export class MajorsController {
 
   @Get()
   @Public()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.majorsService.findAll(paginationDto);
+  findAll(@Query() paginationDto: PaginationDto, @Query('branch_id') branchId?: string) {
+    return this.majorsService.findAll(paginationDto, branchId);
   }
 
   @Get(':id')

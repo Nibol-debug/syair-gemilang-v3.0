@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const audit_logs_service_1 = require("./audit-logs.service");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
 let AuditLogsController = class AuditLogsController {
     auditLogsService;
     constructor(auditLogsService) {
@@ -29,6 +30,7 @@ let AuditLogsController = class AuditLogsController {
 exports.AuditLogsController = AuditLogsController;
 __decorate([
     (0, common_1.Get)(),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Query)('page')),
     __param(2, (0, common_1.Query)('limit')),

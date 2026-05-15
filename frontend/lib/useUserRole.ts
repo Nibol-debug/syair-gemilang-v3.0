@@ -5,7 +5,7 @@ import { getUserFromToken } from './utils';
 const ADMIN_ROLES = ['Administrator Utama'];
 const STAFF_ROLES = ['Administrator Utama', 'Kepala Sekolah'];
 const TEACHER_ROLES = ['Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'];
-const FINANCE_ROLES = ['Administrator Utama', 'Bendahara / Staf TU'];
+const FINANCE_ROLES = ['Administrator Utama', 'Bendahara'];
 
 export function useUserRole() {
   const [user, setUser] = useState<any>(null);

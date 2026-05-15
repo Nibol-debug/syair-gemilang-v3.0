@@ -8,6 +8,10 @@ export class StudentQueryDto extends PaginationDto {
 
   @IsOptional()
   @IsString()
+  branch_id?: string;
+
+  @IsOptional()
+  @IsString()
   major_id?: string;
 
   @IsOptional()

@@ -176,7 +176,7 @@ export default function CBTPage() {
       setIsModalOpen(false);
       fetchExams();
       fetchStats();
-      setFormData({ title: '', subject_id: '', major_id: '', duration: 120, token: '', start_time: '', end_time: '' });
+      setFormData({ title: '', subject_id: '', major_id: '', duration: 120, token: '', start_time: '', end_time: '', question_bank_id: '' });
     } catch (err: any) {
       alert('Gagal membuat ujian: ' + err.message);
     } finally {
