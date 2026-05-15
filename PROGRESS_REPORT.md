@@ -1,53 +1,47 @@
 # 📊 LAPORAN PROGRESS PENGEMBANGAN ERP SYIAR GEMILANG
-**Tanggal:** 11 Mei 2026
-**Status Proyek:** Fase 1 & 2 Selesai (Master Data & User Management, PPDB Online)
+**Tanggal:** 15 Mei 2026
+**Status Proyek:** Fase 3 & 4 Selesai (Academic, CBT Core, Grading & E-Rapor)
 
 ---
 
 ## ✅ Modul yang Telah Diselesaikan
 
-### 1. Modul Manajemen Pengguna & Hak Akses (ACL - 4.2)
-*   **Role-Based Access Control (RBAC)**: Implementasi 8 role sesuai proposal (Administrator Utama, Kepala Sekolah, Guru, Siswa, dll).
-*   **Audit Log (Audit Trail)**: Sistem pencatatan aktivitas otomatis untuk setiap perubahan data (POST, PATCH, DELETE) yang dapat dipantau admin.
-*   **Device Locking**: Fitur penguncian perangkat untuk keamanan ujian CBT (bisa kunci/buka kunci via admin).
-*   **Keamanan**: Integrasi JWT Authentication dan penguncian password terenkripsi.
+### 1. Modul CBT Core & Anti-Cheat (4.6)
+*   **Bank Soal & Sesi Ujian**: Manajemen soal MCQ/Essay dengan token akses unik.
+*   **Anti-Cheat System**: Deteksi pindah tab, window blur, dan fullscreen exit dengan auto-submit otomatis jika melanggar batas.
+*   **Auto-Grading**: Penilaian otomatis untuk soal pilihan ganda.
 
-### 2. Modul Dashboard Multi-User (4.10)
-*   **Portal Personalisasi**: Dashboard dinamis yang berubah tampilan berdasarkan role pengguna:
-    *   **Admin**: Statistik global ERP (Total Siswa, Guru, Keuangan, Aset).
-    *   **Guru**: Fokus pada manajemen kelas, jadwal ujian, dan jurnal mengajar.
-    *   **Siswa**: Fokus pada jadwal ujian CBT, nilai, absensi, dan tagihan SPP.
-*   **Sidebar Dinamis**: Menu navigasi otomatis menyesuaikan hak akses pengguna (menyembunyikan menu yang tidak diizinkan).
+### 2. Modul Penilaian & E-Rapor (4.7)
+*   **Grading Pipeline**: Integrasi nilai CBT, Tugas, UTS, dan UAS dengan pembobotan dinamis.
+*   **E-Rapor PDF**: Fitur generate rapor digital siap cetak dalam format PDF.
+*   **Remedial System**: Workflow otomatis untuk siswa di bawah KKM (75).
 
-### 3. Modul PPDB Online (4.5)
-*   **Landing Page Pendaftaran**: Formulir pendaftaran multi-step yang responsif (Biodata -> Alamat -> Cabang & Jurusan -> Review).
-*   **Manajemen Cabang & Jurusan**: Dukungan pilihan kampus (Depok, Magelang, Jakarta) dan integrasi otomatis dengan master data jurusan.
-*   **Sistem Upload Ijazah**: Fitur unggah dokumen fisik (PDF/JPG) yang tersimpan langsung di server backend.
-*   **Panel Verifikasi Admin**: Dashboard khusus untuk admin meninjau pendaftar, melihat ijazah, dan mengubah status (Verified/Rejected).
+### 3. Modul Akademik & HRM (4.3 & 4.4)
+*   **Penjadwalan**: Sistem jadwal pelajaran anti-bentrok guru dan kelas.
+*   **Jurnal Mengajar**: Pencatatan materi dan absensi siswa per jam pelajaran.
+*   **Presensi Pegawai**: Tracking kehadiran guru dan staf.
+
+### 4. Modul Student Behavior
+*   **Assessment Perilaku**: Penilaian sikap, etika, dan tata krama siswa oleh guru/wali kelas.
 
 ---
 
-## 🛠️ Pembaruan Teknis (Backend & Database)
-*   **Database Schema**: Pembaruan tabel `Applicant` untuk mendukung `document_url`, `branch`, dan relasi `major`.
-*   **Validation Engine**: Implementasi Class-Validator (DTO) untuk memastikan integritas data pendaftaran.
-*   **Static Assets**: Konfigurasi server untuk melayani file upload secara aman.
-*   **Auto-Seeder**: Skrip database untuk sinkronisasi role dan reset kredensial admin utama secara instan.
+## 🛠️ Pembaruan Teknis (v3.3)
+*   **Backend Modules**: Penambahan modul `ReportCards`, `Remedial`, `GradeAnalysis`, dan `Notifications`.
+*   **Frontend UI**: Modernisasi dashboard dengan App Shell architecture dan optimasi mobile responsiveness.
+*   **Audit Logs**: Peningkatan detil logging untuk keamanan data nilai.
 
 ---
 
 ## 🚀 Rencana Selanjutnya (Roadmap)
-Sesuai dengan urutan prioritas proposal asli:
-
-1.  **Modul Kepegawaian (HRM - 4.3)**:
-    *   E-Wallet Dokumen (Upload SK, Sertifikat Guru).
-    *   Sistem Presensi/Absensi Guru & Staf.
-2.  **Modul Akademik (4.4)**:
-    *   Penjadwalan Pelajaran Otomatis (Anti-bentrok).
-    *   Jurnal Mengajar Guru & Absensi Siswa Real-time.
-3.  **Modul Ujian Online (CBT - 4.6)**:
-    *   Bank Soal Terpusat & Fitur Anti-Cheat.
+1.  **Fase 5: Keuangan & Aset (Frontend Enhancement)**:
+    *   Optimasi UI Dashboard Keuangan dan Inventaris.
+    *   Sistem Notifikasi Pembayaran.
+2.  **Fase 6: HRM Advanced**:
+    *   Implementasi Payroll (Slip Gaji Digital).
+    *   Manajemen Cuti & Izin Online.
 
 ---
 
 **Catatan Tambahan:**
-Sistem saat ini sudah stabil dan backend telah lulus pengecekan tipe data (TypeScript). Siap untuk dilanjutkan ke tahap fungsionalitas akademik.
+Sistem v3.3 telah mencapai tingkat kematangan core yang sangat baik. Fokus saat ini adalah penyempurnaan UI modul penunjang (Finance/Assets) dan implementasi fitur HRM tingkat lanjut.

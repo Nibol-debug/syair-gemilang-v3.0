@@ -67,9 +67,15 @@ npm run start:dev
 4. **Roles**: Admin, Guru, Siswa.
 
 ## 🗺️ Progress
-- [x] Module 1: Student
-- [x] Module 2: Auth & ACL
-- [x] Module 3: HRM
-- [x] Module 4: Academic
-- [x] Module 5: CBT (Core)
-- [x] Module 6: Grading & Reporting
+- [x] Module 1: Student Management (Complete)
+- [x] Module 2: Auth & ACL (8 Roles, Audit Logs)
+- [x] Module 3: HRM (Profile, Attendance, Documents)
+- [x] Module 4: Academic (Schedules, Teaching Logs)
+- [x] Module 5: CBT Core (Anti-Cheat, Auto-Grading)
+- [x] Module 6: Grading & Reporting (E-Rapor PDF)
+- [x] Module 7: PPDB Online (Map Integration, 1-Click Convert)
+- [x] Module 8: Finance (Billing & Payments - Backend)
+- [x] Module 9: Assets (Inventory & QR Code - Backend)
+- [x] Module 10: Student Behavior (Assesment Perilaku)
+- [x] Module 11: Grade Analysis & Remedial System
+- [ ] Module 12: HRM Advanced (Payroll, Leaves - Planned)

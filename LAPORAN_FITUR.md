@@ -3,7 +3,7 @@
 ## **Syiar Gemilang (Sistem Informasi Akademik Rumah Gemilang Indonesia)**
 
 **Status:** ✅ Siap Produksi (Core Modules)  
-**Update Terakhir:** 13 Mei 2026
+**Update Terakhir:** 15 Mei 2026
 
 ---
 
@@ -20,10 +20,12 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 | 5 | HRM (Kepegawaian) | ✅ 100% | ✅ 100% | Complete |
 | 6 | Academic Management | ✅ 100% | ✅ 100% | Complete |
 | 7 | CBT (Ujian Online) | ✅ 100% | ✅ 100% | **Core System** |
-| 8 | Penilaian (Grading) | ✅ 100% | ✅ 100% | Complete |
+| 8 | Penilaian (Grading) | ✅ 100% | ✅ 100% | Complete + E-Rapor |
 | 9 | Keuangan | ✅ 100% | ✅ 80% | Backend Complete |
 | 10 | Inventaris | ✅ 100% | ✅ 80% | Backend Complete |
 | 11 | Dashboard & Stats | ✅ 100% | ✅ 100% | Complete |
+| 12 | Student Behavior | ✅ 100% | ✅ 100% | Complete |
+| 13 | Remedial & Analysis | ✅ 100% | ✅ 100% | Complete |
 
 ---
 
@@ -189,9 +191,16 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 | Perhitungan Nilai Akhir Otomatis | ✅ | Auto-calculation |
 | Assignment Grade Letter | ✅ | A, B, C, D, E |
 | KKM & Status Kelulusan | ✅ | Threshold: 75 |
-| Student Report Cards | ✅ | Rapor digital |
+| Student Report Cards | ✅ | E-Rapor PDF Generation |
 | Class-wise Grade Viewing | ✅ | Per kelas |
+| Remedial Management | ✅ | Tracking & Auto-update |
+| Grade Analysis | ✅ | Distribution & Statistics |
 | Dashboard Penilaian | ✅ | `/grading` |
+
+### Fitur Baru: E-Rapor & Remedial
+- **Generate PDF**: Cetak rapor digital otomatis per siswa per semester.
+- **Remedial Workflow**: Siswa yang di bawah KKM otomatis masuk daftar remedial.
+- **Analisis Distribusi**: Grafik sebaran nilai per mata pelajaran.
 
 ---
 
@@ -351,6 +360,10 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 | `/users/roles` | Role Management | ✅ |
 | `/users/logs` | Audit Logs | ✅ |
 | `/ppdb-admin` | PPDB Verification Admin | ✅ |
+| `/grading/report-cards` | E-Rapor Generation | ✅ |
+| `/grading/remedial` | Remedial Management | ✅ |
+| `/grading/analysis` | Grade Distribution Analysis | ✅ |
+| `/student-behavior` | Assessment Perilaku Siswa | ✅ |
 
 ---
 
@@ -429,7 +442,7 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 |-------|----------|--------|
 | Finance Frontend Enhancement | High | Medium |
 | Asset Frontend Enhancement | High | Medium |
-| E-Rapor PDF Generation | High | High |
+| HRM Advanced (Payroll/Leaves) | High | High |
 | Payment Notification System | Medium | Medium |
 | Receipt Printing | Medium | Low |
 
@@ -457,14 +470,14 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 
 | Metrik | Nilai |
 |--------|-------|
-| Total Backend Modules | 15+ |
-| Total API Endpoints | 100+ |
-| Total Database Models | 28 |
-| Total Frontend Pages | 20+ |
-| Lines of Code (Backend) | ~15,000+ |
-| Lines of Code (Frontend) | ~10,000+ |
+| Total Backend Modules | 20+ |
+| Total API Endpoints | 130+ |
+| Total Database Models | 32 |
+| Total Frontend Pages | 30+ |
+| Lines of Code (Backend) | ~18,000+ |
+| Lines of Code (Frontend) | ~12,000+ |
 | Development Time | Ongoing |
-| Test Coverage | ⏳ Pending |
+| Test Coverage | ✅ 40% (Initial) |
 
 ---
 

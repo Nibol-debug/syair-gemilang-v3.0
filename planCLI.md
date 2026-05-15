@@ -621,12 +621,13 @@ guru input → grades
 
 1. Master Data & User Management (DONE)
 2. Modul Siswa & Kepegawaian (DONE)
-3. Modul PPDB (BACKEND DONE, FRONTEND DONE)
+3. Modul PPDB (DONE)
 4. Modul Akademik (DONE)
-5. Modul CBT (CORE DONE, NEEDS REFINEMENT)
-6. Modul Penilaian (DONE)
-7. Modul Keuangan & Inventaris (BACKEND PARTIAL, FRONTEND MOCK)
-8. Dashboard & Reporting (PENDING)
+5. Modul CBT (DONE - Full Anti-Cheat)
+6. Modul Penilaian (DONE - E-Rapor & Remedial)
+7. Modul Keuangan & Inventaris (BACKEND DONE, FRONTEND BASIC)
+8. Dashboard, Reporting & Behavior Assessment (DONE)
+9. HRM Advanced (PLANNED)
 
 ---
 
