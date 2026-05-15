@@ -62,3 +62,59 @@ export async function removeDevice(deviceId: string): Promise<void> {
     method: 'DELETE',
   });
 }
+
+export interface UserPreferences {
+  id: string;
+  user_id: string;
+  notif_academic: boolean;
+  notif_messages: boolean;
+  notif_payments: boolean;
+  notif_email_digest: boolean;
+  active_academic_year: string | null;
+  active_semester: number | null;
+  cbt_strict_anticheat: boolean;
+  cbt_show_score_auto: boolean;
+  cbt_random_questions: boolean;
+  cbt_device_locking: boolean;
+  maintenance_mode: boolean;
+  updated_at: string;
+  created_at: string;
+}
+
+export async function getPreferences(): Promise<UserPreferences> {
+  return apiRequest('/settings/preferences');
+}
+
+export async function updateNotificationPreferences(data: {
+  notif_academic?: boolean;
+  notif_messages?: boolean;
+  notif_payments?: boolean;
+  notif_email_digest?: boolean;
+}): Promise<UserPreferences> {
+  return apiRequest('/settings/preferences/notifications', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateSystemSettings(data: {
+  active_academic_year?: string;
+  active_semester?: number;
+  cbt_strict_anticheat?: boolean;
+  cbt_show_score_auto?: boolean;
+  cbt_random_questions?: boolean;
+  cbt_device_locking?: boolean;
+  maintenance_mode?: boolean;
+}): Promise<UserPreferences> {
+  return apiRequest('/settings/preferences/system', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function toggleMaintenanceMode(enabled: boolean): Promise<UserPreferences> {
+  return apiRequest('/settings/preferences/maintenance-mode', {
+    method: 'POST',
+    body: JSON.stringify({ enabled }),
+  });
+}

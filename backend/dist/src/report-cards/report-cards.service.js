@@ -100,6 +100,7 @@ let ReportCardsService = class ReportCardsService {
         const qrCodeDataUrl = await QRCode.toDataURL(verificationData, { width: 120 });
         const doc = new pdfkit_1.default({
             size: 'A4',
+            bufferPages: true,
             margins: {
                 top: 50,
                 bottom: 50,

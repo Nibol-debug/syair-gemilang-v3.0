@@ -63,6 +63,7 @@ export class ReportCardsService {
     // Create PDF
     const doc = new PDFDocument({
       size: 'A4',
+      bufferPages: true,
       margins: {
         top: 50,
         bottom: 50,

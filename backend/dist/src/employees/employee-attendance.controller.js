@@ -26,6 +26,16 @@ let EmployeeAttendanceController = class EmployeeAttendanceController {
     getDailyAttendance(date) {
         return this.employeesService.getAttendanceByDate(date || new Date().toISOString());
     }
+    getMonthlyAttendance(month) {
+        return this.employeesService.getMonthlyAttendance(month || new Date().toISOString().slice(0, 7));
+    }
+    recordSelfAttendance(req) {
+        const employeeId = req.user.employee_id;
+        if (!employeeId) {
+            throw new Error('Akun Anda tidak terhubung dengan data pegawai.');
+        }
+        return this.employeesService.recordSelfAttendance(employeeId);
+    }
     recordBulkAttendance(body) {
         return this.employeesService.recordBulkAttendance(body.date, body.attendances);
     }
@@ -39,6 +49,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], EmployeeAttendanceController.prototype, "getDailyAttendance", null);
+__decorate([
+    (0, common_1.Get)('monthly'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah', 'Bendahara'),
+    __param(0, (0, common_1.Query)('month')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], EmployeeAttendanceController.prototype, "getMonthlyAttendance", null);
+__decorate([
+    (0, common_1.Post)('self'),
+    (0, roles_decorator_1.Roles)('Guru Mata Pelajaran', 'Wali Kelas', 'Bendahara', 'Staf Sarpras', 'Administrator Utama'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], EmployeeAttendanceController.prototype, "recordSelfAttendance", null);
 __decorate([
     (0, common_1.Post)('bulk'),
     (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah', 'Bendahara'),

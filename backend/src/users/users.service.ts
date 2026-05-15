@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
@@ -51,6 +51,8 @@ export class UsersService {
       birth_place?: string;
       birth_date?: string;
       address?: string;
+      email?: string;
+      phone?: string;
     };
     employee?: {
       full_name?: string;
@@ -58,32 +60,87 @@ export class UsersService {
       position?: string;
     };
   }) {
-    const updateData: any = {};
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: userId }});
+      if (!user) throw new NotFoundException('User not found');
 
-    if (data.username) {
-      updateData.username = data.username;
+      const updateData: any = {};
+
+      if (data.username && data.username !== user.username) {
+        const existing = await this.prisma.user.findUnique({ where: { username: data.username }});
+        if (existing) throw new BadRequestException('Username sudah digunakan');
+        updateData.username = data.username;
+      }
+
+      // Update student data if exists
+      if (data.student && user.student_id) {
+        const studentData: any = {};
+        // Only include non-empty strings
+        Object.entries(data.student).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            studentData[key] = value;
+          }
+        });
+
+        if (studentData.email) {
+          const existingStudent = await this.prisma.student.findFirst({
+            where: { 
+              email: studentData.email,
+              id: { not: user.student_id }
+            }
+          });
+          if (existingStudent) throw new BadRequestException('Email sudah digunakan oleh siswa lain');
+        }
+
+        if (studentData.birth_date) {
+          const date = new Date(studentData.birth_date);
+          if (isNaN(date.getTime())) {
+            delete studentData.birth_date;
+          } else {
+            studentData.birth_date = date;
+          }
+        }
+        
+        if (Object.keys(studentData).length > 0) {
+          await this.prisma.student.update({
+            where: { id: user.student_id },
+            data: studentData,
+          });
+        }
+      }
+
+      // Update employee data if exists
+      if (data.employee && user.employee_id) {
+        const employeeData: any = {};
+        Object.entries(data.employee).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            employeeData[key] = value;
+          }
+        });
+
+        if (Object.keys(employeeData).length > 0) {
+          await this.prisma.employee.update({
+            where: { id: user.employee_id },
+            data: employeeData,
+          });
+        }
+      }
+
+      // Only update user if there's data to update
+      if (Object.keys(updateData).length > 0) {
+        return await this.prisma.user.update({
+          where: { id: userId },
+          data: updateData,
+        });
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException('Gagal memperbarui profil: ' + error.message);
     }
-
-    // Update student data if exists
-    if (data.student) {
-      await this.prisma.student.updateMany({
-        where: { user: { id: userId } },
-        data: data.student,
-      });
-    }
-
-    // Update employee data if exists
-    if (data.employee) {
-      await this.prisma.employee.updateMany({
-        where: { user: { id: userId } },
-        data: data.employee,
-      });
-    }
-
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-    });
   }
 
   async changePassword(userId: string, currentPassword: string, newPassword: string) {

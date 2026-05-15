@@ -34,6 +34,7 @@ model User {
   audit_logs    AuditLog[]
   user_devices  UserDevice[]
   notifications Notification[]
+  preferences   UserPreferences?
 
   @@map("users")
 }
@@ -55,6 +56,7 @@ model Major {
   schedules     Schedule[]
   teaching_logs TeachingLog[]
   applicants    Applicant[]
+  question_banks QuestionBank[]
 
   @@map("majors")
 }
@@ -149,6 +151,7 @@ model Student {
   final_grades FinalGrade[]
   payments     Payment[]
   remedials    Remedial[]
+  behavior_assessments StudentBehaviorAssessment[]
 
   @@map("students")
 }
@@ -217,10 +220,10 @@ model UserDevice {
 }
 
 model Employee {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   full_name String
   education String
-  
+
   // Profil Profesional Guru
   education_institution     String?
   education_degree          String?
@@ -228,12 +231,12 @@ model Employee {
   teaching_specialty        String?
 
   // Manajemen Masa Kerja
-  current_rank              String?
-  current_golongan          String?
+  current_rank     String?
+  current_golongan String?
 
   // Sertifikasi (Dashboard Personalia)
-  certification_status      String?
-  is_certified              Boolean  @default(false)
+  certification_status String?
+  is_certified         Boolean @default(false)
 
   position  String
   join_date DateTime
@@ -247,6 +250,7 @@ model Employee {
   classes       Class[]
   schedules     Schedule[]
   teaching_logs TeachingLog[]
+  behavior_assessments StudentBehaviorAssessment[]
 
   @@map("employees")
 }
@@ -285,6 +289,7 @@ model Subject {
   final_grades         FinalGrade[]
   teaching_logs        TeachingLog[]
   remedials            Remedial[]
+  question_banks       QuestionBank[]
 
   @@map("subjects")
 }
@@ -392,6 +397,32 @@ model QuestionOption {
   is_correct  Boolean
 
   @@map("question_options")
+}
+
+model QuestionBank {
+  id            String           @id @default(uuid())
+  title         String
+  subject_id    String
+  subject       Subject          @relation(fields: [subject_id], references: [id])
+  major_id      String
+  major         Major            @relation(fields: [major_id], references: [id])
+  type          String // mcq, essay
+  question_text String           @db.Text
+  difficulty    String
+  options       QuestionBankOption[]
+  created_at    DateTime         @default(now())
+
+  @@map("question_banks")
+}
+
+model QuestionBankOption {
+  id              String       @id @default(uuid())
+  question_bank_id String
+  question_bank   QuestionBank @relation(fields: [question_bank_id], references: [id], onDelete: Cascade)
+  option_text     String       @db.Text
+  is_correct      Boolean
+
+  @@map("question_bank_options")
 }
 
 model ExamSession {
@@ -593,4 +624,47 @@ model Notification {
   created_at DateTime @default(now())
 
   @@map("notifications")
+}
+
+model UserPreferences {
+  id           String   @id @default(uuid())
+  user_id      String   @unique
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Notification preferences
+  notif_academic   Boolean @default(true)
+  notif_messages   Boolean @default(true)
+  notif_payments   Boolean @default(true)
+  notif_email_digest Boolean @default(false)
+
+  // System settings (for admin/teacher)
+  active_academic_year String?
+  active_semester      Int?
+  cbt_strict_anticheat Boolean @default(true)
+  cbt_show_score_auto  Boolean @default(false)
+  cbt_random_questions Boolean @default(true)
+  cbt_device_locking   Boolean @default(true)
+  maintenance_mode     Boolean @default(false)
+
+  updated_at DateTime @updatedAt
+  created_at DateTime @default(now())
+
+  @@map("user_preferences")
+}
+
+model StudentBehaviorAssessment {
+  id           String   @id @default(uuid())
+  student_id   String
+  student      Student  @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  assessor_id  String
+  assessor     Employee @relation(fields: [assessor_id], references: [id])
+  date         DateTime
+  attitude     Int
+  ethics       Int
+  manners      Int
+  overallScore Decimal  @db.Decimal(5, 2)
+  notes        String?  @db.Text
+  created_at   DateTime @default(now())
+
+  @@map("student_behavior_assessments")
 }

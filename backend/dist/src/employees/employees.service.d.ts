@@ -148,4 +148,20 @@ export declare class EmployeesService {
     }[]): Promise<{
         count: number;
     }>;
+    recordSelfAttendance(employeeId: string): Promise<{
+        id: string;
+        status: string;
+        employee_id: string;
+        date: Date;
+    }>;
+    getMonthlyAttendance(monthStr: string): Promise<{
+        id: string;
+        full_name: string;
+        position: string;
+        major: string;
+        hadir: number;
+        izin: number;
+        alpa: number;
+        total_days: number;
+    }[]>;
 }

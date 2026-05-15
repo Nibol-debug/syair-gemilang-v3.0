@@ -191,6 +191,12 @@ export class ExamsService {
 
   // Questions Management
   async addQuestion(examId: string, data: any) {
+    const exam = await this.prisma.exam.findUnique({ where: { id: examId } });
+    if (!exam) throw new NotFoundException('Exam not found');
+    if (new Date() >= new Date(exam.start_time)) {
+      throw new ForbiddenException('Cannot add questions after the exam has started.');
+    }
+
     const { options, ...questionData } = data;
     return this.prisma.question.create({
       data: {
@@ -205,6 +211,15 @@ export class ExamsService {
   }
 
   async updateQuestion(questionId: string, data: any) {
+    const question = await this.prisma.question.findUnique({
+      where: { id: questionId },
+      include: { exam: true }
+    });
+    if (!question) throw new NotFoundException('Question not found');
+    if (new Date() >= new Date(question.exam.start_time)) {
+      throw new ForbiddenException('Cannot update questions after the exam has started.');
+    }
+
     const { options, ...questionData } = data;
 
     // If options are provided, we delete old ones and create new ones.
@@ -227,6 +242,15 @@ export class ExamsService {
   }
 
   async deleteQuestion(questionId: string) {
+    const question = await this.prisma.question.findUnique({
+      where: { id: questionId },
+      include: { exam: true }
+    });
+    if (!question) throw new NotFoundException('Question not found');
+    if (new Date() >= new Date(question.exam.start_time)) {
+      throw new ForbiddenException('Cannot delete questions after the exam has started.');
+    }
+
     // Delete answers and options first
     await this.prisma.studentAnswer.deleteMany({ where: { question_id: questionId } });
     await this.prisma.questionOption.deleteMany({ where: { question_id: questionId } });

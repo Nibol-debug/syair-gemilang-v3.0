@@ -22,6 +22,7 @@ export default function CBTPage() {
   // Master data
   const [subjects, setSubjects] = useState<any[]>([]);
   const [majors, setMajors] = useState<any[]>([]);
+  const [questionBanks, setQuestionBanks] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal State
@@ -37,7 +38,8 @@ export default function CBTPage() {
     duration: 120,
     token: '',
     start_time: '',
-    end_time: ''
+    end_time: '',
+    question_bank_id: ''
   });
 
   const fetchExams = async () => {
@@ -86,12 +88,14 @@ export default function CBTPage() {
 
   const fetchMasterData = async () => {
     try {
-      const [subRes, majRes] = await Promise.all([
+      const [subRes, majRes, qbRes] = await Promise.all([
         apiRequest('/subjects?limit=100'),
-        apiRequest('/majors?limit=100')
+        apiRequest('/majors?limit=100'),
+        apiRequest('/question-banks?limit=100')
       ]);
       setSubjects(subRes.data || []);
       setMajors(majRes.data || []);
+      setQuestionBanks(qbRes.data || []);
     } catch (err) {
       console.error('Failed to fetch master data', err);
     }
@@ -156,10 +160,19 @@ export default function CBTPage() {
         start_time: start.toISOString(),
         end_time: end.toISOString()
       };
-      await apiRequest('/exams', {
+      const createdExam = await apiRequest('/exams', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
+      
+      // If a question bank is selected, import its questions
+      if (formData.question_bank_id) {
+         await apiRequest(`/question-banks/import-to-exam/${createdExam.id}`, {
+            method: 'POST',
+            body: JSON.stringify({ question_bank_ids: [formData.question_bank_id] })
+         });
+      }
+
       setIsModalOpen(false);
       fetchExams();
       fetchStats();
@@ -224,6 +237,13 @@ export default function CBTPage() {
         </div>
         {canManageExams && (
         <div className="flex gap-3 flex-wrap">
+          <Link 
+            href="/cbt/question-banks"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-primary/20 text-primary text-sm font-bold hover:bg-primary/5 transition-all active:scale-95"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Bank Soal</span>
+          </Link>
           <button 
             onClick={() => {
               setFormData({...formData, token: generateToken()});
@@ -438,6 +458,19 @@ export default function CBTPage() {
                     <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Waktu Selesai</label>
                     <input type="datetime-local" required value={formData.end_time} onChange={e => setFormData({...formData, end_time: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none" />
                   </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Gunakan Bank Soal (Opsional)</label>
+                  <select value={formData.question_bank_id} onChange={e => setFormData({...formData, question_bank_id: e.target.value})} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer">
+                    <option value="">-- Buat Soal Nanti / Tidak Menggunakan Bank Soal --</option>
+                    {questionBanks.filter(qb => 
+                      (!formData.subject_id || qb.subject_id === formData.subject_id) && 
+                      (!formData.major_id || qb.major_id === formData.major_id)
+                    ).map(qb => (
+                      <option key={qb.id} value={qb.id}>{qb.title} ({qb.type})</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

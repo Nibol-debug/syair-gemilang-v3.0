@@ -79,7 +79,7 @@ export default function MajorsPage() {
     try {
       const res = await apiRequest('/branches');
       setBranches(res || []);
-      setStats(prev => ({ ...prev, branchCount: res?.length || 0 }));
+      setStats((prev: any) => ({ ...prev, branchCount: res?.length || 0 }));
     } catch (err) {
       console.error('Gagal mengambil data cabang:', err);
     }
@@ -88,7 +88,7 @@ export default function MajorsPage() {
   const fetchStats = async () => {
     try {
       const res = await apiRequest('/majors');
-      setStats(prev => ({
+      setStats((prev: any) => ({
         ...prev,
         total: res.meta.total
       }));

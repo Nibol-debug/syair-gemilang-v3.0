@@ -21,7 +21,9 @@ import {
   Loader2,
   BookOpen,
   Layers,
-  Calendar
+  Calendar,
+  CheckCircle2,
+  CheckCircle
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -144,9 +146,33 @@ function AdminDashboard({ data, user }: any) {
 }
 
 function GuruDashboard({ data, user }: any) {
+  const [isPresensiLoading, setIsPresensiLoading] = React.useState(false);
+  
+  const handleSelfPresensi = async () => {
+    setIsPresensiLoading(true);
+    try {
+      await apiRequest('/employee-attendance/self', { method: 'POST' });
+      alert('Presensi berhasil dicatat! Selamat bertugas.');
+    } catch (err: any) {
+      alert(err.message || 'Gagal melakukan presensi.');
+    } finally {
+      setIsPresensiLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
-      <DashboardHeader title={`Selamat Datang, ${user.username}`} subtitle="Portal Guru: Kelola kelas, bank soal, dan pantau ujian yang sedang berlangsung." />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <DashboardHeader title={`Selamat Datang, ${user.username}`} subtitle="Portal Guru: Kelola kelas, bank soal, dan pantau ujian yang sedang berlangsung." />
+        <button 
+          onClick={handleSelfPresensi}
+          disabled={isPresensiLoading}
+          className="flex items-center gap-3 px-8 py-4 bg-green-600 text-white font-black rounded-2xl shadow-xl shadow-green-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+        >
+          {isPresensiLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+          PRESENSI HARI INI
+        </button>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard label="Kelas Diampu" value={data?.totalClasses || '0'} icon={Layers} color="primary" />

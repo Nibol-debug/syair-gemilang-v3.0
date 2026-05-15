@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -193,6 +193,69 @@ export class EmployeesService {
       }
       
       return { count: validRecords.length };
+    });
+  }
+
+  async recordSelfAttendance(employeeId: string) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    const nextDay = new Date(date);
+    nextDay.setDate(date.getDate() + 1);
+
+    const existing = await this.prisma.employeeAttendance.findFirst({
+      where: {
+        employee_id: employeeId,
+        date: {
+          gte: date,
+          lt: nextDay,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Anda sudah melakukan presensi hari ini.');
+    }
+
+    return this.prisma.employeeAttendance.create({
+      data: {
+        employee_id: employeeId,
+        status: 'Hadir',
+        date: date,
+      },
+    });
+  }
+
+  async getMonthlyAttendance(monthStr: string) {
+    // monthStr format: YYYY-MM
+    const [year, month] = monthStr.split('-').map(Number);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const attendances = await this.prisma.employeeAttendance.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    const employees = await this.prisma.employee.findMany({
+      include: { major: true }
+    });
+
+    return employees.map(emp => {
+      const empAtt = attendances.filter(a => a.employee_id === emp.id);
+      return {
+        id: emp.id,
+        full_name: emp.full_name,
+        position: emp.position,
+        major: emp.major?.code || 'STAF',
+        hadir: empAtt.filter(a => a.status === 'Hadir').length,
+        izin: empAtt.filter(a => a.status === 'Izin' || a.status === 'Sakit').length,
+        alpa: empAtt.filter(a => a.status === 'Alpa').length,
+        total_days: empAtt.length,
+      };
     });
   }
 }

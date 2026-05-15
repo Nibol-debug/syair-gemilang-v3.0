@@ -17,6 +17,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AuditInterceptor } from '../common/interceptors/audit.interceptor';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -30,15 +35,12 @@ export class UsersController {
   }
 
   @Patch('me')
-  async updateProfile(@Req() req: any, @Body() data: any) {
+  async updateProfile(@Req() req: any, @Body() data: UpdateProfileDto) {
     return this.usersService.updateProfile(req.user.sub, data);
   }
 
   @Post('me/change-password')
-  async changePassword(@Req() req: any, @Body() body: { currentPassword: string; newPassword: string }) {
-    if (!body.currentPassword || !body.newPassword) {
-      throw new BadRequestException('Both current and new password are required');
-    }
+  async changePassword(@Req() req: any, @Body() body: ChangePasswordDto) {
     return this.usersService.changePassword(req.user.sub, body.currentPassword, body.newPassword);
   }
 
@@ -71,13 +73,13 @@ export class UsersController {
 
   @Post()
   @Roles('Administrator Utama')
-  create(@Body() data: any) {
+  create(@Body() data: CreateUserDto) {
     return this.usersService.create(data);
   }
 
   @Patch(':id')
   @Roles('Administrator Utama')
-  update(@Param('id') id: string, @Body() data: any) {
+  update(@Param('id') id: string, @Body() data: UpdateUserDto) {
     return this.usersService.update(id, data);
   }
 

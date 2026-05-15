@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common'; // Backend Kick Comment
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -33,6 +33,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { GradeAnalysisModule } from './grade-analysis/grade-analysis.module';
 import { RemedialModule } from './remedial/remedial.module';
 import { ReportCardsModule } from './report-cards/report-cards.module';
+import { StudentBehaviorModule } from './student-behavior/student-behavior.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -68,6 +70,8 @@ import { ReportCardsModule } from './report-cards/report-cards.module';
     GradeAnalysisModule,
     RemedialModule,
     ReportCardsModule,
+    StudentBehaviorModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [

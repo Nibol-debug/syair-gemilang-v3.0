@@ -119,7 +119,8 @@ export default function ReportCardsPage() {
     setIsDownloading(true);
     try {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/report-cards/student/${studentId}/semester/${selectedSemester}/pdf`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+      const response = await fetch(`${apiUrl}/report-cards/student/${studentId}/semester/${selectedSemester}/pdf`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

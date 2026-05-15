@@ -176,6 +176,12 @@ let ExamsService = class ExamsService {
         });
     }
     async addQuestion(examId, data) {
+        const exam = await this.prisma.exam.findUnique({ where: { id: examId } });
+        if (!exam)
+            throw new common_1.NotFoundException('Exam not found');
+        if (new Date() >= new Date(exam.start_time)) {
+            throw new common_1.ForbiddenException('Cannot add questions after the exam has started.');
+        }
         const { options, ...questionData } = data;
         return this.prisma.question.create({
             data: {
@@ -189,6 +195,15 @@ let ExamsService = class ExamsService {
         });
     }
     async updateQuestion(questionId, data) {
+        const question = await this.prisma.question.findUnique({
+            where: { id: questionId },
+            include: { exam: true }
+        });
+        if (!question)
+            throw new common_1.NotFoundException('Question not found');
+        if (new Date() >= new Date(question.exam.start_time)) {
+            throw new common_1.ForbiddenException('Cannot update questions after the exam has started.');
+        }
         const { options, ...questionData } = data;
         if (options) {
             await this.prisma.questionOption.deleteMany({
@@ -207,6 +222,15 @@ let ExamsService = class ExamsService {
         });
     }
     async deleteQuestion(questionId) {
+        const question = await this.prisma.question.findUnique({
+            where: { id: questionId },
+            include: { exam: true }
+        });
+        if (!question)
+            throw new common_1.NotFoundException('Question not found');
+        if (new Date() >= new Date(question.exam.start_time)) {
+            throw new common_1.ForbiddenException('Cannot delete questions after the exam has started.');
+        }
         await this.prisma.studentAnswer.deleteMany({ where: { question_id: questionId } });
         await this.prisma.questionOption.deleteMany({ where: { question_id: questionId } });
         return this.prisma.question.delete({

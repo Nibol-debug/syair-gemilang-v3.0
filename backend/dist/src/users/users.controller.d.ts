@@ -1,4 +1,8 @@
 import { UsersService } from './users.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
@@ -34,7 +38,7 @@ export declare class UsersController {
         password_hash: string;
         role_id: string;
     }>;
-    updateProfile(req: any, data: any): Promise<{
+    updateProfile(req: any, data: UpdateProfileDto): Promise<{
         id: string;
         username: string;
         student_id: string | null;
@@ -42,10 +46,7 @@ export declare class UsersController {
         password_hash: string;
         role_id: string;
     }>;
-    changePassword(req: any, body: {
-        currentPassword: string;
-        newPassword: string;
-    }): Promise<{
+    changePassword(req: any, body: ChangePasswordDto): Promise<{
         id: string;
         username: string;
         student_id: string | null;
@@ -147,7 +148,7 @@ export declare class UsersController {
         password_hash: string;
         role_id: string;
     }>;
-    create(data: any): Promise<{
+    create(data: CreateUserDto): Promise<{
         id: string;
         username: string;
         student_id: string | null;
@@ -155,7 +156,7 @@ export declare class UsersController {
         password_hash: string;
         role_id: string;
     }>;
-    update(id: string, data: any): Promise<{
+    update(id: string, data: UpdateUserDto): Promise<{
         id: string;
         username: string;
         student_id: string | null;

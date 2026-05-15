@@ -77,7 +77,7 @@ export default function ProfileDropdown({ user }: ProfileDropdownProps) {
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
               >
                 <Settings className="w-4 h-4" />
-                <span>Settings</span>
+                <span>Pengaturan Akun</span>
               </Link>
               <Link
                 href="/settings?tab=profile"
@@ -85,7 +85,7 @@ export default function ProfileDropdown({ user }: ProfileDropdownProps) {
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
               >
                 <User className="w-4 h-4" />
-                <span>Edit Profile</span>
+                <span>Edit Profil</span>
               </Link>
             </div>
 

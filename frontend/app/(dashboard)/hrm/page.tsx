@@ -26,6 +26,14 @@ import {
 import { cn } from '@/lib/utils';
 import { ViewEmployeeModal, EditEmployeeModal, DeleteEmployeeModal } from '@/components/EmployeeModals';
 import { useUserRole } from '@/lib/useUserRole';
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Legend 
+} from 'recharts';
 
 export default function EmployeesPage() {
   const { canManageEmployees } = useUserRole();
@@ -166,6 +174,64 @@ export default function EmployeesPage() {
         <StatCard title="Guru / Pengajar" value={stats.teachers} icon={<Award className="w-6 h-6" />} color="secondary" />
         <StatCard title="Staf Administrasi" value={stats.staff} icon={<ShieldCheck className="w-6 h-6" />} color="tertiary" />
         <StatCard title="Tersertifikasi" value={stats.certifiedCount} icon={<CheckCircle2 className="w-4 h-4 text-white" />} color="success" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
+           <h3 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+             <GraduationCap className="w-5 h-5 text-primary" />
+             Sebaran Pendidikan Terakhir
+           </h3>
+           <div className="h-[280px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                 <PieChart>
+                    <Pie
+                      data={stats.educationDistribution || []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {(stats.educationDistribution || []).map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={['#1e40af', '#3b82f6', '#93c5fd', '#bfdbfe'][index % 4]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36} />
+                 </PieChart>
+              </ResponsiveContainer>
+           </div>
+        </div>
+
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
+           <h3 className="text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
+             <Award className="w-5 h-5 text-secondary" />
+             Status Sertifikasi Guru
+           </h3>
+           <div className="h-[280px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                 <PieChart>
+                    <Pie
+                      data={stats.certificationDistribution || []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {(stats.certificationDistribution || []).map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#f43f5e'} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36} />
+                 </PieChart>
+              </ResponsiveContainer>
+           </div>
+        </div>
       </div>
 
       {/* Filter Section */}

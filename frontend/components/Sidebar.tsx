@@ -18,17 +18,19 @@ import {
   Package,
   BookOpen,
   Calendar,
-  Layers
+  Layers,
+  HeartHandshake
 } from 'lucide-react';
 import { cn, getUserFromToken } from '../lib/utils';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua', 'Bendahara', 'Staf Sarpras'] },
-  { icon: Users, label: 'Student Management', path: '/students', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas'] },
+  { icon: Users, label: 'Manajemen Siswa', path: '/students', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas'] },
   { icon: BadgeCheck, label: 'Kepegawaian (HRM)', path: '/hrm', roles: ['Administrator Utama', 'Kepala Sekolah'] },
-  { icon: GraduationCap, label: 'Academic', path: '/academic', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas'] },
-  { icon: QuizIcon, label: 'CBT Module', path: '/cbt', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa'] },
-  { icon: BarChart3, label: 'Grading', path: '/grading', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'] },
+  { icon: GraduationCap, label: 'Akademik', path: '/academic', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas'] },
+  { icon: HeartHandshake, label: 'Penilaian Perilaku', path: '/academic/behavior', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'] },
+  { icon: QuizIcon, label: 'Modul Ujian (CBT)', path: '/cbt', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa'] },
+  { icon: BarChart3, label: 'Penilaian', path: '/grading', roles: ['Administrator Utama', 'Kepala Sekolah', 'Guru Mata Pelajaran', 'Wali Kelas', 'Siswa', 'Orang Tua'] },
   { icon: ClipboardList, label: 'PPDB Online', path: '/ppdb-admin', roles: ['Administrator Utama', 'Kepala Sekolah'] },
   { icon: Wallet, label: 'Keuangan', path: '/finance', roles: ['Administrator Utama', 'Kepala Sekolah', 'Bendahara', 'Orang Tua', 'Siswa'] },
   { icon: Package, label: 'Inventaris', path: '/assets', roles: ['Administrator Utama', 'Kepala Sekolah', 'Staf Sarpras'] },
@@ -39,7 +41,7 @@ const masterDataItems = [
   { icon: Calendar, label: 'Data Angkatan', path: '/batches', roles: ['Administrator Utama', 'Kepala Sekolah'] },
   { icon: Layers, label: 'Data Kelas', path: '/classes', roles: ['Administrator Utama', 'Kepala Sekolah'] },
   { icon: ShieldCheck, label: 'Manajemen Pengguna', path: '/users', roles: ['Administrator Utama'] },
-  { icon: Settings, label: 'Grading Settings', path: '/grading/settings', roles: ['Administrator Utama', 'Kepala Sekolah'] },
+  { icon: Settings, label: 'Pengaturan Nilai', path: '/grading/settings', roles: ['Administrator Utama', 'Kepala Sekolah'] },
 ];
 
 export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
@@ -123,7 +125,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
             <div className="px-3 pt-8">
               <button className="w-full bg-surface-container-high text-on-surface flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-outline-variant/30 transition-all active:scale-[0.98] border border-outline-variant/50">
                 <BarChart3 className="w-4 h-4" />
-                <span>Generate Report</span>
+                <span>Buat Laporan</span>
               </button>
             </div>
           )}
@@ -138,7 +140,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
                 className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
               >
                 <Settings className="w-5 h-5" />
-                <span>Settings</span>
+                <span>Pengaturan</span>
               </Link>
             </li>
             <li>
@@ -152,7 +154,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
                 }}
               >
                 <LogOut className="w-5 h-5" />
-                <span>Logout</span>
+                <span>Keluar</span>
               </Link>
             </li>
           </ul>

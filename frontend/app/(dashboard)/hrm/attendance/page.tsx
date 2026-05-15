@@ -11,7 +11,8 @@ import {
   XCircle, 
   Clock, 
   AlertCircle,
-  Search
+  Search,
+  BarChart2
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -85,7 +86,15 @@ export default function EmployeeAttendancePage() {
           <p className="text-on-surface-variant font-medium">Pencatatan kehadiran guru dan staf harian.</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-surface-container-lowest border border-outline-variant rounded-2xl p-2 px-4 shadow-sm">
+        <div className="flex items-center gap-4">
+           <Link 
+             href="/hrm/attendance/monthly"
+             className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary border border-primary/20 rounded-xl hover:bg-primary/5 transition-all"
+           >
+              <BarChart2 className="w-4 h-4" />
+              Laporan Bulanan
+           </Link>
+           <div className="flex items-center gap-4 bg-surface-container-lowest border border-outline-variant rounded-2xl p-2 px-4 shadow-sm">
            <Calendar className="w-5 h-5 text-primary" />
            <input 
              type="date" 
@@ -94,6 +103,7 @@ export default function EmployeeAttendancePage() {
              className="bg-transparent border-none outline-none font-bold text-on-surface cursor-pointer"
            />
         </div>
+      </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

@@ -86,26 +86,78 @@ let UsersService = class UsersService {
         return user;
     }
     async updateProfile(userId, data) {
-        const updateData = {};
-        if (data.username) {
-            updateData.username = data.username;
+        try {
+            const user = await this.prisma.user.findUnique({ where: { id: userId } });
+            if (!user)
+                throw new common_1.NotFoundException('User not found');
+            const updateData = {};
+            if (data.username && data.username !== user.username) {
+                const existing = await this.prisma.user.findUnique({ where: { username: data.username } });
+                if (existing)
+                    throw new common_1.BadRequestException('Username sudah digunakan');
+                updateData.username = data.username;
+            }
+            if (data.student && user.student_id) {
+                const studentData = {};
+                Object.entries(data.student).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== '') {
+                        studentData[key] = value;
+                    }
+                });
+                if (studentData.email) {
+                    const existingStudent = await this.prisma.student.findFirst({
+                        where: {
+                            email: studentData.email,
+                            id: { not: user.student_id }
+                        }
+                    });
+                    if (existingStudent)
+                        throw new common_1.BadRequestException('Email sudah digunakan oleh siswa lain');
+                }
+                if (studentData.birth_date) {
+                    const date = new Date(studentData.birth_date);
+                    if (isNaN(date.getTime())) {
+                        delete studentData.birth_date;
+                    }
+                    else {
+                        studentData.birth_date = date;
+                    }
+                }
+                if (Object.keys(studentData).length > 0) {
+                    await this.prisma.student.update({
+                        where: { id: user.student_id },
+                        data: studentData,
+                    });
+                }
+            }
+            if (data.employee && user.employee_id) {
+                const employeeData = {};
+                Object.entries(data.employee).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== '') {
+                        employeeData[key] = value;
+                    }
+                });
+                if (Object.keys(employeeData).length > 0) {
+                    await this.prisma.employee.update({
+                        where: { id: user.employee_id },
+                        data: employeeData,
+                    });
+                }
+            }
+            if (Object.keys(updateData).length > 0) {
+                return await this.prisma.user.update({
+                    where: { id: userId },
+                    data: updateData,
+                });
+            }
+            return user;
         }
-        if (data.student) {
-            await this.prisma.student.updateMany({
-                where: { user: { id: userId } },
-                data: data.student,
-            });
+        catch (error) {
+            if (error instanceof common_1.BadRequestException || error instanceof common_1.NotFoundException) {
+                throw error;
+            }
+            throw new common_1.BadRequestException('Gagal memperbarui profil: ' + error.message);
         }
-        if (data.employee) {
-            await this.prisma.employee.updateMany({
-                where: { user: { id: userId } },
-                data: data.employee,
-            });
-        }
-        return this.prisma.user.update({
-            where: { id: userId },
-            data: updateData,
-        });
     }
     async changePassword(userId, currentPassword, newPassword) {
         const user = await this.prisma.user.findUnique({

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback, useRef, use } from 'react';
 import { apiRequest } from '@/lib/api';
 import { Loader2, AlertCircle, Clock, Send, CheckCircle2, Lock, ArrowLeft, ArrowRight, Monitor, Shield, AlertTriangle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -15,8 +15,9 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function TakeExamPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function TakeExamPage() {
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [exam, setExam] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -142,12 +143,11 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
     try { await apiRequest(`/exams/sessions/${session.id}/answers`, { method: 'POST', body: JSON.stringify({ question_id: qId, answer: text }) }); } catch {}
   };
 
-  const handleEssayAnswer = async (qId: string, text: string) => {
+  const handleEssayAnswer = (qId: string, text: string) => {
     setAnswers(prev => ({ ...prev, [qId]: text }));
   };
 
-  const saveEssay = async (qId: string) => {
-    const text = answers[qId];
+  const saveEssay = async (qId: string, text: string) => {
     if (!text) return;
     try { await apiRequest(`/exams/sessions/${session.id}/answers`, { method: 'POST', body: JSON.stringify({ question_id: qId, answer: text }) }); } catch {}
   };
@@ -316,7 +316,7 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <textarea value={answers[currentQ?.id] || ''} onChange={e => handleEssayAnswer(currentQ.id, e.target.value)} onBlur={() => saveEssay(currentQ.id)}
+                  <textarea value={answers[currentQ?.id] || ''} onChange={e => handleEssayAnswer(currentQ.id, e.target.value)} onBlur={(e) => saveEssay(currentQ.id, e.target.value)}
                     placeholder="Tulis jawaban essay Anda di sini..." rows={8}
                     className="w-full px-5 py-4 bg-surface border-2 border-outline-variant rounded-2xl text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none resize-none font-medium" />
                   <p className="text-[10px] font-bold text-outline uppercase tracking-wider">Jawaban akan tersimpan otomatis saat Anda berpindah soal.</p>
@@ -326,12 +326,12 @@ export default function TakeExamPage({ params }: { params: Promise<{ id: string 
 
             {/* Navigation */}
             <div className="flex justify-between items-center mt-10 pt-6 border-t border-outline-variant/30">
-              <button disabled={currentIdx === 0} onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id); setCurrentIdx(p => p - 1); }}
+              <button disabled={currentIdx === 0} onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id, answers[currentQ.id]); setCurrentIdx(p => p - 1); }}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-outline-variant font-bold text-sm text-on-surface-variant hover:bg-surface-container disabled:opacity-30">
                 <ArrowLeft className="w-4 h-4" /> Sebelumnya
               </button>
               {currentIdx < questions.length - 1 ? (
-                <button onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id); setCurrentIdx(p => p + 1); }}
+                <button onClick={() => { if (currentQ?.type === 'essay') saveEssay(currentQ.id, answers[currentQ.id]); setCurrentIdx(p => p + 1); }}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-surface-container-high font-bold text-sm text-on-surface hover:bg-outline-variant/30 shadow-sm">
                   Selanjutnya <ArrowRight className="w-4 h-4" />
                 </button>

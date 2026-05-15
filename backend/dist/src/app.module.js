@@ -42,6 +42,8 @@ const notifications_module_1 = require("./notifications/notifications.module");
 const grade_analysis_module_1 = require("./grade-analysis/grade-analysis.module");
 const remedial_module_1 = require("./remedial/remedial.module");
 const report_cards_module_1 = require("./report-cards/report-cards.module");
+const student_behavior_module_1 = require("./student-behavior/student-behavior.module");
+const settings_module_1 = require("./settings/settings.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -80,6 +82,8 @@ exports.AppModule = AppModule = __decorate([
             grade_analysis_module_1.GradeAnalysisModule,
             remedial_module_1.RemedialModule,
             report_cards_module_1.ReportCardsModule,
+            student_behavior_module_1.StudentBehaviorModule,
+            settings_module_1.SettingsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

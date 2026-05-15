@@ -45,6 +45,8 @@ export declare class UsersService {
             birth_place?: string;
             birth_date?: string;
             address?: string;
+            email?: string;
+            phone?: string;
         };
         employee?: {
             full_name?: string;
