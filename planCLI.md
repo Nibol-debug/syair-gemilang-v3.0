@@ -625,9 +625,9 @@ guru input → grades
 4. Modul Akademik (DONE)
 5. Modul CBT (DONE - Full Anti-Cheat)
 6. Modul Penilaian (DONE - E-Rapor & Remedial)
-7. Modul Keuangan & Inventaris (BACKEND DONE, FRONTEND BASIC)
+7. Modul Keuangan & Inventaris (DONE)
 8. Dashboard, Reporting & Behavior Assessment (DONE)
-9. HRM Advanced (PLANNED)
+9. HRM Advanced (DONE - In Refinement)
 
 ---
 

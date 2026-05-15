@@ -21,11 +21,12 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 | 6 | Academic Management | ✅ 100% | ✅ 100% | Complete |
 | 7 | CBT (Ujian Online) | ✅ 100% | ✅ 100% | **Core System** |
 | 8 | Penilaian (Grading) | ✅ 100% | ✅ 100% | Complete + E-Rapor |
-| 9 | Keuangan | ✅ 100% | ✅ 80% | Backend Complete |
-| 10 | Inventaris | ✅ 100% | ✅ 80% | Backend Complete |
+| 9 | Keuangan | ✅ 100% | ✅ 90% | Core Berfungsi |
+| 10 | Inventaris | ✅ 100% | ✅ 90% | Core Berfungsi |
 | 11 | Dashboard & Stats | ✅ 100% | ✅ 100% | Complete |
 | 12 | Student Behavior | ✅ 100% | ✅ 100% | Complete |
 | 13 | Remedial & Analysis | ✅ 100% | ✅ 100% | Complete |
+| 14 | HRM Advanced (Payroll/Cuti) | ✅ 95% | ✅ 85% | Sedang Perbaikan Data |
 
 ---
 
@@ -123,7 +124,9 @@ Sistem ERP sekolah telah berhasil mengimplementasikan **11 modul utama** dari to
 | Upload Dokumen | ✅ | Ijazah, Sertifikat |
 | Absensi Guru | ✅ | Tracking kehadiran |
 | Statistik Tenaga Pengajar | ✅ | Dashboard HRM |
-| Employee Document Storage | ✅ | Terorganisir |
+| Manajemen Cuti & Izin | ✅ | Flow Approval Berjalan |
+| Digital Payroll / Slip Gaji | ✅ | Generate E-Slip |
+| Penilaian Kinerja (PKG) | ✅ | Appraisal System |
 
 ---
 

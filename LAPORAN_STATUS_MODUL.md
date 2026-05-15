@@ -114,22 +114,22 @@
 
 | No | Fitur | Masalah | Solusi |
 |----|-------|---------|--------|
-| 1 | **Pengajuan Cuti** | Error `employee_id should not be empty` | User yang login harus punya `employee_id` yang terhubung di tabel `users` |
-| 2 | **Slip Gaji Digital** | Loading forever | Sama seperti #1 - perlu `employee_id` di token JWT |
-| 3 | **Penilaian Kinerja (PKG)** | Loading forever | Sama seperti #1 - perlu `employee_id` di token JWT |
-| 4 | **Evaluasi Kinerja** | Error `evaluator_id should not be empty` | Sudah di-fix di backend, tapi user harus punya `employee_id` |
-| 5 | **Riwayat Pegawai** | Edit & Delete belum ada UI | Sudah ditambahkan di frontend |
-| 6 | **Presensi Pegawai** | Error `employee_id tidak terhubung` | Sudah di-fix: `req.user.employee_id` → `req.user.employeeId` |
-| 7 | **Pembayaran Finance** | Notifikasi gagal (FK violation) | Sudah di-fix: lookup `user_id` dari `student_id` |
+| 1 | **Pengajuan Cuti** | Error `employee_id should not be empty` | ✅ Sudah di-fix (Backend) |
+| 2 | **Slip Gaji Digital** | Loading forever | ✅ Sudah di-fix (Backend) |
+| 3 | **Penilaian Kinerja (PKG)** | Loading forever | ✅ Sudah di-fix (Backend) |
+| 4 | **Evaluasi Kinerja** | Error `evaluator_id should not be empty` | ✅ Sudah di-fix (Backend) |
+| 5 | **Riwayat Pegawai** | Edit & Delete belum ada UI | ✅ Sudah ditambahkan |
+| 6 | **Presensi Pegawai** | Error `employee_id tidak terhubung` | ✅ Sudah di-fix |
+| 7 | **Pembayaran Finance** | Notifikasi gagal (FK violation) | ✅ Sudah di-fix |
 
 ### 2.2. Sedang (Medium Priority)
 
 | No | Fitur | Masalah | Solusi |
 |----|-------|---------|--------|
-| 1 | **Duplicate Payment** | Bisa input pembayaran yang sama | Sudah di-fix: cek duplicate sebelum save |
-| 2 | **Edit/Delete Payment** | Belum ada endpoint | Sudah ada di backend, perlu dicek frontend |
-| 3 | **Route Conflict** | `/assets/loans` bentrok dengan `/assets/:id` | Sudah di-fix: rename ke `/asset-loans` |
-| 4 | **Validation Pipe** | Query params ditolak | Sudah di-fix: hapus `forbidNonWhitelisted` |
+| 1 | **Duplicate Payment** | Bisa input pembayaran yang sama | ✅ Sudah di-fix |
+| 2 | **Edit/Delete Payment** | Belum ada endpoint | ✅ Sudah ada di backend |
+| 3 | **Route Conflict** | `/assets/loans` bentrok dengan `/assets/:id` | ✅ Sudah di-fix |
+| 4 | **Validation Pipe** | Query params ditolak | ✅ Sudah di-fix |
 
 ### 2.3. Rendah (Low Priority)
 

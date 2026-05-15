@@ -16,30 +16,25 @@
 *   **E-Rapor PDF**: Fitur generate rapor digital siap cetak dalam format PDF.
 *   **Remedial System**: Workflow otomatis untuk siswa di bawah KKM (75).
 
-### 3. Modul Akademik & HRM (4.3 & 4.4)
-*   **Penjadwalan**: Sistem jadwal pelajaran anti-bentrok guru dan kelas.
-*   **Jurnal Mengajar**: Pencatatan materi dan absensi siswa per jam pelajaran.
-*   **Presensi Pegawai**: Tracking kehadiran guru dan staf.
-
-### 4. Modul Student Behavior
-*   **Assessment Perilaku**: Penilaian sikap, etika, dan tata krama siswa oleh guru/wali kelas.
+### 4. Modul HRM Advanced (4.4 & 4.5)
+*   **Payroll System**: Manajemen gaji dan generate slip gaji digital (E-Slip).
+*   **Leaves & Permits**: Pengajuan cuti dan izin online dengan workflow approval.
+*   **Performance Appraisal**: Sistem penilaian kinerja (PKG) untuk guru dan staf.
 
 ---
 
-## 🛠️ Pembaruan Teknis (v3.3)
-*   **Backend Modules**: Penambahan modul `ReportCards`, `Remedial`, `GradeAnalysis`, dan `Notifications`.
-*   **Frontend UI**: Modernisasi dashboard dengan App Shell architecture dan optimasi mobile responsiveness.
-*   **Audit Logs**: Peningkatan detil logging untuk keamanan data nilai.
+## 🛠️ Pembaruan Teknis (v3.5)
+*   **Backend Modules**: Penambahan modul `Leaves`, `Payrolls`, `Appraisals`, dan `AssetLoans`.
+*   **Frontend UI**: Optimasi UI Dashboard Finance dan Assets (Mencapai 90% kesiapan).
+*   **Fixes**: Perbaikan bug `employee_id` pada modul HRM dan perbaikan FK violation pada Finance.
 
 ---
 
 ## 🚀 Rencana Selanjutnya (Roadmap)
-1.  **Fase 5: Keuangan & Aset (Frontend Enhancement)**:
-    *   Optimasi UI Dashboard Keuangan dan Inventaris.
-    *   Sistem Notifikasi Pembayaran.
-2.  **Fase 6: HRM Advanced**:
-    *   Implementasi Payroll (Slip Gaji Digital).
-    *   Manajemen Cuti & Izin Online.
+1.  **Fase 6: Finalisasi & Deployment**:
+    *   Integrasi WhatsApp Gateway untuk notifikasi.
+    *   Pembersihan data (linking users to employees).
+    *   Deployment ke server produksi.
 
 ---
 
