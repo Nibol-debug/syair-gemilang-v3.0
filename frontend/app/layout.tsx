@@ -10,6 +10,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Syiar Gemilang - Educational ERP",
   description: "Educational ERP for Rumah Gemilang Indonesia",
+  icons: {
+    icon: "/icon.jpeg",
+    shortcut: "/icon.jpeg",
+    apple: "/icon.jpeg",
+  },
 };
 
 export default function RootLayout({
