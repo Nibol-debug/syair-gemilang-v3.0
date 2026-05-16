@@ -48,6 +48,7 @@ export declare class GradesService {
                 title: string;
                 duration: number;
                 token: string;
+                violation_limit: number;
             } | null;
         } & {
             id: string;

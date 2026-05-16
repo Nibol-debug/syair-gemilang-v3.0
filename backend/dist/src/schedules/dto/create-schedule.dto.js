@@ -20,6 +20,7 @@ class CreateScheduleDto {
     day;
     start_time;
     end_time;
+    room;
 }
 exports.CreateScheduleDto = CreateScheduleDto;
 __decorate([
@@ -65,4 +66,9 @@ __decorate([
     (0, class_validator_1.Matches)(/^([01]\d|2[0-3]):([0-5]\d)$/),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "end_time", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateScheduleDto.prototype, "room", void 0);
 //# sourceMappingURL=create-schedule.dto.js.map

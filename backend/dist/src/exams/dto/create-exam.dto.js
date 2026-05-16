@@ -60,6 +60,7 @@ class CreateExamDto {
     token;
     start_time;
     end_time;
+    violation_limit;
     questions;
 }
 exports.CreateExamDto = CreateExamDto;
@@ -100,6 +101,11 @@ __decorate([
     (0, class_validator_1.IsDate)(),
     __metadata("design:type", Date)
 ], CreateExamDto.prototype, "end_time", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], CreateExamDto.prototype, "violation_limit", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.ValidateNested)({ each: true }),

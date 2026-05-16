@@ -16,6 +16,8 @@ class CreateSubjectDto {
     name;
     major_id;
     passing_grade;
+    hours_per_week;
+    competency_standards;
 }
 exports.CreateSubjectDto = CreateSubjectDto;
 __decorate([
@@ -36,4 +38,16 @@ __decorate([
     (0, class_validator_1.Max)(100),
     __metadata("design:type", Number)
 ], CreateSubjectDto.prototype, "passing_grade", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.Max)(60),
+    __metadata("design:type", Number)
+], CreateSubjectDto.prototype, "hours_per_week", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateSubjectDto.prototype, "competency_standards", void 0);
 //# sourceMappingURL=create-subject.dto.js.map

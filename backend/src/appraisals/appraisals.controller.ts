@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { AppraisalsService } from './appraisals.service';
 import { CreateAppraisalDto } from './dto/create-appraisal.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -16,9 +16,12 @@ export class AppraisalsController {
   @Post()
   @Roles('Administrator Utama', 'Kepala Sekolah')
   create(@Body() createAppraisalDto: CreateAppraisalDto, @GetUser() user: ActiveUser) {
+    if (!user.employeeId) {
+      throw new BadRequestException('Akun Anda tidak terhubung dengan data pegawai. Hubungi admin.');
+    }
     const appraisalData = {
       ...createAppraisalDto,
-      evaluator_id: user.employeeId || user.sub,
+      evaluator_id: user.employeeId,
     };
     return this.appraisalsService.create(appraisalData);
   }
@@ -38,7 +41,7 @@ export class AppraisalsController {
     @GetUser() user: ActiveUser,
     @Query() pagination: PaginationDto,
   ) {
-    return this.appraisalsService.findAll(pagination, { employee_id: user.sub });
+    return this.appraisalsService.findAll(pagination, { employee_id: user.employeeId });
   }
 
   @Get(':id')

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UseGuards, BadRequestException } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { CreateFeeDto } from './dto/create-fee.dto';
 import { UpdateFeeDto } from './dto/update-fee.dto';
@@ -78,5 +78,11 @@ export class FinanceController {
   @Roles('Administrator Utama', 'Bendahara')
   removePayment(@Param('id') id: string) {
     return this.financeService.removePayment(id);
+  }
+
+  @Post('remind')
+  @Roles('Administrator Utama', 'Bendahara')
+  sendPaymentReminders() {
+    return this.financeService.sendPaymentReminders();
   }
 }

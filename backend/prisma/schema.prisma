@@ -364,16 +364,17 @@ model AcademicCalendar {
 }
 
 model Exam {
-  id         String   @id @default(uuid())
-  title      String
-  subject_id String
-  subject    Subject  @relation(fields: [subject_id], references: [id])
-  major_id   String
-  major      Major    @relation(fields: [major_id], references: [id])
-  duration   Int // in minutes
-  token      String
-  start_time DateTime
-  end_time   DateTime
+  id              String   @id @default(uuid())
+  title           String
+  subject_id      String
+  subject         Subject  @relation(fields: [subject_id], references: [id])
+  major_id        String
+  major           Major    @relation(fields: [major_id], references: [id])
+  duration        Int // in minutes
+  token           String
+  start_time      DateTime
+  end_time        DateTime
+  violation_limit Int      @default(3)
 
   questions Question[]
   sessions  ExamSession[]

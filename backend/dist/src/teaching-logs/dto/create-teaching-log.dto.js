@@ -19,6 +19,8 @@ class CreateTeachingLogDto {
     batch_id;
     subject_id;
     note;
+    material_summary;
+    assignment_given;
     date;
 }
 exports.CreateTeachingLogDto = CreateTeachingLogDto;
@@ -52,6 +54,16 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateTeachingLogDto.prototype, "note", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTeachingLogDto.prototype, "material_summary", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTeachingLogDto.prototype, "assignment_given", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_transformer_1.Type)(() => Date),

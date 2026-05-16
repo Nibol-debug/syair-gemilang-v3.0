@@ -16,6 +16,7 @@ export declare class CreateExamDto {
     token: string;
     start_time: Date;
     end_time: Date;
+    violation_limit?: number;
     questions?: QuestionDto[];
 }
 export {};

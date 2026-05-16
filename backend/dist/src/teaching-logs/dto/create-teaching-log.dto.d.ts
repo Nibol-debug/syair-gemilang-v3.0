@@ -5,5 +5,7 @@ export declare class CreateTeachingLogDto {
     batch_id: string;
     subject_id: string;
     note: string;
+    material_summary?: string;
+    assignment_given?: string;
     date: Date;
 }

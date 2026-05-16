@@ -49,6 +49,7 @@ const payrolls_module_1 = require("./payrolls/payrolls.module");
 const appraisals_module_1 = require("./appraisals/appraisals.module");
 const asset_loans_module_1 = require("./asset-loans/asset-loans.module");
 const employee_history_module_1 = require("./employee-history/employee-history.module");
+const reports_module_1 = require("./reports/reports.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -94,6 +95,7 @@ exports.AppModule = AppModule = __decorate([
             appraisals_module_1.AppraisalsModule,
             asset_loans_module_1.AssetLoansModule,
             employee_history_module_1.EmployeeHistoryModule,
+            reports_module_1.ReportsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

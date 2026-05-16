@@ -68,6 +68,7 @@ export declare class ExamsController {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     findAll(pagination: PaginationDto, major_id?: string, subject_id?: string, search?: string): Promise<{
         data: ({
@@ -99,6 +100,7 @@ export declare class ExamsController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         })[];
         meta: {
             total: number;
@@ -134,6 +136,7 @@ export declare class ExamsController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         };
         sessions: ({
             _count: {
@@ -190,6 +193,7 @@ export declare class ExamsController {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -200,6 +204,7 @@ export declare class ExamsController {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     addQuestion(id: string, data: any): Promise<{
         options: {

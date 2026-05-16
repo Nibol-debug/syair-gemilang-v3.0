@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreateFeeDto } from './dto/create-fee.dto';
@@ -72,6 +72,12 @@ export class FinanceService {
   }
 
   async removeFee(id: string) {
+    const paymentCount = await this.prisma.payment.count({
+      where: { fee_id: id },
+    });
+    if (paymentCount > 0) {
+      throw new ConflictException(`Fee memiliki ${paymentCount} pembayaran terkait. Hapus pembayaran terlebih dahulu.`);
+    }
     return this.prisma.fee.delete({
       where: { id },
     });
@@ -240,8 +246,38 @@ export class FinanceService {
   }
 
   async removePayment(id: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id },
+    });
+    if (!payment) throw new NotFoundException(`Payment with ID ${id} not found`);
     return this.prisma.payment.delete({
       where: { id },
     });
+  }
+
+  async sendPaymentReminders() {
+    const pendingPayments = await this.prisma.payment.findMany({
+      where: { status: 'pending' },
+      include: { student: true, fee: true },
+    });
+
+    let notified = 0;
+    for (const payment of pendingPayments) {
+      const user = await this.prisma.user.findFirst({
+        where: { student_id: payment.student_id },
+      });
+      if (user) {
+        await this.notificationsService.createForUser(
+          user.id,
+          'Pengingat Pembayaran',
+          `Pembayaran ${payment.fee.name} sebesar Rp ${Number(payment.amount).toLocaleString()} masih tertunggak. Segera lunasi.`,
+          'payment',
+          '/finance'
+        );
+        notified++;
+      }
+    }
+
+    return { notified, total_pending: pendingPayments.length };
   }
 }

@@ -7,4 +7,5 @@ export declare class CreateScheduleDto {
     day: string;
     start_time: string;
     end_time: string;
+    room?: string;
 }

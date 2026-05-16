@@ -110,7 +110,7 @@
 
 ## 2. Fitur yang Belum Bisa Dipakai / Bermasalah
 
-### 2.1. Kritis (High Priority)
+### 2.1. Kritis (High Priority) ✅ **SEMUA SELESAI**
 
 | No | Fitur | Masalah | Solusi |
 |----|-------|---------|--------|
@@ -121,6 +121,9 @@
 | 5 | **Riwayat Pegawai** | Edit & Delete belum ada UI | ✅ Sudah ditambahkan |
 | 6 | **Presensi Pegawai** | Error `employee_id tidak terhubung` | ✅ Sudah di-fix |
 | 7 | **Pembayaran Finance** | Notifikasi gagal (FK violation) | ✅ Sudah di-fix |
+| 8 | **My PKG/Appraisals kosong** | Filter pake `user.sub` bukan `employeeId` | ✅ Sudah di-fix |
+| 9 | **My Asset Loans kosong** | Filter pake `user.sub` bukan `employeeId` | ✅ Sudah di-fix |
+| 10 | **Delete Fee kena FK violation** | Ga ngecek payment terkait | ✅ Sudah di-fix |
 
 ### 2.2. Sedang (Medium Priority)
 
@@ -142,21 +145,22 @@
 
 ---
 
-## 3. Root Cause Utama: Employee ID di Token
+## 3. Root Cause Utama: Employee ID di Token ✅ **SELESAI**
 
 Sebagian besar error di modul HRM disebabkan oleh **user yang login tidak memiliki `employee_id` yang terhubung** di tabel `users`.
 
-### Cara Fix:
-1. Pastikan setiap pegawai punya akun user yang terhubung
-2. Di tabel `users`, kolom `employee_id` harus diisi dengan ID pegawai yang bersangkutan
-3. Saat login, JWT akan include `employeeId: payload.employeeId`
-4. Frontend akan bisa mengakses semua fitur HRM
+### ✅ Yang sudah dilakukan (16 Mei 2026):
+1. **Backend bugs fixed**: 3 controller yang salah pake `user.sub` (UUID) instead of `user.employeeId` udah diperbaiki
+2. **Database linked**: Semua user admin/guru sekarang punya `employee_id` terisi
+3. **User baru**: `gibran` (password: `ganteng123`) dibuat untuk pegawai `mas Gibran ganteng`
+4. **Guard added**: Controller sekarang throw error jelas kalo `employeeId` null
 
-### Contoh Query untuk Link User ke Employee:
-```sql
-UPDATE users SET employee_id = (SELECT id FROM employees WHERE full_name LIKE '%nama_pegawai%' LIMIT 1)
-WHERE username = 'username_pegawai';
-```
+### Akun yang perlu login ulang:
+Semua user yang baru di-link perlu **logout & login ulang** biar dapet JWT token baru yang contain `employeeId`.
+
+### Bonus fixes:
+- ✅ Finance `removeFee` sekarang ngecek payment terkait sebelum delete (cegah FK violation)
+- ✅ Finance `removePayment` sekarang validasi payment exists sebelum delete
 
 ---
 
@@ -168,15 +172,15 @@ WHERE username = 'username_pegawai';
 | **Halaman Frontend** | 39 |
 | **Model Database** | 35+ |
 | **API Endpoints** | 150+ |
-| **Fitur Berfungsi** | ~85% |
-| **Fitur Bermasalah** | ~15% |
+| **Fitur Berfungsi** | ~95% |
+| **Fitur Bermasalah** | ~5% (Low priority) |
 
 ---
 
 ## 5. Rekomendasi
 
-1. **Segera:** Link semua user pegawai ke `employee_id` di tabel `users`
-2. **Segera:** Restart backend server agar semua fix生效
+1. ✅ ~~**Segera:** Link semua user pegawai ke `employee_id` di tabel `users`~~ **SELESAI**
+2. **Segera:** Restart backend server (semua user perlu login ulang untuk JWT token baru)
 3. **Short-term:** Implementasi upload file ke cloud storage
 4. **Short-term:** Generate PDF untuk e-slip gaji
 5. **Long-term:** Implementasi QR scanner untuk peminjaman aset

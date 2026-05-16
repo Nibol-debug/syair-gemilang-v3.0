@@ -85,6 +85,25 @@ let AttendancesService = class AttendancesService {
             },
         });
     }
+    async update(id, data) {
+        const attendance = await this.prisma.attendance.findUnique({ where: { id } });
+        if (!attendance)
+            throw new common_1.NotFoundException('Attendance record not found');
+        return this.prisma.attendance.update({
+            where: { id },
+            data: { status: data.status },
+            include: {
+                student: true,
+                schedule: { include: { subject: true } },
+            },
+        });
+    }
+    async remove(id) {
+        const attendance = await this.prisma.attendance.findUnique({ where: { id } });
+        if (!attendance)
+            throw new common_1.NotFoundException('Attendance record not found');
+        return this.prisma.attendance.delete({ where: { id } });
+    }
 };
 exports.AttendancesService = AttendancesService;
 exports.AttendancesService = AttendancesService = __decorate([

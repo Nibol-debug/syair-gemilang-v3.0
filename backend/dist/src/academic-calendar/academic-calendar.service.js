@@ -25,7 +25,18 @@ let AcademicCalendarService = class AcademicCalendarService {
             orderBy: { date: 'asc' },
         });
     }
+    async findOne(id) {
+        const event = await this.prisma.academicCalendar.findUnique({ where: { id } });
+        if (!event)
+            throw new common_1.NotFoundException('Calendar event not found');
+        return event;
+    }
+    async update(id, data) {
+        await this.findOne(id);
+        return this.prisma.academicCalendar.update({ where: { id }, data });
+    }
     async remove(id) {
+        await this.findOne(id);
         return this.prisma.academicCalendar.delete({ where: { id } });
     }
 };

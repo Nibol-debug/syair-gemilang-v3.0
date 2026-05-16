@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Book, Calendar, CheckCircle, School, FileText, CalendarDays
 } from 'lucide-react';
@@ -24,7 +25,15 @@ const TABS = [
 ];
 
 const AcademicPage = () => {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && TABS.some(t => t.id === tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-8">

@@ -6,6 +6,7 @@ import {
   Plus, Upload, Download, Search, Eye, Edit2, Trash2,
   ChevronLeft, ChevronRight, MoreHorizontal, X, Loader2,
   AlertCircle, Users, UserCheck, UserX, User, GraduationCap,
+  ArrowUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ViewStudentModal, EditStudentModal, DeleteStudentModal } from '@/components/StudentModals';
@@ -669,6 +670,10 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [modalType, setModalType]             = useState<'view' | 'edit' | 'delete' | null>(null);
   const [formData, setFormData]               = useState({ ...EMPTY_FORM });
+  const [promoteModalOpen, setPromoteModalOpen] = useState(false);
+  const [promoteFromId, setPromoteFromId] = useState('');
+  const [promoteToId, setPromoteToId] = useState('');
+  const [promoting, setPromoting] = useState(false);
 
   // ── Fetchers ─────────────────────────────────────────────────────────────────
 
@@ -888,6 +893,10 @@ export default function StudentsPage() {
                 <span>Export</span>
               </button>
             </div>
+            <button onClick={() => { setPromoteFromId(''); setPromoteToId(''); setPromoteModalOpen(true); }} className="w-full sm:w-auto flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl border border-primary/30 text-primary text-sm font-bold hover:bg-primary/5 transition-colors active:scale-95 whitespace-nowrap">
+              <ArrowUp className="w-4 h-4 flex-shrink-0" />
+              <span>Naik Kelas</span>
+            </button>
             <button onClick={() => setIsAddModalOpen(true)} className="w-full sm:w-auto flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/20 whitespace-nowrap">
               <Plus className="w-4 h-4 flex-shrink-0" />
               <span>Tambah Siswa</span>
@@ -965,6 +974,57 @@ export default function StudentsPage() {
           onSubmit={handleCreateStudent}
           onClose={() => { setIsAddModalOpen(false); setFormError(''); }}
         />
+      )}
+
+      {promoteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface">
+              <h3 className="text-xl font-black text-on-surface tracking-tight">Naik Kelas Massal</h3>
+              <button onClick={() => setPromoteModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-xl"><X className="w-6 h-6" /></button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (!promoteFromId || !promoteToId) { alert('Pilih kelas asal dan tujuan'); return; }
+              setPromoting(true);
+              try {
+                const res = await apiRequest('/students/bulk-promote', {
+                  method: 'POST',
+                  body: JSON.stringify({ from_class_id: promoteFromId, to_class_id: promoteToId })
+                });
+                alert(`Berhasil menaikkan ${res.promoted} siswa dari ${res.from} ke ${res.to}`);
+                setPromoteModalOpen(false);
+                fetchStudents();
+              } catch (err: any) { alert('Gagal: ' + err.message); }
+              finally { setPromoting(false); }
+            }} className="p-8 space-y-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Kelas Asal</label>
+                <select required value={promoteFromId} onChange={e => setPromoteFromId(e.target.value)} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+                  <option value="">Pilih Kelas</option>
+                  {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Kelas Tujuan</label>
+                <select required value={promoteToId} onChange={e => setPromoteToId(e.target.value)} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+                  <option value="">Pilih Kelas</option>
+                  {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-xs text-primary/80">
+                <p className="font-bold mb-1">&#9888; Informasi</p>
+                <p>Semua siswa dari kelas asal akan dipindahkan ke kelas tujuan. Data major, batch, dan branch akan mengikuti kelas baru. Pastikan kelas tujuan sudah sesuai dengan tingkat/angkatan yang tepat.</p>
+              </div>
+              <div className="flex gap-4 pt-2">
+                <button type="button" onClick={() => setPromoteModalOpen(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface font-bold hover:bg-surface-container transition-all">Batal</button>
+                <button type="submit" disabled={promoting} className="flex-[2] flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-on-primary font-black shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">
+                  {promoting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowUp className="w-5 h-5" />} Naikkan Kelas
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

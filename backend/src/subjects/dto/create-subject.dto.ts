@@ -16,4 +16,14 @@ export class CreateSubjectDto {
   @Min(0)
   @Max(100)
   passing_grade?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(60)
+  hours_per_week?: number;
+
+  @IsOptional()
+  @IsString()
+  competency_standards?: string;
 }

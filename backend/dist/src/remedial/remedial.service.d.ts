@@ -42,6 +42,7 @@ export declare class RemedialService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -99,6 +100,7 @@ export declare class RemedialService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -191,6 +193,7 @@ export declare class RemedialService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -245,6 +248,7 @@ export declare class RemedialService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;

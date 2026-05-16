@@ -61,6 +61,9 @@ let FinanceController = class FinanceController {
     removePayment(id) {
         return this.financeService.removePayment(id);
     }
+    sendPaymentReminders() {
+        return this.financeService.sendPaymentReminders();
+    }
 };
 exports.FinanceController = FinanceController;
 __decorate([
@@ -145,6 +148,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], FinanceController.prototype, "removePayment", null);
+__decorate([
+    (0, common_1.Post)('remind'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Bendahara'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], FinanceController.prototype, "sendPaymentReminders", null);
 exports.FinanceController = FinanceController = __decorate([
     (0, common_1.Controller)('finance'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

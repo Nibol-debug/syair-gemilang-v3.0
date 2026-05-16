@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BulkCreateAttendanceDto } from './dto/create-attendance.dto';
+import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 
 @Injectable()
 export class AttendancesService {
@@ -81,5 +82,24 @@ export class AttendancesService {
         },
       },
     });
+  }
+
+  async update(id: string, data: UpdateAttendanceDto) {
+    const attendance = await this.prisma.attendance.findUnique({ where: { id } });
+    if (!attendance) throw new NotFoundException('Attendance record not found');
+    return this.prisma.attendance.update({
+      where: { id },
+      data: { status: data.status },
+      include: {
+        student: true,
+        schedule: { include: { subject: true } },
+      },
+    });
+  }
+
+  async remove(id: string) {
+    const attendance = await this.prisma.attendance.findUnique({ where: { id } });
+    if (!attendance) throw new NotFoundException('Attendance record not found');
+    return this.prisma.attendance.delete({ where: { id } });
   }
 }

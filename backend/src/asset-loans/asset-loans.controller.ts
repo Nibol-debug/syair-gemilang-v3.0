@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { AssetLoansService } from './asset-loans.service';
 import { CreateAssetLoanDto } from './dto/create-asset-loan.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -33,7 +33,10 @@ export class AssetLoansController {
     @GetUser() user: ActiveUser,
     @Query() pagination: PaginationDto,
   ) {
-    return this.assetLoansService.findAll(pagination, { employee_id: user.sub });
+    if (!user.employeeId) {
+      throw new BadRequestException('Akun Anda tidak terhubung dengan data pegawai. Hubungi admin.');
+    }
+    return this.assetLoansService.findAll(pagination, { employee_id: user.employeeId });
   }
 
   @Get(':id')

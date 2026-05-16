@@ -40,6 +40,12 @@ export class StudentsController {
     return this.studentsService.importFromExcel(file);
   }
 
+  @Post('bulk-promote')
+  @Roles('Administrator Utama', 'Kepala Sekolah')
+  async bulkPromote(@Body() body: { from_class_id: string; to_class_id: string }) {
+    return this.studentsService.bulkPromote(body.from_class_id, body.to_class_id);
+  }
+
   @Post('upload-photo')
   @UseInterceptors(FileInterceptor('photo', {
     dest: './uploads/profiles',

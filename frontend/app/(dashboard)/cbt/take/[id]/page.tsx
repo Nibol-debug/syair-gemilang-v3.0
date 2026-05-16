@@ -34,7 +34,7 @@ export default function TakeExamPage() {
   const [isDisqualified, setIsDisqualified] = useState(false);
   const [showWarningOverlay, setShowWarningOverlay] = useState(false);
   const [warningMsg, setWarningMsg] = useState('');
-  const WARNING_LIMIT = 3;
+  const WARNING_LIMIT = exam?.violation_limit || 3;
   const warningsRef = useRef(0);
 
   useEffect(() => {

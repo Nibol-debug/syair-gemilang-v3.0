@@ -16,6 +16,7 @@ exports.SchedulesController = void 0;
 const common_1 = require("@nestjs/common");
 const schedules_service_1 = require("./schedules.service");
 const create_schedule_dto_1 = require("./dto/create-schedule.dto");
+const update_schedule_dto_1 = require("./dto/update-schedule.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
@@ -29,6 +30,12 @@ let SchedulesController = class SchedulesController {
     }
     findAll(class_id, teacher_id, day) {
         return this.schedulesService.findAll({ class_id, teacher_id, day });
+    }
+    findOne(id) {
+        return this.schedulesService.findOne(id);
+    }
+    update(id, updateScheduleDto) {
+        return this.schedulesService.update(id, updateScheduleDto);
     }
     remove(id) {
         return this.schedulesService.remove(id);
@@ -52,6 +59,22 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], SchedulesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], SchedulesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_schedule_dto_1.UpdateScheduleDto]),
+    __metadata("design:returntype", void 0)
+], SchedulesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)('Administrator Utama'),

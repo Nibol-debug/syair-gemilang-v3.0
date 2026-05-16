@@ -17,46 +17,44 @@ let SchedulesService = class SchedulesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(data) {
-        const teacherClash = await this.prisma.schedule.findFirst({
-            where: {
-                teacher_id: data.teacher_id,
-                day: data.day,
-                OR: [
-                    {
-                        start_time: { lte: data.start_time },
-                        end_time: { gt: data.start_time },
-                    },
-                    {
-                        start_time: { lt: data.end_time },
-                        end_time: { gte: data.end_time },
-                    },
-                ],
-            },
-        });
+    async checkClash(data, excludeId) {
+        if (!data.teacher_id || !data.class_id || !data.day || !data.start_time || !data.end_time)
+            return;
+        const whereTeacher = {
+            teacher_id: data.teacher_id,
+            day: data.day,
+            OR: [
+                { start_time: { lte: data.start_time }, end_time: { gt: data.start_time } },
+                { start_time: { lt: data.end_time }, end_time: { gte: data.end_time } },
+            ],
+        };
+        if (excludeId)
+            whereTeacher.id = { not: excludeId };
+        const teacherClash = await this.prisma.schedule.findFirst({ where: whereTeacher });
         if (teacherClash) {
             throw new common_1.BadRequestException('Teacher already has a schedule at this time');
         }
-        const classClash = await this.prisma.schedule.findFirst({
-            where: {
-                class_id: data.class_id,
-                day: data.day,
-                OR: [
-                    {
-                        start_time: { lte: data.start_time },
-                        end_time: { gt: data.start_time },
-                    },
-                    {
-                        start_time: { lt: data.end_time },
-                        end_time: { gte: data.end_time },
-                    },
-                ],
-            },
-        });
+        const whereClass = {
+            class_id: data.class_id,
+            day: data.day,
+            OR: [
+                { start_time: { lte: data.start_time }, end_time: { gt: data.start_time } },
+                { start_time: { lt: data.end_time }, end_time: { gte: data.end_time } },
+            ],
+        };
+        if (excludeId)
+            whereClass.id = { not: excludeId };
+        const classClash = await this.prisma.schedule.findFirst({ where: whereClass });
         if (classClash) {
             throw new common_1.BadRequestException('Class already has a schedule at this time');
         }
-        return this.prisma.schedule.create({ data });
+    }
+    async create(data) {
+        await this.checkClash(data);
+        return this.prisma.schedule.create({
+            data,
+            include: { class: true, subject: true, teacher: true },
+        });
     }
     async findAll(filters) {
         return this.prisma.schedule.findMany({
@@ -72,7 +70,26 @@ let SchedulesService = class SchedulesService {
             ],
         });
     }
+    async findOne(id) {
+        const schedule = await this.prisma.schedule.findUnique({
+            where: { id },
+            include: { class: true, subject: true, teacher: true },
+        });
+        if (!schedule)
+            throw new common_1.NotFoundException('Schedule not found');
+        return schedule;
+    }
+    async update(id, data) {
+        await this.findOne(id);
+        await this.checkClash(data, id);
+        return this.prisma.schedule.update({
+            where: { id },
+            data,
+            include: { class: true, subject: true, teacher: true },
+        });
+    }
     async remove(id) {
+        await this.findOne(id);
         return this.prisma.schedule.delete({ where: { id } });
     }
 };

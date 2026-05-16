@@ -242,4 +242,8 @@ export declare class FinanceService {
         amount: import("@prisma/client/runtime/library").Decimal;
         method: string;
     }>;
+    sendPaymentReminders(): Promise<{
+        notified: number;
+        total_pending: number;
+    }>;
 }

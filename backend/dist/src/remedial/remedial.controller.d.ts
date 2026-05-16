@@ -54,6 +54,7 @@ export declare class RemedialController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -108,6 +109,7 @@ export declare class RemedialController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -146,6 +148,7 @@ export declare class RemedialController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;
@@ -203,6 +206,7 @@ export declare class RemedialController {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         } | null;
     } & {
         id: string;

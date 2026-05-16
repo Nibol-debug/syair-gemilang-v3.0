@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateTeachingLogDto {
@@ -25,6 +25,14 @@ export class CreateTeachingLogDto {
   @IsNotEmpty()
   @IsString()
   note: string;
+
+  @IsOptional()
+  @IsString()
+  material_summary?: string;
+
+  @IsOptional()
+  @IsString()
+  assignment_given?: string;
 
   @IsNotEmpty()
   @Type(() => Date)

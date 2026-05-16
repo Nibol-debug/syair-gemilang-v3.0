@@ -18,7 +18,10 @@ let TeachingLogsService = class TeachingLogsService {
         this.prisma = prisma;
     }
     async create(data) {
-        return this.prisma.teachingLog.create({ data });
+        return this.prisma.teachingLog.create({
+            data,
+            include: { teacher: true, class: true, subject: true },
+        });
     }
     async findAll(filters) {
         return this.prisma.teachingLog.findMany({
@@ -30,6 +33,27 @@ let TeachingLogsService = class TeachingLogsService {
             },
             orderBy: { date: 'desc' },
         });
+    }
+    async findOne(id) {
+        const log = await this.prisma.teachingLog.findUnique({
+            where: { id },
+            include: { teacher: true, class: true, subject: true },
+        });
+        if (!log)
+            throw new common_1.NotFoundException('Teaching log not found');
+        return log;
+    }
+    async update(id, data) {
+        await this.findOne(id);
+        return this.prisma.teachingLog.update({
+            where: { id },
+            data,
+            include: { teacher: true, class: true, subject: true },
+        });
+    }
+    async remove(id) {
+        await this.findOne(id);
+        return this.prisma.teachingLog.delete({ where: { id } });
     }
 };
 exports.TeachingLogsService = TeachingLogsService;

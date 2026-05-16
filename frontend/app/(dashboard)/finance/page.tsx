@@ -15,7 +15,8 @@ import {
   Calendar,
   X,
   Printer,
-  ClipboardCheck
+  ClipboardCheck,
+  Bell
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
@@ -29,6 +30,7 @@ export default function FinancePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState(false);
 
   const [formData, setFormData] = useState({
     student_id: '',
@@ -187,6 +189,19 @@ export default function FinancePage() {
     win.document.close();
   };
 
+  const handleSendReminder = async () => {
+    if (!confirm('Kirim pengingat pembayaran ke semua siswa dengan status pending?')) return;
+    setSendingReminder(true);
+    try {
+      const res = await apiRequest('/finance/remind', { method: 'POST' });
+      alert(`Notifikasi terkirim ke ${res.notified} dari ${res.total_pending} siswa yang tertunggak.`);
+    } catch (err: any) {
+      alert('Gagal: ' + err.message);
+    } finally {
+      setSendingReminder(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -196,6 +211,15 @@ export default function FinancePage() {
         </div>
         <div className="flex flex-wrap gap-3">
           {canManageFinance && (
+            <>
+            <button 
+              onClick={handleSendReminder}
+              disabled={sendingReminder}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-primary/30 text-primary text-sm font-semibold hover:bg-primary/5 transition-colors active:scale-95"
+            >
+              {sendingReminder ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+              <span>Reminder</span>
+            </button>
             <button 
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity active:scale-95 shadow-md"
@@ -203,6 +227,7 @@ export default function FinancePage() {
               <Plus className="w-4 h-4" />
               <span>Tambah Pembayaran</span>
             </button>
+            </>
           )}
         </div>
       </div>

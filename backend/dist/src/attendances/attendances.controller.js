@@ -16,6 +16,7 @@ exports.AttendancesController = void 0;
 const common_1 = require("@nestjs/common");
 const attendances_service_1 = require("./attendances.service");
 const create_attendance_dto_1 = require("./dto/create-attendance.dto");
+const update_attendance_dto_1 = require("./dto/update-attendance.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
@@ -35,6 +36,12 @@ let AttendancesController = class AttendancesController {
     }
     findBySchedule(scheduleId, date) {
         return this.attendancesService.findBySchedule(scheduleId, new Date(date));
+    }
+    update(id, updateAttendanceDto) {
+        return this.attendancesService.update(id, updateAttendanceDto);
+    }
+    remove(id) {
+        return this.attendancesService.remove(id);
     }
 };
 exports.AttendancesController = AttendancesController;
@@ -73,6 +80,23 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], AttendancesController.prototype, "findBySchedule", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_attendance_dto_1.UpdateAttendanceDto]),
+    __metadata("design:returntype", void 0)
+], AttendancesController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AttendancesController.prototype, "remove", null);
 exports.AttendancesController = AttendancesController = __decorate([
     (0, common_1.Controller)('attendance'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

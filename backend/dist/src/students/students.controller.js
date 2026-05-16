@@ -40,6 +40,9 @@ let StudentsController = class StudentsController {
     import(file) {
         return this.studentsService.importFromExcel(file);
     }
+    async bulkPromote(body) {
+        return this.studentsService.bulkPromote(body.from_class_id, body.to_class_id);
+    }
     uploadPhoto(file) {
         return {
             url: `/uploads/profiles/${file.filename}`
@@ -88,6 +91,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], StudentsController.prototype, "import", null);
+__decorate([
+    (0, common_1.Post)('bulk-promote'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Kepala Sekolah'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], StudentsController.prototype, "bulkPromote", null);
 __decorate([
     (0, common_1.Post)('upload-photo'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('photo', {

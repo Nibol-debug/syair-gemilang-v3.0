@@ -28,6 +28,7 @@ export declare class ExamsService {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     findAll(pagination: PaginationDto, filters: {
         major_id?: string;
@@ -63,6 +64,7 @@ export declare class ExamsService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         })[];
         meta: {
             total: number;
@@ -97,6 +99,7 @@ export declare class ExamsService {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -107,6 +110,7 @@ export declare class ExamsService {
         title: string;
         duration: number;
         token: string;
+        violation_limit: number;
     }>;
     getStats(): Promise<{
         totalExams: number;
@@ -141,6 +145,7 @@ export declare class ExamsService {
             title: string;
             duration: number;
             token: string;
+            violation_limit: number;
         };
         sessions: ({
             _count: {

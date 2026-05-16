@@ -389,6 +389,29 @@ let StudentsService = class StudentsService {
         }
         return { imported: count };
     }
+    async bulkPromote(fromClassId, toClassId) {
+        const [fromClass, toClass] = await Promise.all([
+            this.prisma.class.findUnique({ where: { id: fromClassId }, include: { major: true } }),
+            this.prisma.class.findUnique({ where: { id: toClassId }, include: { major: true } }),
+        ]);
+        if (!fromClass)
+            throw new common_1.NotFoundException('Source class not found');
+        if (!toClass)
+            throw new common_1.NotFoundException('Target class not found');
+        const students = await this.prisma.student.findMany({ where: { class_id: fromClassId } });
+        if (students.length === 0)
+            return { promoted: 0, message: 'No students in source class' };
+        await this.prisma.student.updateMany({
+            where: { class_id: fromClassId },
+            data: {
+                class_id: toClassId,
+                major_id: toClass.major_id,
+                batch_id: toClass.batch_id,
+                branch_id: toClass.major.branch_id,
+            },
+        });
+        return { promoted: students.length, from: fromClass.name, to: toClass.name };
+    }
 };
 exports.StudentsService = StudentsService;
 exports.StudentsService = StudentsService = __decorate([

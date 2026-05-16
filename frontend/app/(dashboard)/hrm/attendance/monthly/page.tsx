@@ -35,13 +35,17 @@ export default function MonthlyAttendanceReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  const [fetchError, setFetchError] = useState('');
+
   const fetchReport = useCallback(async () => {
     setIsLoading(true);
+    setFetchError('');
     try {
       const response = await apiRequest(`/employee-attendance/monthly?month=${month}`);
-      setData(response);
-    } catch (err) {
-      console.error('Failed to fetch monthly report:', err);
+      setData(Array.isArray(response) ? response : []);
+    } catch (err: any) {
+      setFetchError(err.message || 'Gagal memuat laporan bulanan');
+      setData([]);
     } finally {
       setIsLoading(false);
     }
@@ -51,9 +55,9 @@ export default function MonthlyAttendanceReportPage() {
     fetchReport();
   }, [fetchReport]);
 
-  const filteredData = data.filter(emp => 
-    emp.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    emp.position.toLowerCase().includes(search.toLowerCase())
+  const filteredData = (data || []).filter(emp => 
+    (emp.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (emp.position || '').toLowerCase().includes(search.toLowerCase())
   );
 
   const handleExportCSV = () => {
@@ -73,7 +77,8 @@ export default function MonthlyAttendanceReportPage() {
       ...rows.map(row => row.join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
@@ -161,6 +166,13 @@ export default function MonthlyAttendanceReportPage() {
                     <p className="mt-4 font-bold text-on-surface-variant uppercase tracking-widest text-xs">Menghitung rekapitulasi...</p>
                   </td>
                 </tr>
+              ) : fetchError ? (
+                <tr>
+                  <td colSpan={5} className="py-20 text-center">
+                    <AlertCircle className="w-10 h-10 text-error mx-auto" />
+                    <p className="mt-4 font-bold text-error uppercase tracking-widest text-xs">{fetchError}</p>
+                  </td>
+                </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-20 text-center text-on-surface-variant font-bold">Tidak ada data untuk periode ini.</td>
@@ -177,7 +189,7 @@ export default function MonthlyAttendanceReportPage() {
                           </div>
                           <div>
                             <p className="font-bold text-on-surface">{emp.full_name}</p>
-                            <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{emp.position} • {emp.major}</p>
+                            <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{emp.position || 'Pegawai'} • {emp.major || '-'}</p>
                           </div>
                         </div>
                       </td>
@@ -207,13 +219,13 @@ export default function MonthlyAttendanceReportPage() {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 flex gap-4 items-start">
-         <AlertCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+      <div className="bg-surface-container-low border border-outline-variant rounded-2xl p-6 flex gap-4 items-start">
+         <AlertCircle className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
          <div className="space-y-1">
-            <h4 className="font-bold text-blue-900">Tentang Perhitungan Honor</h4>
-            <p className="text-sm text-blue-800 leading-relaxed">
-              Data rekapitulasi ini dapat digunakan sebagai acuan dasar perhitungan honor mengajar atau tunjangan kehadiran. 
-              Kolom <span className="font-bold text-error uppercase">Alpa</span> secara otomatis memberikan penalti pada persentase kehadiran pegawai.
+            <h4 className="font-bold text-on-surface">Tentang Perhitungan Honor</h4>
+            <p className="text-sm text-on-surface-variant leading-relaxed">
+               Data rekapitulasi ini dapat digunakan sebagai acuan dasar perhitungan honor mengajar atau tunjangan kehadiran. 
+               Kolom <span className="font-bold text-error uppercase">Alpa</span> secara otomatis memberikan penalti pada persentase kehadiran pegawai.
             </p>
          </div>
       </div>

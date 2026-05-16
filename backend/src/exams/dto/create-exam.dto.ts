@@ -61,6 +61,10 @@ export class CreateExamDto {
   end_time: Date;
 
   @IsOptional()
+  @IsInt()
+  violation_limit?: number;
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => QuestionDto)
   questions?: QuestionDto[];

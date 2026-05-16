@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards } from '@nestjs/common';
 import { AcademicCalendarService } from './academic-calendar.service';
 import { CreateCalendarDto } from './dto/create-calendar.dto';
+import { UpdateCalendarDto } from './dto/update-calendar.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -19,6 +20,17 @@ export class AcademicCalendarController {
   @Get()
   findAll() {
     return this.academicCalendarService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.academicCalendarService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles('Administrator Utama')
+  update(@Param('id') id: string, @Body() updateCalendarDto: UpdateCalendarDto) {
+    return this.academicCalendarService.update(id, updateCalendarDto);
   }
 
   @Delete(':id')

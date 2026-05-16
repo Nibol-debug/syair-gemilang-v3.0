@@ -16,6 +16,7 @@ exports.TeachingLogsController = void 0;
 const common_1 = require("@nestjs/common");
 const teaching_logs_service_1 = require("./teaching-logs.service");
 const create_teaching_log_dto_1 = require("./dto/create-teaching-log.dto");
+const update_teaching_log_dto_1 = require("./dto/update-teaching-log.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
@@ -29,6 +30,15 @@ let TeachingLogsController = class TeachingLogsController {
     }
     findAll(teacher_id, class_id) {
         return this.teachingLogsService.findAll({ teacher_id, class_id });
+    }
+    findOne(id) {
+        return this.teachingLogsService.findOne(id);
+    }
+    update(id, updateTeachingLogDto) {
+        return this.teachingLogsService.update(id, updateTeachingLogDto);
+    }
+    remove(id) {
+        return this.teachingLogsService.remove(id);
     }
 };
 exports.TeachingLogsController = TeachingLogsController;
@@ -49,6 +59,31 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], TeachingLogsController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TeachingLogsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama', 'Guru Mata Pelajaran', 'Wali Kelas'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_teaching_log_dto_1.UpdateTeachingLogDto]),
+    __metadata("design:returntype", void 0)
+], TeachingLogsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], TeachingLogsController.prototype, "remove", null);
 exports.TeachingLogsController = TeachingLogsController = __decorate([
     (0, common_1.Controller)('teaching-log'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

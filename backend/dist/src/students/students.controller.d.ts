@@ -119,6 +119,20 @@ export declare class StudentsController {
     import(file: Express.Multer.File): Promise<{
         imported: number;
     }>;
+    bulkPromote(body: {
+        from_class_id: string;
+        to_class_id: string;
+    }): Promise<{
+        promoted: number;
+        message: string;
+        from?: undefined;
+        to?: undefined;
+    } | {
+        promoted: number;
+        from: string;
+        to: string;
+        message?: undefined;
+    }>;
     uploadPhoto(file: Express.Multer.File): {
         url: string;
     };

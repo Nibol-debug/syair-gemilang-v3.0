@@ -8,10 +8,10 @@ export declare class NotificationsService {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     broadcast(createNotificationDto: CreateNotificationDto): Promise<{
@@ -23,10 +23,10 @@ export declare class NotificationsService {
             id: string;
             created_at: Date;
             type: string;
+            message: string;
             user_id: string | null;
             link: string | null;
             title: string;
-            message: string;
             is_read: boolean;
         }[];
         meta: {
@@ -43,30 +43,30 @@ export declare class NotificationsService {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }[]>;
     findOne(id: string): Promise<{
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     markAsRead(id: string): Promise<{
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     markAllAsRead(user_id: string): Promise<import(".prisma/client").Prisma.BatchPayload>;
@@ -74,10 +74,10 @@ export declare class NotificationsService {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     removeAll(user_id: string): Promise<import(".prisma/client").Prisma.BatchPayload>;
@@ -85,10 +85,10 @@ export declare class NotificationsService {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
 }

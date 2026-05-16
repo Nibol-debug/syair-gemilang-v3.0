@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, X, Loader2, Save, Calendar, Clock, Users, Book, User } from 'lucide-react';
+import { Plus, Trash2, X, Loader2, Save, Edit3, Calendar, Clock, Users, Book, User, MapPin } from 'lucide-react';
 import { apiRequest } from '@/lib/api';
 import { useUserRole } from '@/lib/useUserRole';
 
@@ -19,6 +19,11 @@ const DAY_COLORS: Record<string, string> = {
   Saturday: 'bg-cyan-500/10 text-cyan-700 border-cyan-200',
 };
 
+const emptyForm = {
+  class_id: '', subject_id: '', teacher_id: '',
+  day: 'Monday', start_time: '08:00', end_time: '10:00', room: ''
+};
+
 export default function ScheduleTab() {
   const { canManageAcademic } = useUserRole();
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -30,11 +35,9 @@ export default function ScheduleTab() {
   const [filterClass, setFilterClass] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    class_id: '', subject_id: '', teacher_id: '',
-    day: 'Monday', start_time: '08:00', end_time: '10:00'
-  });
+  const [formData, setFormData] = useState(emptyForm);
 
   const fetchSchedules = async () => {
     setIsLoading(true);
@@ -60,16 +63,48 @@ export default function ScheduleTab() {
   useEffect(() => { fetchMasterData(); }, []);
   useEffect(() => { fetchSchedules(); }, [filterDay, filterClass]);
 
+  const openCreate = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setModalOpen(true);
+  };
+
+  const openEdit = async (id: string) => {
+    try {
+      const s = await apiRequest(`/schedules/${id}`);
+      setEditingId(id);
+      setFormData({
+        class_id: s.class_id || '',
+        subject_id: s.subject_id || '',
+        teacher_id: s.teacher_id || '',
+        day: s.day || 'Monday',
+        start_time: s.start_time || '08:00',
+        end_time: s.end_time || '10:00',
+        room: s.room || '',
+      });
+      setModalOpen(true);
+    } catch (err: any) { alert('Gagal memuat data: ' + err.message); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
       const sc = classes.find(c => c.id === formData.class_id);
       if (!sc) throw new Error('Pilih kelas');
-      await apiRequest('/schedules', {
-        method: 'POST',
-        body: JSON.stringify({ ...formData, major_id: sc.major_id, batch_id: sc.batch_id })
-      });
+      const body = { ...formData, major_id: sc.major_id, batch_id: sc.batch_id };
+
+      if (editingId) {
+        await apiRequest(`/schedules/${editingId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(body)
+        });
+      } else {
+        await apiRequest('/schedules', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+      }
       setModalOpen(false);
       fetchSchedules();
     } catch (err: any) { alert('Gagal: ' + err.message); }
@@ -82,7 +117,6 @@ export default function ScheduleTab() {
     catch (err: any) { alert('Gagal: ' + err.message); }
   };
 
-  // Group schedules by day for grid view
   const grouped = DAYS.reduce((acc, day) => {
     acc[day] = schedules.filter(s => s.day === day).sort((a, b) => a.start_time.localeCompare(b.start_time));
     return acc;
@@ -101,14 +135,13 @@ export default function ScheduleTab() {
             <button onClick={() => setViewMode('table')} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'table' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant'}`}>Tabel</button>
           </div>
           {canManageAcademic && (
-            <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+            <button onClick={openCreate} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold hover:opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
               <Plus className="w-4 h-4" /> Tambah Jadwal
             </button>
           )}
         </div>
       </div>
 
-      {/* Filters */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
@@ -131,7 +164,6 @@ export default function ScheduleTab() {
       {isLoading ? (
         <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
       ) : viewMode === 'grid' ? (
-        /* GRID VIEW */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {DAYS.map(day => (
             <div key={day} className="bg-surface-container-lowest border border-outline-variant rounded-2xl overflow-hidden shadow-sm">
@@ -146,6 +178,7 @@ export default function ScheduleTab() {
                   <div key={s.id} className="p-3 bg-surface-container rounded-xl border border-outline-variant/50 hover:border-primary/30 transition-all group relative">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-primary mb-1">
                       <Clock className="w-3 h-3" /> {s.start_time} - {s.end_time}
+                      {s.room && <span className="ml-auto text-[10px] text-on-surface-variant font-medium"><MapPin className="w-3 h-3 inline" /> {s.room}</span>}
                     </div>
                     <p className="font-bold text-sm text-on-surface">{s.subject?.name}</p>
                     <div className="flex items-center justify-between mt-2">
@@ -153,9 +186,10 @@ export default function ScheduleTab() {
                       <span className="text-[10px] text-on-surface-variant">{s.teacher?.full_name}</span>
                     </div>
                     {canManageAcademic && (
-                      <button onClick={() => handleDelete(s.id)} className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error rounded transition-all">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <button onClick={() => openEdit(s.id)} className="p-1 text-on-surface-variant hover:text-primary rounded"><Edit3 className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => handleDelete(s.id)} className="p-1 text-on-surface-variant hover:text-error rounded"><Trash2 className="w-3.5 h-3.5" /></button>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -164,13 +198,13 @@ export default function ScheduleTab() {
           ))}
         </div>
       ) : (
-        /* TABLE VIEW */
         <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low border-b border-outline-variant">
                 <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Hari</th>
                 <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Waktu</th>
+                <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Ruangan</th>
                 <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Mata Pelajaran</th>
                 <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Kelas</th>
                 <th className="py-4 px-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.1em]">Guru</th>
@@ -179,17 +213,21 @@ export default function ScheduleTab() {
             </thead>
             <tbody className="text-sm">
               {schedules.length === 0 ? (
-                <tr><td colSpan={6} className="py-10 text-center text-on-surface-variant">Tidak ada jadwal.</td></tr>
+                <tr><td colSpan={7} className="py-10 text-center text-on-surface-variant">Tidak ada jadwal.</td></tr>
               ) : schedules.map(s => (
                 <tr key={s.id} className="border-b border-surface-container-low hover:bg-surface-container/30 transition-colors group">
                   <td className="py-3 px-6"><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${DAY_COLORS[s.day]}`}>{DAY_LABELS[s.day]}</span></td>
                   <td className="py-3 px-6 font-medium">{s.start_time} - {s.end_time}</td>
+                  <td className="py-3 px-6 text-on-surface-variant text-[11px]">{s.room || '-'}</td>
                   <td className="py-3 px-6 font-semibold">{s.subject?.name}</td>
                   <td className="py-3 px-6"><span className="px-2 py-0.5 bg-surface-container border border-outline-variant rounded text-[11px] font-bold">{s.class?.name}</span></td>
                   <td className="py-3 px-6 text-on-surface-variant">{s.teacher?.full_name}</td>
                   <td className="py-3 px-6 text-right">
                     {canManageAcademic && (
-                      <button onClick={() => handleDelete(s.id)} className="p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-md transition-colors opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></button>
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <button onClick={() => openEdit(s.id)} className="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-md"><Edit3 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(s.id)} className="p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-md"><Trash2 className="w-4 h-4" /></button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -199,14 +237,13 @@ export default function ScheduleTab() {
         </div>
       )}
 
-      {/* Create Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-surface-container-lowest w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden">
             <div className="px-8 py-6 border-b border-outline-variant flex justify-between items-center bg-surface">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 text-primary rounded-xl"><Calendar className="w-6 h-6" /></div>
-                <h3 className="text-xl font-black text-on-surface tracking-tight">Tambah Jadwal Baru</h3>
+                <h3 className="text-xl font-black text-on-surface tracking-tight">{editingId ? 'Edit Jadwal' : 'Tambah Jadwal Baru'}</h3>
               </div>
               <button onClick={() => setModalOpen(false)} className="p-2 text-on-surface-variant hover:bg-surface-container rounded-xl"><X className="w-6 h-6" /></button>
             </div>
@@ -228,6 +265,10 @@ export default function ScheduleTab() {
                     <input type="time" required value={formData.end_time} onChange={e => setFormData({ ...formData, end_time: e.target.value })} className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
                   </div>
                 </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest flex items-center gap-1"><MapPin className="w-3 h-3" /> Ruangan</label>
+                <input type="text" value={formData.room} onChange={e => setFormData({ ...formData, room: e.target.value })} placeholder="Contoh: Lab Komputer, R. 201" className="w-full px-4 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest flex items-center gap-1"><Users className="w-3 h-3" /> Kelas</label>
@@ -253,7 +294,7 @@ export default function ScheduleTab() {
               <div className="flex gap-4 pt-2">
                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 px-6 py-3 rounded-xl border border-outline text-on-surface font-bold hover:bg-surface-container transition-all">Batal</button>
                 <button type="submit" disabled={isSubmitting} className="flex-[2] flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-on-primary font-black shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">
-                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Simpan
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} {editingId ? 'Update' : 'Simpan'}
                 </button>
               </div>
             </form>

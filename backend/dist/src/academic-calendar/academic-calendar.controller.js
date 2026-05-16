@@ -16,6 +16,7 @@ exports.AcademicCalendarController = void 0;
 const common_1 = require("@nestjs/common");
 const academic_calendar_service_1 = require("./academic-calendar.service");
 const create_calendar_dto_1 = require("./dto/create-calendar.dto");
+const update_calendar_dto_1 = require("./dto/update-calendar.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const roles_guard_1 = require("../auth/roles.guard");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
@@ -29,6 +30,12 @@ let AcademicCalendarController = class AcademicCalendarController {
     }
     findAll() {
         return this.academicCalendarService.findAll();
+    }
+    findOne(id) {
+        return this.academicCalendarService.findOne(id);
+    }
+    update(id, updateCalendarDto) {
+        return this.academicCalendarService.update(id, updateCalendarDto);
     }
     remove(id) {
         return this.academicCalendarService.remove(id);
@@ -49,6 +56,22 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AcademicCalendarController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AcademicCalendarController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, roles_decorator_1.Roles)('Administrator Utama'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_calendar_dto_1.UpdateCalendarDto]),
+    __metadata("design:returntype", void 0)
+], AcademicCalendarController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, roles_decorator_1.Roles)('Administrator Utama'),

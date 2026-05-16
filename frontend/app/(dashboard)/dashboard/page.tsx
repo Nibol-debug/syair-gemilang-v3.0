@@ -23,7 +23,9 @@ import {
   Layers,
   Calendar,
   CheckCircle2,
-  CheckCircle
+  CheckCircle,
+  HeartHandshake,
+  BarChart3
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -80,7 +82,11 @@ export default function DashboardPage() {
     return <GuruDashboard data={data} user={user} />;
   }
 
-  if (user?.role === 'Siswa' || user?.role === 'Orang Tua') {
+  if (user?.role === 'Orang Tua') {
+    return <ParentDashboard data={data} user={user} />;
+  }
+
+  if (user?.role === 'Siswa') {
     return <StudentDashboard data={data} user={user} />;
   }
 
@@ -247,6 +253,49 @@ function StudentDashboard({ data, user }: any) {
               { label: 'Ikuti Ujian', icon: ScrollText, path: '/cbt' },
               { label: 'Lihat Rapor', icon: GraduationCap, path: '/grading' },
               { label: 'Bayar SPP', icon: Wallet, path: '/finance' },
+            ]} />
+         </div>
+      </div>
+    </div>
+  );
+}
+
+function ParentDashboard({ data, user }: any) {
+  return (
+    <div className="space-y-10">
+      <DashboardHeader
+        title={`Bapak/Ibu ${user.username}`}
+        subtitle="Portal Orang Tua: Pantau perkembangan belajar, kehadiran, dan administrasi putra/putri Anda."
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard label="Kehadiran" value={`${data?.attendanceCount || 0}`} icon={Users} color="secondary" trend="Total Hadir" />
+        <StatCard label="Nilai Terakhir" value={data?.recentGrades?.length || '0'} icon={BarChart3} color="primary" trend="Mata Pelajaran" />
+        <StatCard label="Tagihan SPP" value={data?.unpaidFees?.length || '0'} icon={Wallet} color="error" trend={data?.unpaidFees?.length > 0 ? 'Tertunggak' : 'Lunas'} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 shadow-sm">
+            <h3 className="text-xl font-bold text-on-surface mb-6">Nilai Terakhir Putra/Putri</h3>
+            <div className="space-y-4">
+               {data?.recentGrades?.length > 0 ? data.recentGrades.map((grade: any) => (
+                 <div key={grade.id} className="flex justify-between items-center p-4 border-b border-outline-variant/30">
+                    <div>
+                       <p className="font-bold text-on-surface">{grade.subject?.name}</p>
+                       <p className="text-xs text-on-surface-variant capitalize">{grade.type}</p>
+                    </div>
+                    <div className="text-2xl font-black text-primary">{grade.score}</div>
+                 </div>
+               )) : (
+                 <p className="text-sm text-on-surface-variant italic">Belum ada nilai yang diinput.</p>
+               )}
+            </div>
+         </div>
+         <div className="flex flex-col gap-8">
+            <QuickActions items={[
+              { label: 'Lihat Rapor', icon: GraduationCap, path: '/grading' },
+              { label: 'Cek Tagihan', icon: Wallet, path: '/finance' },
+              { label: 'Penilaian Perilaku', icon: HeartHandshake, path: '/academic/behavior' },
             ]} />
          </div>
       </div>

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, UseInterceptors, UploadedFile, UseGuards, BadRequestException } from '@nestjs/common';
 import { LeavesService } from './leaves.service';
 import { CreateLeaveRequestDto } from './dto/create-leave.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -16,9 +16,13 @@ export class LeavesController {
 
   @Post()
   create(@Body() createLeaveRequestDto: CreateLeaveRequestDto, @GetUser() user: ActiveUser) {
+    const employeeId = createLeaveRequestDto.employee_id || user.employeeId;
+    if (!employeeId) {
+      throw new BadRequestException('Akun Anda tidak terhubung dengan data pegawai. Hubungi admin.');
+    }
     const leaveData = {
       ...createLeaveRequestDto,
-      employee_id: createLeaveRequestDto.employee_id || user.employeeId,
+      employee_id: employeeId,
     };
     return this.leavesService.create(leaveData);
   }

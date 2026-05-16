@@ -1,5 +1,6 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { BulkCreateAttendanceDto } from './dto/create-attendance.dto';
+import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 export declare class AttendancesService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -143,4 +144,64 @@ export declare class AttendancesService {
         date: Date;
         schedule_id: string;
     })[]>;
+    update(id: string, data: UpdateAttendanceDto): Promise<{
+        student: {
+            id: string;
+            full_name: string;
+            status: string;
+            major_id: string;
+            nis: string;
+            nik: string;
+            gender: string;
+            birth_place: string;
+            birth_date: Date;
+            address: string;
+            phone: string;
+            email: string;
+            health_history: string | null;
+            profile_picture: string | null;
+            latitude: import("@prisma/client/runtime/library").Decimal | null;
+            longitude: import("@prisma/client/runtime/library").Decimal | null;
+            branch_id: string;
+            class_id: string | null;
+            batch_id: string;
+            qr_code: string | null;
+            created_at: Date;
+            applicant_id: string | null;
+        };
+        schedule: {
+            subject: {
+                id: string;
+                major_id: string | null;
+                name: string;
+                passing_grade: number;
+                hours_per_week: number | null;
+                competency_standards: string | null;
+            };
+        } & {
+            id: string;
+            major_id: string;
+            class_id: string | null;
+            batch_id: string;
+            day: string;
+            subject_id: string;
+            teacher_id: string;
+            start_time: string;
+            end_time: string;
+            room: string | null;
+        };
+    } & {
+        id: string;
+        status: string;
+        student_id: string;
+        date: Date;
+        schedule_id: string;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        status: string;
+        student_id: string;
+        date: Date;
+        schedule_id: string;
+    }>;
 }

@@ -7,15 +7,25 @@ import {
   Calendar, 
   Save, 
   Loader2, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  AlertCircle,
   Search,
-  BarChart2
+  BarChart2,
+  Users,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+
+const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  Hadir: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
+  Sakit: { label: 'Sakit', color: 'bg-amber-100 text-amber-700 border-amber-300' },
+  Izin: { label: 'Izin', color: 'bg-blue-100 text-blue-700 border-blue-300' },
+  Alpa: { label: 'Alpa', color: 'bg-red-100 text-red-700 border-red-300' },
+};
+
+const STATUS_KEYS = Object.keys(STATUS_CONFIG);
 
 export default function EmployeeAttendancePage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -23,14 +33,17 @@ export default function EmployeeAttendancePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [fetchError, setFetchError] = useState('');
 
   const fetchAttendance = useCallback(async () => {
     setIsLoading(true);
+    setFetchError('');
     try {
       const data = await apiRequest(`/employee-attendance/daily?date=${date}`);
-      setEmployees(data);
-    } catch (err) {
-      console.error('Failed to fetch attendance:', err);
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      setFetchError(err.message || 'Gagal memuat data presensi');
+      setEmployees([]);
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +57,10 @@ export default function EmployeeAttendancePage() {
     setEmployees(prev => prev.map(emp => 
       emp.id === employeeId ? { ...emp, status } : emp
     ));
+  };
+
+  const setAllStatus = (status: string) => {
+    setEmployees(prev => prev.map(emp => ({ ...emp, status })));
   };
 
   const handleSave = async () => {
@@ -69,10 +86,17 @@ export default function EmployeeAttendancePage() {
     }
   };
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    emp.position.toLowerCase().includes(search.toLowerCase())
+  const filteredEmployees = (employees || []).filter(emp => 
+    (emp.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (emp.position || '').toLowerCase().includes(search.toLowerCase())
   );
+
+  const counts = {
+    Hadir: employees.filter(e => e.status === 'Hadir').length,
+    Sakit: employees.filter(e => e.status === 'Sakit').length,
+    Izin: employees.filter(e => e.status === 'Izin').length,
+    Alpa: employees.filter(e => e.status === 'Alpa').length,
+  };
 
   return (
     <div className="space-y-8 pb-20">
@@ -109,8 +133,8 @@ export default function EmployeeAttendancePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          <div className="md:col-span-3">
             <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm overflow-hidden">
-               <div className="p-6 border-b border-outline-variant bg-surface flex justify-between items-center gap-4">
-                  <div className="relative flex-1 max-w-[28rem]">
+               <div className="p-6 border-b border-outline-variant bg-surface flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="relative flex-1 max-w-[28rem] w-full">
                     <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-outline" />
                     <input 
                       type="text" 
@@ -120,12 +144,35 @@ export default function EmployeeAttendancePage() {
                       onChange={(e) => setSearch(e.target.value)}
                     />
                   </div>
-                  <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-success" /> Hadir</span>
-                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-warning" /> Izin/Sakit</span>
-                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-error" /> Alpa</span>
+                  <div className="flex gap-3 text-[10px] font-bold uppercase tracking-widest">
+                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Hadir</span>
+                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /> Sakit</span>
+                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-500" /> Izin</span>
+                     <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /> Alpa</span>
                   </div>
                </div>
+
+               {/* Quick Actions */}
+               {filteredEmployees.length > 0 && (
+                 <div className="px-6 py-3 border-b border-outline-variant bg-surface-container/30 flex flex-wrap items-center gap-3">
+                   <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Set Semua:</span>
+                   {STATUS_KEYS.map(key => (
+                     <button
+                       key={key}
+                       onClick={() => setAllStatus(key)}
+                       className={cn("px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all hover:scale-105", STATUS_CONFIG[key].color)}
+                     >
+                       {STATUS_CONFIG[key].label}
+                     </button>
+                   ))}
+                   <div className="ml-auto flex gap-3 text-[11px] font-bold text-on-surface-variant">
+                     <span className="text-emerald-600">{counts.Hadir}H</span>
+                     <span className="text-amber-600">{counts.Sakit}S</span>
+                     <span className="text-blue-600">{counts.Izin}I</span>
+                     <span className="text-red-600">{counts.Alpa}A</span>
+                   </div>
+                 </div>
+               )}
 
                <div className="overflow-x-auto">
                  <table className="w-full text-left border-collapse">
@@ -136,18 +183,25 @@ export default function EmployeeAttendancePage() {
                      </tr>
                    </thead>
                    <tbody className="text-sm">
-                     {isLoading ? (
-                       <tr>
-                         <td colSpan={2} className="py-20 text-center">
-                           <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
-                           <p className="mt-4 font-bold text-on-surface-variant uppercase tracking-widest text-xs">Memuat daftar pegawai...</p>
-                         </td>
-                       </tr>
-                     ) : filteredEmployees.length === 0 ? (
-                       <tr>
-                         <td colSpan={2} className="py-20 text-center text-on-surface-variant font-bold">Tidak ada data pegawai yang ditemukan.</td>
-                       </tr>
-                     ) : (
+                      {isLoading ? (
+                        <tr>
+                          <td colSpan={2} className="py-20 text-center">
+                            <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
+                            <p className="mt-4 font-bold text-on-surface-variant uppercase tracking-widest text-xs">Memuat daftar pegawai...</p>
+                          </td>
+                        </tr>
+                      ) : fetchError ? (
+                        <tr>
+                          <td colSpan={2} className="py-20 text-center">
+                            <AlertCircle className="w-10 h-10 text-error mx-auto" />
+                            <p className="mt-4 font-bold text-error uppercase tracking-widest text-xs">{fetchError}</p>
+                          </td>
+                        </tr>
+                      ) : filteredEmployees.length === 0 ? (
+                        <tr>
+                          <td colSpan={2} className="py-20 text-center text-on-surface-variant font-bold">Tidak ada data pegawai yang ditemukan.</td>
+                        </tr>
+                      ) : (
                        filteredEmployees.map((emp) => (
                          <tr key={emp.id} className="border-b border-surface-container-low hover:bg-surface-container/20 transition-colors">
                            <td className="py-4 px-8">
@@ -157,40 +211,30 @@ export default function EmployeeAttendancePage() {
                                </div>
                                <div>
                                  <p className="font-bold text-on-surface">{emp.full_name}</p>
-                                 <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{emp.position} • {emp.major}</p>
+                                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{emp.position || 'Pegawai'} • {emp.major || '-'}</p>
                                </div>
                              </div>
                            </td>
                            <td className="py-4 px-8">
-                              <div className="flex items-center justify-center gap-2">
-                                 <AttendanceButton 
-                                   label="Hadir" 
-                                   active={emp.status === 'present'} 
-                                   onClick={() => handleStatusChange(emp.id, 'present')}
-                                   color="success"
-                                   icon={<CheckCircle2 className="w-4 h-4" />}
-                                 />
-                                 <AttendanceButton 
-                                   label="Izin" 
-                                   active={emp.status === 'permission'} 
-                                   onClick={() => handleStatusChange(emp.id, 'permission')}
-                                   color="warning"
-                                   icon={<Clock className="w-4 h-4" />}
-                                 />
-                                 <AttendanceButton 
-                                   label="Sakit" 
-                                   active={emp.status === 'sick'} 
-                                   onClick={() => handleStatusChange(emp.id, 'sick')}
-                                   color="warning"
-                                   icon={<AlertCircle className="w-4 h-4" />}
-                                 />
-                                 <AttendanceButton 
-                                   label="Alpa" 
-                                   active={emp.status === 'absent'} 
-                                   onClick={() => handleStatusChange(emp.id, 'absent')}
-                                   color="error"
-                                   icon={<XCircle className="w-4 h-4" />}
-                                 />
+                              <div className="flex items-center justify-center gap-1.5">
+                                {STATUS_KEYS.map(key => {
+                                  const cfg = STATUS_CONFIG[key];
+                                  const isActive = emp.status === key;
+                                  return (
+                                    <button
+                                      key={key}
+                                      onClick={() => handleStatusChange(emp.id, key)}
+                                      className={cn(
+                                        "px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all",
+                                        isActive
+                                          ? cfg.color + ' scale-105 shadow-sm'
+                                          : 'bg-surface-container text-on-surface-variant border-outline-variant/50 opacity-50 hover:opacity-80'
+                                      )}
+                                    >
+                                      {cfg.label}
+                                    </button>
+                                  );
+                                })}
                               </div>
                            </td>
                          </tr>
@@ -230,27 +274,6 @@ export default function EmployeeAttendancePage() {
          </aside>
       </div>
     </div>
-  );
-}
-
-function AttendanceButton({ label, active, onClick, color, icon }: any) {
-  const colors: any = {
-    success: active ? "bg-success text-on-success border-success" : "text-success border-success/30 hover:bg-success/5",
-    warning: active ? "bg-warning text-on-warning border-warning" : "text-warning border-warning/30 hover:bg-warning/5",
-    error: active ? "bg-error text-on-error border-error" : "text-error border-error/30 hover:bg-error/5",
-  };
-
-  return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-wider transition-all",
-        colors[color]
-      )}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
   );
 }
 

@@ -8,10 +8,10 @@ export declare class NotificationsController {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     broadcast(createNotificationDto: CreateNotificationDto): Promise<{
@@ -23,10 +23,10 @@ export declare class NotificationsController {
             id: string;
             created_at: Date;
             type: string;
+            message: string;
             user_id: string | null;
             link: string | null;
             title: string;
-            message: string;
             is_read: boolean;
         }[];
         meta: {
@@ -40,10 +40,10 @@ export declare class NotificationsController {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }[]>;
     findUnreadCount(req: any): Promise<{
@@ -53,20 +53,20 @@ export declare class NotificationsController {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     markAsRead(id: string): Promise<{
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     markAllAsRead(req: any): Promise<import(".prisma/client").Prisma.BatchPayload>;
@@ -74,10 +74,10 @@ export declare class NotificationsController {
         id: string;
         created_at: Date;
         type: string;
+        message: string;
         user_id: string | null;
         link: string | null;
         title: string;
-        message: string;
         is_read: boolean;
     }>;
     removeAll(req: any): Promise<import(".prisma/client").Prisma.BatchPayload>;

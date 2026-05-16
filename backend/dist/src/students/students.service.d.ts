@@ -286,4 +286,15 @@ export declare class StudentsService {
     importFromExcel(file: Express.Multer.File): Promise<{
         imported: number;
     }>;
+    bulkPromote(fromClassId: string, toClassId: string): Promise<{
+        promoted: number;
+        message: string;
+        from?: undefined;
+        to?: undefined;
+    } | {
+        promoted: number;
+        from: string;
+        to: string;
+        message?: undefined;
+    }>;
 }

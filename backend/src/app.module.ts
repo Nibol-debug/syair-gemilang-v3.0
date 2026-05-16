@@ -40,6 +40,7 @@ import { PayrollsModule } from './payrolls/payrolls.module';
 import { AppraisalsModule } from './appraisals/appraisals.module';
 import { AssetLoansModule } from './asset-loans/asset-loans.module';
 import { EmployeeHistoryModule } from './employee-history/employee-history.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { EmployeeHistoryModule } from './employee-history/employee-history.modul
     AppraisalsModule,
     AssetLoansModule,
     EmployeeHistoryModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [
