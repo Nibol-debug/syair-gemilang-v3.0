@@ -40,20 +40,21 @@ export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     headers,
   });
 
+  const data = await response.json().catch(() => null);
+
   if (response.status === 401) {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
       localStorage.removeItem('token');
       sessionStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    throw new Error('Unauthorized');
+    throw new Error(data?.message || 'Username atau password salah');
   }
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Something went wrong');
+    throw new Error(data?.message || 'Something went wrong');
   }
 
-  return response.json();
+  return data;
 }
