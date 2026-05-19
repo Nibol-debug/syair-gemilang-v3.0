@@ -62,9 +62,9 @@ Setiap modul mengikuti pola **Controller → Service → Prisma** + **DTO valida
 | **Exams** | `exams` | `GET /stats`, `GET /violations`, `POST/GET /`, `GET /:id`, `GET /:id/monitoring`, `GET /:id/questions`, `PATCH/DELETE /:id`, `POST /:id/questions`, `PATCH /questions/:questionId`, `DELETE /questions/:questionId`, `GET /sessions/:sessionId/questions`, `GET /sessions/:sessionId/answers-detail`, `PATCH /answers/:id/score` | `create()`, `findAll()`, `findOne()`, `update()`, `remove()`, `getStats()`, `getMonitoring()`, `addQuestion()`, `updateQuestion()`, `gradeEssay()` |
 | **Question Banks** | `question-banks` | `POST/GET /`, `GET/PATCH/DELETE /:id`, `POST /import-to-exam/:examId` | Standard + `importToExam()` |
 | **Exam Sessions** | `exam-sessions` | `POST /:id/start`, `POST /:id/start-applicant`, `GET /sessions/:sessionId`, `POST /sessions/:sessionId/answers`, `POST /sessions/:sessionId/log`, `POST /sessions/:sessionId/submit`, `POST /sessions/:sessionId/force-submit` | `startExam()`, `submitAnswer()`, `logViolation()`, `finalizeExam()`, `forceSubmit()` |
-| **Grades** | `grades` | `GET /components`, `PUT /components`, `POST /`, `GET /student/:id`, `POST /finalize`, `POST /finalize-class`, `GET /final/:student_id`, `GET /class/:class_id`, `GET /parent/:student_id` | `create()`, `finalizeGrade()`, `finalizeClassGrades()`, `getFinalReport()`, `getParentPortalData()` |
+| **Grades** | `grades` | `GET /stats/grading`, `GET /components`, `PUT /components`, `POST /`, `GET /student/:id`, `POST /finalize`, `POST /finalize-class`, `GET /final/:student_id`, `GET /class/:class_id`, `GET /parent/:student_id` | `create()`, `finalizeGrade()`, `finalizeClassGrades()`, `getFinalReport()`, `getParentPortalData()`, `getGradingStats()` |
 | **Grade Analysis** | `grade-analysis` | `GET /exam/:examId/statistics`, `GET /exam/:examId/review`, `GET /class/:classId/subject/:subjectId` | `getExamStatistics()`, `getQuestionsForReview()`, `getClassSubjectAnalysis()` |
-| **Remedial** | `remedial` | `GET /needs`, `GET /stats`, `POST/GET /`, `GET /:id`, `PUT /:id/schedule`, `PUT /:id/score`, `DELETE /:id` | `getStudentsNeedingRemedial()`, `create()`, `schedule()`, `updateScore()`, `getStats()` |
+| **Remedial** | `remedial` | `GET /needs`, `GET /stats`, `POST/GET /?semester=`, `GET /:id`, `PUT /:id/schedule`, `PUT /:id/score`, `DELETE /:id` | `getStudentsNeedingRemedial()`, `create()` (dengan batch_id & semester), `schedule()`, `updateScore()`, `getStats()` |
 | **Report Cards** | `report-cards` | `GET /student/:studentId/semester/:semester`, `GET /student/:studentId/semester/:semester/pdf`, `GET /class/:classId/semester/:semester` | `generateReportCard()`, `getReportCardData()` |
 | **Student Behavior** | `student-behavior` | `POST/GET /`, `GET /summary`, `GET /student/:studentId`, `GET /:id`, `PATCH/DELETE /:id` | `create()`, `findAll()`, `getSummary()`, `findByStudent()` |
 | **Applicants** | `applicants` | `POST /` (Public), `POST /upload-document` (Public), `GET /`, `GET /:id`, `PATCH /:id`, `PATCH /:id/verify`, `POST /:id/accept`, `DELETE /:id` | `create()`, `verify()`, `acceptApplicant()` (create Student + Payment) |
@@ -107,22 +107,23 @@ Role ──┬── User ──┬── UserDevice
        │             │            ├── QuestionBank
        │             │            └── Applicant
        │             │
-       │             └── Batch ───┬── Class
-       │                          ├── Student
-       │                          ├── Grade
-       │                          ├── FinalGrade
-       │                          ├── Schedule
-       │                          └── TeachingLog
-       │
-       ├── Student ──┬── Parent
-       │             ├── StudentHistory
-       │             ├── Attendance
-       │             ├── ExamSession
-       │             ├── Grade
-       │             ├── FinalGrade
-       │             ├── Payment
-       │             ├── Remedial
-       │             └── StudentBehaviorAssessment
+        │             └── Batch ───┬── Class
+        │                          ├── Student
+        │                          ├── Grade
+        │                          ├── FinalGrade
+        │                          ├── Remedial
+        │                          ├── Schedule
+        │                          └── TeachingLog
+        │
+        ├── Student ──┬── Parent
+        │             ├── StudentHistory
+        │             ├── Attendance
+        │             ├── ExamSession
+        │             ├── Grade
+        │             ├── FinalGrade
+        │             ├── Payment
+        │             ├── Remedial ──┬── Batch
+        │             └── StudentBehaviorAssessment
        │
        ├── Employee ──┬── EmployeeDocument
        │              ├── EmployeeAttendance
@@ -179,6 +180,7 @@ Role ──┬── User ──┬── UserDevice
 | `ExamLog.type` | `tab_switch`, `window_blur`, `exit_fullscreen`, `warning`, `violation` |
 | `Fee.type` | `monthly`, `once`, `other` |
 | `Remedial.status` | `pending`, `scheduled`, `completed` |
+| `Remedial.semester` | `1` (Ganjil), `2` (Genap) |
 | `Notification.type` | `payment`, `exam`, `announcement`, `attendance`, `ppdb` |
 
 ---
